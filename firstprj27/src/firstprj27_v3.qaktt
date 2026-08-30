@@ -1,0 +1,22 @@
+System firstprj27
+ModelFor Draft: firstprj27_v3
+/*  
+ * 
+ * Grazie al suo contesto, il componente a può ricevere
+ * messaggi via TCP o via CoAP sulla porta 8120
+ * 
+ * Il modello specifica un messggio 
+ * di tipo Request, logicamente associato a una Reply
+ */ 
+ 
+Request  evalfun : arg(V)
+Reply evalreply  : value(V) for evalfun
+ 
+Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
+
+QActor a context ctxfirstprj27 { 
+	State s0 initial{
+		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
+ 		println( "$name STARTS") color blue
+	}
+}

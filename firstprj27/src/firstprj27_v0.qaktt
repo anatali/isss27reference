@@ -1,0 +1,29 @@
+System firstprj27
+/*
+ * Siamo in una fase iniziale di sperimentazione: pertanto
+ * definiamo un modello di tipo Draft di un sistema software 
+ * costituito da un solo componente (un QActor di nome a)
+ * che opera in un contesto di nome ctxfirstprj27.
+ */
+ModelFor Draft: firstprj27_v0  
+
+Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
+
+/*
+ * Il componente QActor di nome a 
+ * - è strutturleente organizzato come un Automa a Stati Finiti (FSM)
+ * - viene attivato dalla infrastruttura Qak sulla base 
+ *   della 'knowledge base' scritta in sintassi Prolog 
+ *   nel file (generato) firstprj27.pl
+ * - emette informazioni di logging sul file logs/app_firstprj27.log 
+ *   secondo la specifica (generata) src/main/resources/logback.xml 
+ */ 
+QActor a context ctxfirstprj27 {  
+	State s0 initial{
+		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
+		[# logger.info(  "actor $name wuth ctx=${context!!.name} in state:${currentState.stateName} STARTS"  )             #]
+		println( "Hello from an actor of name=$name") color blue
+		[#   logger.info(  "actor $name in state:${currentState.stateName} ENDS"  )             #]
+		[# System.exit(0) #]
+	}
+} 

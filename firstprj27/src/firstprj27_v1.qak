@@ -1,0 +1,21 @@
+System firstprj27
+ModelFor Draft: firstprj27_v1  
+/*  
+ * In questa versione del modello, il componente QActor a
+ * valuta il valore di una funzione usando la classe Java
+ * MyFunctions/FSin cui è associata un insieme di test
+ * definiti in MyFunctions/TestFSin.java
+ */  
+ 
+Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
+
+QActor a context ctxfirstprj27 { 
+	State s0 initial{
+		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
+		
+		[# val R = MyFunctions.FSin.eval( Math.PI / 4) #]
+ 		println( "$name - result of function eval==$R") color blue
+ 		
+ 		[ #System.exit(0) #]
+	}
+}

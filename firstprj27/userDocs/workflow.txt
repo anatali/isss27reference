@@ -1,0 +1,262 @@
+# =====================================================================================
+# firstqak27.yml — Workflow GitHub Actions COMMENTATO (versione didattica)
+# =====================================================================================
+#
+# Cos'è un "workflow" di GitHub Actions?
+# ---------------------------------------------------------------------------------------
+# È un file di automazione scritto in formato YAML. GitHub lo esegue automaticamente
+# quando si verifica un certo "evento" (es. un push sul repository). Il workflow è
+# composto da uno o più "job" (lavori), ognuno dei quali esegue una sequenza di "step"
+# (passi) su una macchina virtuale temporanea messa a disposizione da GitHub ("runner").
+#
+# Questo file deve trovarsi nel percorso:  .github/workflows/firstqak27.yml
+# (GitHub riconosce automaticamente solo i file YAML dentro quella cartella).
+# =====================================================================================
+
+
+# -----------------------------------------------------------------------------------
+# NOME DEL WORKFLOW
+# -----------------------------------------------------------------------------------
+# È solo un'etichetta leggibile: comparirà nella tab "Actions" del repository GitHub,
+# per distinguere questo workflow da eventuali altri presenti nello stesso progetto.
+name: Build firstqak27
+
+
+# -----------------------------------------------------------------------------------
+# "on" — QUANDO SI DEVE ATTIVARE IL WORKFLOW (i cosiddetti "trigger")
+# -----------------------------------------------------------------------------------
+on:
+  push:
+    # Il workflow si attiva SOLO quando viene fatto un "push" (invio di commit)
+    # sul branch "main". Se lavori su un altro branch (es. "sviluppo" o "feature-x"),
+    # questo workflow NON partirà.
+    branches: [ "main" ]
+
+    # La sezione "paths" è un filtro aggiuntivo: anche se il push avviene su "main",
+    # GitHub controllerà i file effettivamente modificati nel commit. Il workflow
+    # partirà SOLO se almeno uno dei file modificati rientra in uno di questi percorsi.
+    # Questo evita di ricompilare inutilmente il progetto quando si modificano file
+    # che non lo riguardano (es. la documentazione di un altro modulo).
+    paths:
+      - 'firstqak27/**'              # Qualsiasi file dentro la cartella del progetto
+                                      # "firstqak27" (il doppio asterisco "**" significa
+                                      # "questa cartella e tutte le sue sottocartelle").
+
+      - 'unibolibs/**'                # Importante: il progetto "firstqak27" dipende da
+                                       # una libreria condivisa chiamata "unibolibs".
+                                       # Se qualcuno aggiorna quella libreria, è giusto
+                                       # far ripartire anche la build di firstqak27, per
+                                       # verificare che tutto continui a funzionare.
+
+      - '.github/workflows/firstqak27.yml'  # Se modifichi il workflow stesso, ha senso
+                                             # che riparta, per testare subito le modifiche.
+
+
+# -----------------------------------------------------------------------------------
+# "jobs" — I LAVORI DA ESEGUIRE
+# -----------------------------------------------------------------------------------
+# Un workflow può contenere più job, che di default vengono eseguiti IN PARALLELO
+# (a meno che non si usi "needs:" per creare dipendenze). Qui abbiamo un solo job,
+# chiamato "build".
+jobs:
+
+  build:
+    # -------------------------------------------------------------------------------
+    # "runs-on" — SU QUALE MACCHINA VIRTUALE ESEGUIRE IL JOB
+    # -------------------------------------------------------------------------------
+    # GitHub mette a disposizione delle macchine virtuali temporanee (runner) già
+    # pronte all'uso. "ubuntu-latest" indica l'ultima versione stabile di Ubuntu Linux
+    # disponibile. Al termine del job, questa macchina viene distrutta: tutto ciò che
+    # viene installato o creato durante l'esecuzione NON viene mantenuto tra un run
+    # e l'altro (a meno di usare cache o artifact, vedi più sotto).
+    runs-on: ubuntu-latest
+
+    # -------------------------------------------------------------------------------
+    # "permissions" — I PERMESSI CHE IL WORKFLOW HA SUL REPOSITORY
+    # -------------------------------------------------------------------------------
+    # Per motivi di sicurezza, GitHub Actions richiede di dichiarare esplicitamente
+    # quali permessi il workflow può usare sul repository (invece di dargli accesso
+    # completo di default).
+    permissions:
+      contents: read     # Permesso di SOLA LETTURA sul codice del repository:
+                          # il workflow può leggere (fare checkout de) i file, ma non
+                          # può modificarli o pubblicare commit.
+
+      checks: write       # Permesso di SCRITTURA sui "check" (controlli) della pull
+                          # request/commit. Serve, ad esempio, all'azione che pubblica
+                          # il report dei test (vedi step "Publish Test Report" più
+                          # sotto), che deve poter creare una voce di controllo visibile
+                          # nella pagina del commit/PR su GitHub.
+
+    # -------------------------------------------------------------------------------
+    # "defaults" — IMPOSTAZIONI PREDEFINITE PER TUTTI GLI STEP DEL JOB
+    # -------------------------------------------------------------------------------
+    defaults:
+      run:
+        # Indica la cartella di lavoro (working directory) in cui verranno eseguiti
+        # TUTTI i comandi "run:" di questo job, a meno che uno step non la sovrascriva.
+        # In pratica, invece di scrivere ogni volta "cd firstqak27 && ./gradlew build",
+        # basta scrivere "./gradlew build": il comando parte già da dentro la cartella
+        # "firstqak27" del repository.
+        working-directory: firstqak27
+
+    # -------------------------------------------------------------------------------
+    # "steps" — LA SEQUENZA DI PASSI DA ESEGUIRE, IN ORDINE, UNO DOPO L'ALTRO
+    # -------------------------------------------------------------------------------
+    steps:
+
+    # STEP 1 — Scarica il codice del repository dentro il runner.
+    # ---------------------------------------------------------------------------
+    # "uses:" indica che stiamo usando un'azione già pronta, pubblicata da qualcuno
+    # (in questo caso da GitHub stesso: "actions/checkout"), invece di scrivere
+    # comandi manuali. "@v4" indica la versione dell'azione da usare.
+    #
+    # Senza questo step, il runner sarebbe una macchina vuota: non avrebbe alcuna
+    # copia del tuo codice su cui lavorare. "checkout" è quindi quasi sempre il
+    # primissimo step di un workflow.
+    - uses: actions/checkout@v4
+
+    # STEP 2 — Installa Java (JDK) sulla macchina virtuale.
+    # ---------------------------------------------------------------------------
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'        # Il progetto Gradle richiede Java 17: questa azione
+                                   # scarica e configura quella versione specifica.
+        distribution: 'temurin'   # "temurin" è una distribuzione (build) open source
+                                   # di OpenJDK, mantenuta dalla Eclipse Adoptium
+                                   # Foundation: è una delle più usate in ambito CI/CD.
+
+    # STEP 3 — Configura Gradle (il build tool usato dal progetto Java/Kotlin).
+    # ---------------------------------------------------------------------------
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        # Disabilita la generazione automatica del "dependency graph" (il grafo
+        # delle dipendenze del progetto) che GitHub potrebbe altrimenti caricare
+        # nella sezione "Insights > Dependency graph" del repository. Utile per
+        # velocizzare la build o quando questa funzione non è necessaria/abilitata.
+        dependency-graph: disabled
+
+    # STEP 4 — Rende eseguibile il file "gradlew".
+    # ---------------------------------------------------------------------------
+    # "gradlew" (Gradle Wrapper) è uno script che permette di eseguire Gradle senza
+    # doverlo installare manualmente sulla macchina: scarica automaticamente la
+    # versione corretta di Gradle definita dal progetto. Su Linux/Mac, però, i file
+    # scaricati da un repository Git non hanno di default il permesso di esecuzione,
+    # quindi va concesso esplicitamente con "chmod +x" (change mode, +eXecute),
+    # altrimenti il comando "./gradlew" fallirebbe con un errore "Permission denied".
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    # STEP 5 — Compila il progetto.
+    # ---------------------------------------------------------------------------
+    # Il comando "./gradlew build" compila il codice sorgente, esegue eventuali
+    # controlli di qualità configurati e, di norma, esegue anche i test (per questo
+    # motivo lo step successivo che esegue di nuovo i test può risultare ridondante,
+    # vedi nota didattica in fondo al file).
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build
+
+    # STEP 6 — Esegue esplicitamente i test automatici del progetto.
+    # ---------------------------------------------------------------------------
+    # "./gradlew test" lancia solo la fase di test (senza ripetere l'intera build),
+    # generando dei file di report in formato XML (standard "JUnit") dentro la
+    # cartella "build/test-results/test/". Questi file XML sono pensati per essere
+    # letti da strumenti automatici (come lo step successivo), non da un umano.
+    - name: Run tests with Gradle
+      run: ./gradlew test
+
+    # STEP 7 — Pubblica un report leggibile dei test direttamente su GitHub.
+    # ---------------------------------------------------------------------------
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v4
+      # "if: always()" è FONDAMENTALE: significa "esegui questo step SEMPRE",
+      # anche se uno step precedente (es. i test) è fallito. Senza questa riga,
+      # se un test fallisse, GitHub Actions interromperebbe l'intero job e questo
+      # step (così come i successivi) verrebbe saltato — impedendoti di vedere
+      # QUALI test sono falliti e perché.
+      if: always()
+      with:
+        # Indica dove trovare i file XML dei risultati dei test generati allo
+        # step precedente. "**/" significa "cerca in qualsiasi sottocartella".
+        report_paths: '**/build/test-results/test/TEST-*.xml'
+
+        # Se "false" (come qui), l'azione non si limita ad annotare il codice con
+        # eventuali errori, ma crea anche un vero e proprio "Check" riepilogativo
+        # visibile nella pagina del commit/PR su GitHub (grazie al permesso
+        # "checks: write" impostato più sopra).
+        annotate_only: false
+
+        # Mostra un riepilogo dettagliato (numero di test, tempo di esecuzione,
+        # eventuali errori con stack trace) invece di un semplice sommario.
+        detailed_summary: true
+
+        # Di default, questo tipo di report mostra solo i test FALLITI. Impostando
+        # "true" si "forza" la visualizzazione anche dei test passati con successo,
+        # utile per avere un quadro completo della copertura testata.
+        include_passed: true # FORZA LA MOSTRA DEI TEST SUPERATI
+
+    # STEP 8 — Carica il report HTML dei test come "artifact" scaricabile.
+    # ---------------------------------------------------------------------------
+    # Un "artifact" è un file (o cartella compressa in .zip) che il workflow salva
+    # e rende disponibile per il download dalla pagina del run su GitHub, oppure
+    # per essere riutilizzato in un job successivo. Qui carichiamo la versione
+    # HTML (navigabile con un browser) del report dei test generato da Gradle.
+    - name: Upload HTML Test Report
+      uses: actions/upload-artifact@v4
+      if: always()   # Anche qui: vogliamo il report anche se i test falliscono.
+      with:
+        name: gradle-test-report          # Nome con cui l'artifact comparirà su GitHub.
+        path: build/reports/tests/test/   # Percorso RELATIVO alla working-directory
+                                           # del job (quindi in realtà equivale a
+                                           # "firstqak27/build/reports/tests/test/").
+
+    # STEP 9 — Carica l'intera cartella di build come artifact.
+    # ---------------------------------------------------------------------------
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gradle-build-output   # Nome con cui verrà identificato lo zip
+                                     # dell'artefatto nella pagina del run.
+
+        # ATTENZIONE (nota per neofiti): qui il percorso è scritto per intero,
+        # "firstqak27/build/", a differenza degli step precedenti che usavano
+        # percorsi relativi tipo "build/reports/...". Questo perché l'azione
+        # "upload-artifact" NON rispetta il "working-directory" impostato in
+        # "defaults" (quella impostazione vale solo per i comandi "run:", non per
+        # gli step "uses:"). Per questo motivo qui bisogna ripetere manualmente
+        # il nome della cartella "firstqak27/" davanti al percorso.
+        path: firstqak27/build/
+
+        # Se, per qualche motivo, la cartella indicata non contenesse alcun file,
+        # questa opzione dice al workflow di limitarsi a mostrare un avviso
+        # ("warning") invece di far fallire l'intero job.
+        if-no-files-found: warn
+
+
+# =====================================================================================
+# NOTE DIDATTICHE AGGIUNTIVE (extra, per chi vuole capire meglio il "perché")
+# =====================================================================================
+#
+# 1) Perché ci sono sia "./gradlew build" che "./gradlew test"?
+#    Il task "build" di Gradle, di norma, include già l'esecuzione dei test come
+#    parte del suo ciclo di vita. Eseguire poi anche "./gradlew test" separatamente
+#    è spesso ridondante (Gradle è comunque abbastanza intelligente da non rieseguire
+#    da zero un task già completato con successo, grazie alla cache incrementale).
+#    Alcuni team preferiscono comunque separare i due step per avere nei log del
+#    workflow una sezione dedicata e ben visibile ai soli test.
+#
+# 2) Cos'è un "artifact" e a cosa serve realmente?
+#    Ricorda: la macchina virtuale (runner) viene distrutta al termine del job.
+#    Gli "artifact" sono l'unico modo per "portare fuori" dei file dal runner e
+#    renderli disponibili a chi ha eseguito il workflow (scaricabili dalla pagina
+#    del run su GitHub) oppure ad altri job dello stesso workflow.
+#
+# 3) Ordine degli step e fallimenti.
+#    Di default, se uno step fallisce (restituisce un codice di uscita diverso da 0),
+#    tutti gli step successivi vengono SALTATI e il job viene marcato come fallito.
+#    L'unico modo per far eseguire comunque uno step successivo è usare la condizione
+#    "if: always()" (come fatto per gli step di pubblicazione/upload dei report),
+#    proprio per non perdere le informazioni utili a capire cosa è andato storto.
+# =====================================================================================
