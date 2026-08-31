@@ -1,4 +1,4 @@
-package MyFunctions;
+package MyCode;
 
 import unibo.basicomm23.utils.CommUtils;
 

@@ -9,12 +9,12 @@ ModelFor Draft: firstprj27_v1
  
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 
-QActor a context ctxfirstprj27 withobj evaluator using "MyFunctions.EvalFun()"{ 
+QActor a context ctxfirstprj27 withobj evaluator using "MyCode.EvalFun()"{ 
 	State s0 initial{
 		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
 		
 		[# val R = evaluator.sin( Math.PI / 4) #]
- 		println( "$name - result of function eval==$R") color blue
+ 		println( "$name - result of evaluation==$R") color blue
  		
  		[ #System.exit(0) #]
 	}
