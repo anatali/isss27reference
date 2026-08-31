@@ -29,11 +29,12 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
+		val evaluator = MyFunctions.EvalFun()
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
 						  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml  
-						 val R = MyFunctions.FSin.eval( Math.PI / 4)  
+						 val R = evaluator.sin( Math.PI / 4)  
 						CommUtils.outblue("$name - result of function eval==$R")
 						System.exit(0)  
 						//genTimer( actor, state )

@@ -1,0 +1,26 @@
+La funzione $f(x) = \sin(x) + \cos(x)$ **è periodica** e il suo periodo minimo principale è **$2\pi$**.
+
+**Dimostrazione e passaggio matematico**
+
+Per verificare il periodo, possiamo riscrivere la funzione in una forma equivalente più semplice usando l'identità dell'angolo aggiunto:
+
+1. **Moltiplicazione e divisione per $\sqrt{2}$**:
+
+$$f(x) = \sqrt{2} \left( \frac{1}{\sqrt{2}}\sin(x) + \frac{1}{\sqrt{2}}\cos(x) \right)$$
+
+
+2. **Sostituzione dei valori notevoli**:
+Sapendo che $\cos\left(\frac{\pi}{4}\right) = \sin\left(\frac{\pi}{4}\right) = \frac{1}{\sqrt{2}}$:
+
+$$f(x) = \sqrt{2} \left( \sin(x)\cos\left(\frac{\pi}{4}\right) + \cos(x)\sin\left(\frac{\pi}{4}\right) \right)$$
+
+
+3. **Applicazione della formula di addizione del seno** ($\sin(\alpha+\beta) = \sin\alpha\cos\beta + \cos\alpha\sin\beta$):
+
+$$f(x) = \sqrt{2} \sin\left(x + \frac{\pi}{4}\right)$$
+
+
+
+Poiché la funzione seno standard ha periodo $2\pi$, 
+anche $\sin\left(x + \frac{\pi}{4}\right)$ mantiene lo stesso periodo, 
+confermando che il periodo della funzione di partenza è $T = 2\pi$.

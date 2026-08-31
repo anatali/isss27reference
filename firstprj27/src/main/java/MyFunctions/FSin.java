@@ -14,4 +14,7 @@ public class FSin {
 		return Math.round(sinValue * 100.0) / 100.0;
 	} 
 
+	public double z(double x) {
+		return Math.sin(x)+Math.cos(x);
+	}
 }

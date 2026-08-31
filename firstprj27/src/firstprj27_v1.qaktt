@@ -1,12 +1,10 @@
 System firstprj27
-/*
- * Siamo in una fase iniziale di sperimentazione: pertanto
- * definiamo un modello di tipo Draft di un sistema software 
- * che opera in un contesto di nome ctxfirstprj27,
- * al momento senza alcun componente 
- */
-ModelFor Draft: firstprj27_v0  
-
+ModelFor Draft: firstprj27_v1  
+/*  
+ * In questa versione del modello, introduciamo
+ * un componente QActor di nome a 
+ */  
+ 
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 
 /*
@@ -22,7 +20,7 @@ QActor a context ctxfirstprj27 {
 	State s0 initial{
 		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
 		[# logger.info(  "actor $name wuth ctx=${context!!.name} in state:${currentState.stateName} STARTS"  )             #]
-		println( "Hello from an actor of name=$name") color blue
+		println( "Hello from an actor of name=$name working in ctx=${context!!.name}") color blue
 		[#   logger.info(  "actor $name in state:${currentState.stateName} ENDS"  )             #]
 		[# System.exit(0) #]
 	}
