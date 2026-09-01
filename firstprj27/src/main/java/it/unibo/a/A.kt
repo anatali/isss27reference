@@ -29,19 +29,43 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
-		val evaluator = MyCode.EvalFun()
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml  
-						 val R = evaluator.sin( Math.PI / 4)  
-						CommUtils.outblue("$name - result of evaluation==$R")
-						System.exit(0)  
+						  clearlog("./logs/app_firstprj27.log")  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
+				}	 
+				state("waitrequest") { //this:State
+					action { //it:State
+						CommUtils.outblue("$name - waiting for some request ...")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t00",targetState="doeval",cond=whenRequest("evalfun"))
+				}	 
+				state("doeval") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("arg(V)"), Term.createTerm("arg(V)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val V = payloadArg(0)             
+								CommUtils.outblue("$name - for $V ")
+								 val R = MyCode.FSin.evalStr( V )  
+								CommUtils.outblue("$name - answer $R for $V ")
+								answer("evalfun", "evalreply", "value($R)"   )  
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
 				}	 
 			}
 		}

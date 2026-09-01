@@ -4,6 +4,13 @@ import unibo.basicomm23.utils.CommUtils;
 
 public class FSin {
 	
+	public static String evalStr(String xs) {
+		//CommUtils.outmagenta( "eval | xs=" + xs);
+		double x = Double.parseDouble(xs);
+		//CommUtils.outmagenta( "eval | x=" + x);
+		return ""+eval(x);
+	}
+	
 	public static double eval(double x) {
 //		if (x > 4.0) {
 //			CommUtils.outmagenta( "eval | Simulo ritardo per x=" + x);
@@ -14,7 +21,5 @@ public class FSin {
 		return Math.round(sinValue * 100.0) / 100.0;
 	} 
 
-	public double z(double x) {
-		return Math.sin(x)+Math.cos(x);
-	}
+ 
 }

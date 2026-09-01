@@ -2,14 +2,17 @@ package MyCode;
 
 import unibo.basicomm23.utils.CommUtils;
 
-public class Function0 {
+public class FunToEval {
 	
-	public static double eval(double x) {
-//		if (x > 4.0) {
-//			CommUtils.outmagenta( "eval | Simulo ritardo per x=" + x);
-//			CommUtils.delay(8000);
-//		}
-		return Math.sin(x) + Math.cos( Math.sqrt(3)*x);
-	} 
+	public static double getValue(String xs) {
+		double x = Double.parseDouble(xs);
+		return getValue( x );
+	}
+	
+	public static double getValue(double x) {
+		double v = Math.sin(x)+Math.cos(x);
+		// Arrotonda a 3 cifre decimali
+		return Math.round(v * 1000.0) / 1000.0;
+	}
 
 }

@@ -1,21 +1,42 @@
 System firstprj27
-ModelFor Draft: firstprj27_v1  
+ModelFor Draft: firstprj27_v2 
+
+Request  evalfun : arg(V)
+Reply evalreply  : value(V) for evalfun
+
 /*  
- * In questa versione del modello, il componente QActor a
- * valuta il valore di una funzione usando la classe Java
- * MyFunctions/FSin cui è associata un insieme di test
- * definiti in MyFunctions/TestFSin.java
+ * In questa versione del modello, il componente QActor di nome a
+ * - realizza un microservizio per la valutazione dei valori di una funzione
+ * - si avvale della classe Java MyCode/EvalFun per calcolare il valore di varie fuznioni
+ * - alla classe EvalFun è associata alle procedura di testing definite in MyCode/TestFun.java
  */  
  
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 
-QActor a context ctxfirstprj27 withobj evaluator using "MyCode.EvalFun()"{ 
+QActor a context ctxfirstprj27 { //withobj evaluator using "MyCode.EvalFun()"{ 
 	State s0 initial{
-		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
-		
-		[# val R = evaluator.sin( Math.PI / 4) #]
- 		println( "$name - result of evaluation==$R") color blue
- 		
- 		[ #System.exit(0) #]
+		[#  clearlog("./logs/app_firstprj27.log") #]
+//		[# val R = MyCode.FunToEval.getValue( Math.PI / 2) #]
+// 		println( "$name - result of evaluation==$R") color blue
+// 		
+// 		[ #System.exit(0) #]
 	}
+	Goto waitrequest
+	
+	State waitrequest{ 
+		println( "$name - waiting for some request ...") color blue
+	}
+	Transition t0
+		whenRequest evalfun -> doeval
+		 
+	State doeval{
+		onMsg( evalfun : arg(V) ){
+			[# val V = payloadArg(0)            #]
+			println( "$name - for $V ") color blue
+			[# val R = MyCode.FSin.evalStr( V ) #]
+ 			println( "$name - answer $R for $V ") color blue
+			replyTo evalfun with evalreply : value($R)
+		}
+	}
+	Goto waitrequest
 }
