@@ -1,0 +1,164 @@
+#firstprj27.yml   
+
+# NOTA AGGIUNTA: Questo è il "nome" del workflow: comparirà nella tab "Actions" di GitHub
+# per identificare questa pipeline tra le altre eventualmente presenti nel repository.
+name: Build, Test, Reports
+
+
+# NOTA AGGIUNTA: la sezione "on:" definisce QUALI EVENTI fanno partire il workflow.
+# In questo caso: un push oppure una pull request su determinati branch, ma SOLO se
+# vengono modificati determinati file/cartelle (vedi "paths:" più sotto).
+on:
+  push:
+    branches: [ "main", "master" ] 
+    # Il workflow parte SOLO se modifichi file in queste cartelle:
+    # SE METTO '**' si attiva ad OGNI branch
+    # NOTA AGGIUNTA: attenzione, questo commento originale si riferisce al comportamento
+    # dei "branches", non dei "paths" sottostanti: mettendo '**' in branches, il workflow
+    # si attiverebbe su push/PR verso QUALSIASI branch (anche di feature, fix, ecc.),
+    # non solo su main/master.
+    paths:
+      # NOTA AGGIUNTA: "paths:" filtra ulteriormente l'attivazione del workflow:
+      # anche se fai push su main/master, se NON tocchi nessuno di questi percorsi,
+      # il workflow NON parte (utile per non far girare CI inutili, es. se modifichi
+      # solo un README in un'altra cartella).
+      - 'firstprj27/**'
+      - 'unibolibs/**' # Importante: compila se aggiorni le librerie condivise!
+      - '.github/workflows/firstprj27.yml'
+      # NOTA AGGIUNTA: quest'ultima riga fa sì che il workflow riparta anche se
+      # modifichi il file di configurazione del workflow stesso.
+  pull_request:
+    branches: [ "main", "master" ]
+    # Il workflow parte SOLO se modifichi file in queste cartelle: 
+    paths:
+      - 'firstprj27/**'
+      - 'unibolibs/**' # Importante: compila se aggiorni le librerie condivise!
+      - '.github/workflows/firstprj27.yml'
+
+# NOTA AGGIUNTA: "jobs:" contiene l'elenco dei "lavori" (job) che il workflow deve
+# eseguire. Un workflow può avere uno o più job, eseguiti in parallelo o in sequenza
+# (qui ce n'è solo uno).
+jobs:
+  # NOTA AGGIUNTA: "build-and-process" è il nome/ID scelto per questo job (puoi
+  # chiamarlo come vuoi, è solo un'etichetta interna).
+  build-and-process:
+    # NOTA AGGIUNTA: indica su quale "macchina virtuale" fornita da GitHub verrà
+    # eseguito il job. "ubuntu-latest" = l'ultima versione stabile di Ubuntu Linux.
+    runs-on: ubuntu-latest
+
+    # NOTA AGGIUNTA: "permissions:" limita i permessi che il workflow ha sul
+    # repository (buona pratica di sicurezza: dare solo il minimo indispensabile).
+    permissions:    
+      contents: read   # NOTA AGGIUNTA: può solo leggere il codice, non modificarlo
+      checks: write    # NOTA AGGIUNTA: può scrivere i risultati dei test/check (es. report)
+
+    # Definisce la cartella di lavoro per tutti i comandi di questo job
+    # NOTA AGGIUNTA: "defaults / run / working-directory" fa sì che TUTTI i comandi
+    # "run:" definiti negli step successivi vengano eseguiti già dentro la cartella
+    # "firstprj27", senza doverlo scrivere ogni volta (es. "cd firstprj27 && ...").
+    defaults:
+      run:
+        working-directory: firstprj27
+
+
+    # NOTA AGGIUNTA: "steps:" è la sequenza di operazioni che il job esegue, UNA
+    # DOPO L'ALTRA, dall'alto verso il basso. Se uno step fallisce, di norma gli
+    # step successivi non vengono eseguiti (a meno di usare "if: always()", vedi sotto).
+    steps:
+     
+      # 1. Checkout del codice sorgente
+      # NOTA AGGIUNTA: "uses:" indica che questo step non esegue un comando a mano,
+      # ma richiama una "Action" già pronta pubblicata da GitHub. "checkout@v4" serve
+      # a scaricare il codice del repository dentro la macchina virtuale, altrimenti
+      # non avresti nessun file su cui lavorare.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configurazione JDK 17
+      # NOTA AGGIUNTA: installa Java (JDK) versione 17, distribuzione "temurin"
+      # (una delle distribuzioni open-source più usate di OpenJDK). Necessario
+      # perché il progetto è scritto in Java/Kotlin e va compilato con Gradle.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Permessi di esecuzione per gradlew
+      # NOTA AGGIUNTA: "gradlew" (Gradle Wrapper) è uno script che permette di
+      # usare Gradle senza doverlo installare manualmente. Su Linux/Mac va reso
+      # "eseguibile" con "chmod +x", altrimenti il sistema rifiuta di lanciarlo.
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+        
+      # Disable Dependency graph ?
+      # NOTA AGGIUNTA: commento originale lasciato come promemoria/TODO dall'autore:
+      # probabilmente valutava se disabilitare la funzione di GitHub che analizza
+      # automaticamente le dipendenze del progetto (Dependency Graph).
+      
+
+      # 4. build ed esecuzione dei test
+      # NOTA AGGIUNTA: comando principale del workflow. "./gradlew build" compila
+      # il progetto ED esegue automaticamente anche i test (il task "build" di
+      # Gradle include, tra gli altri, il task "test").
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+
+  
+      # Pubblica il report dettagliato JUnit su GitHub
+      # NOTA AGGIUNTA: questa Action legge i file XML generati dai test (formato
+      # JUnit) e li trasforma in un report leggibile, visibile direttamente nella
+      # pagina del workflow su GitHub (tab "Checks"/"Summary").
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # Esegue lo step anche se alcuni test falliscono
+        # NOTA AGGIUNTA: "if: always()" è fondamentale qui: normalmente se lo step
+        # "Build with Gradle Wrapper" fallisce (es. un test non passa), tutti gli
+        # step successivi vengono saltati. Con "always()" invece questo step viene
+        # eseguito comunque, così puoi vedere IL REPORT DEI TEST anche quando
+        # qualcosa è andato storto (è proprio quello che ti interessa capire!).
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          # NOTA AGGIUNTA: percorso (con wildcard "**") dove Gradle salva i
+          # risultati dei test in formato XML, che questa Action va a cercare.
+          annotate_only: false
+          # NOTA AGGIUNTA: "false" = genera un report completo, non solo delle
+          # annotazioni minime sul codice.
+          detailed_summary: true
+          # NOTA AGGIUNTA: mostra un riepilogo dettagliato (numero test, tempi, ecc.)
+          include_passed: true # FORZA LA MOSTRA DEI TEST SUPERATI
+          # NOTA AGGIUNTA: di default alcune Action mostrano solo i test falliti;
+          # questa opzione forza a includere anche quelli passati con successo.
+
+      # NOTA AGGIUNTA: questo step carica come "artifact" scaricabile il report
+      # HTML dei test (quello "visivo", generato da Gradle, diverso dal report
+      # JUnit XML usato sopra). Gli "artifact" di GitHub Actions sono file che
+      # restano disponibili per il download dalla pagina del workflow per un
+      # certo periodo di tempo.
+      - name: Upload HTML Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        # NOTA AGGIUNTA: anche qui "always()" serve a caricare il report anche
+        # se la build/i test sono falliti.
+        with:
+          name: gradle-test-report
+          # NOTA AGGIUNTA: nome con cui l'artifact comparirà nella pagina GitHub.
+          path: build/reports/tests/test/          
+          # NOTA AGGIUNTA: percorso (relativo alla working-directory "firstprj27")
+          # della cartella con il report HTML generato da Gradle.
+
+      # --- STEP PER SALVARE GLI ARTEFATTI ---
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-output # Nome con cui verrà identificato lo zip dell'artefatto
+          # Il percorso dell'artefatto parte dalla sottocartella
+          path: firstprj27/build/
+          # NOTA AGGIUNTA: qui il percorso è scritto per intero ("firstprj27/build/")
+          # e NON relativo alla working-directory, a differenza degli step precedenti:
+          # questa Action non tiene conto del "defaults/working-directory" definito
+          # sopra, quindi il percorso va indicato dalla radice del repository.
+          if-no-files-found: warn
+          # NOTA AGGIUNTA: se la cartella "build/" non contiene file (es. perché la
+          # build è fallita prima di generare output), il workflow mostra solo un
+          # "warning" invece di fallire completamente lo step.
