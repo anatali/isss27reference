@@ -1,0 +1,87 @@
+    
+#firstprj27.yml   
+
+name: Build, Test, Reports
+
+
+on:
+  push:
+    branches: [ "main", "master" ] 
+    # Il workflow parte SOLO se modifichi file in queste cartelle:
+    # SE METTO '**' si attiva ad OGNI branch
+    paths:
+      - 'firstprj27/**'
+      - 'unibolibs/**' # Importante: compila se aggiorni le librerie condivise!
+      - '.github/workflows/firstprj27.yml'
+  pull_request:
+    branches: [ "main", "master" ]
+    # Il workflow parte SOLO se modifichi file in queste cartelle: 
+    paths:
+      - 'firstprj27/**'
+      - 'unibolibs/**' # Importante: compila se aggiorni le librerie condivise!
+      - '.github/workflows/firstprj27.yml'
+
+jobs:
+  build-and-process:
+    runs-on: ubuntu-latest
+
+    permissions:    
+      contents: read
+      checks: write
+
+    # Definisce la cartella di lavoro per tutti i comandi di questo job
+    defaults:
+      run:
+        working-directory: firstprj27
+
+
+    steps:
+     
+      # 1. Checkout del codice sorgente
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configurazione JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Permessi di esecuzione per gradlew
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+        
+      # Disable Dependency graph ?
+      
+
+      # 4. build ed esecuzione dei test
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+
+  
+      # Pubblica il report dettagliato JUnit su GitHub
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # Esegue lo step anche se alcuni test falliscono
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          annotate_only: false
+          detailed_summary: true
+          include_passed: true # FORZA LA MOSTRA DEI TEST SUPERATI
+
+      - name: Upload HTML Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gradle-test-report
+          path: build/reports/tests/test/          
+
+      # --- STEP PER SALVARE GLI ARTEFATTI ---
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-output # Nome con cui verrà identificato lo zip dell'artefatto
+          # Il percorso dell'artefatto parte dalla sottocartella
+          path: firstprj27/build/
+          if-no-files-found: warn
