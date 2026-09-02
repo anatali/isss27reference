@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="MyCode.TestFSin" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-02T13:57:13" hostname="runnervmgx7h7" time="0.016">
+  <properties/>
+  <testcase name="test1" classname="MyCode.TestFSin" time="0.013"/>
+  <testcase name="test2" classname="MyCode.TestFSin" time="0.0"/>
+  <testcase name="test3" classname="MyCode.TestFSin" time="0.002"/>
+  <testcase name="test4" classname="MyCode.TestFSin" time="0.0"/>
+  <system-out><![CDATA[?[32mTestFSin  | setup ?[0m
+?[34mtest1 sin(0)?[0m
+?[32mTestFSin | down?[0m
+?[32mTestFSin  | setup ?[0m
+?[34mtest2 sin(pi/2)?[0m
+?[32mTestFSin | down?[0m
+?[32mTestFSin  | setup ?[0m
+?[34mtest3 sin(pi/4) ?[0m
+?[34mtest3 v= 0.71?[0m
+?[32mTestFSin | down?[0m
+?[32mTestFSin  | setup ?[0m
+?[34mtest4 sin(pi/6) ?[0m
+?[32mTestFSin | down?[0m
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

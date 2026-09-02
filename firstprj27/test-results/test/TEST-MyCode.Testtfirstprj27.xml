@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="MyCode.Testtfirstprj27" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-02T13:57:14" hostname="runnervmgx7h7" time="0.077">
+  <properties/>
+  <testcase name="test1Tcp" classname="MyCode.Testtfirstprj27" time="0.017"/>
+  <testcase name="test1Coap" classname="MyCode.Testtfirstprj27" time="0.06"/>
+  <system-out><![CDATA[?[35mTesttfirstprj27  | start the (micro)service ?[0m
+?[33m               %%% sysUtil | loadheory  firstprj27.pl?[0m
+?[33m               %%% sysUtil | loadheory  sysRules.pl?[0m
+?[35m               %%% sysUtil +++ createContexts ctxfirstprj27?[0m
+?[33m               %%% CoapResourceCtx ctxfirstprj27 | created AFTER INIT ?[0m
+?[33m               %%% QakContext ctxfirstprj27 | serverCoap started on port 8120 with added ctxfirstprj27?[0m
+?[36m               %%% sysUtil | INJECTION ctxsMap.put ctxfirstprj27 mqttAddr=?[0m
+?[33m               sysUtil  | createActor class for it.unibo.a.A   class it.unibo.a.A?[0m
+?[35mclear log ./logs/app_firstprj27.log ---- ?[0m
+?[34ma - waiting for some request ...?[0m
+?[32m=== test1Tcp  ?[0m
+?[32mtest1Tcp req=mmsg(evalfun,request,tester,a,arg(0),0)?[0m
+?[33m    --- ConnectionFactory | create tcp port:8120?[0m
+?[33m| docall=mmsg(evalfun,request,tester,a,arg(0),0)?[0m
+?[33mtcpSrv | TcpServer 8120 accepted connection on 51456 with userDefHandler=ctxfirstprj27MsgH thname=tcpSrv?[0m
+?[34ma - for 0 ?[0m
+?[34ma - answer 0.0 for 0 ?[0m
+?[34ma - waiting for some request ...?[0m
+?[33m| docall answer=msg(evalreply,reply,a,tester,value(0.0),7)?[0m
+?[32mtest1Tcp result=value(0.0)?[0m
+?[35mTesttfirstprj27 | down?[0m
+?[32m=== test1Coap  ?[0m
+?[32mtest1Coap request=mmsg(evalfun,request,tester,a,arg(1.5707963267948966),0)?[0m
+?[33m    --- ConnectionFactory | create coap conn localhost:8120/ctxfirstprj27/a entry=?[0m
+?[33m| docall=mmsg(evalfun,request,tester,a,arg(1.5707963267948966),0)?[0m
+?[34ma - for 1.5707963267948966 ?[0m
+?[34ma - answer 1.0 for 1.5707963267948966 ?[0m
+?[34ma - waiting for some request ...?[0m
+?[33m| docall answer=msg(evalreply,reply,a,tester,value(1.0),10)?[0m
+?[32mtest1Coap result=value(1.0)?[0m
+?[35mTesttfirstprj27 | down?[0m
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

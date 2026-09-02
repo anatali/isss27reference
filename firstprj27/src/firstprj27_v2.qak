@@ -29,7 +29,7 @@ QActor a context ctxfirstprj27 { //withobj evaluator using "MyCode.EvalFun()"{
 	Transition t0
 		whenRequest evalfun -> doeval
 		 
-	State doeval{
+	State doeval{ 
 		onMsg( evalfun : arg(V) ){
 			[# val V = payloadArg(0)            #]
 			println( "$name - for $V ") color blue

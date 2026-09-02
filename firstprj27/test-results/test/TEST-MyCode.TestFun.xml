@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="MyCode.TestFun" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-02T13:57:13" hostname="runnervmgx7h7" time="0.001">
+  <properties/>
+  <testcase name="test_period" classname="MyCode.TestFun" time="0.0"/>
+  <testcase name="test_add_sin_cos" classname="MyCode.TestFun" time="0.0"/>
+  <system-out><![CDATA[?[32mTestFun  | setup ?[0m
+?[34mtest_period?[0m
+?[34mtest_period v1=1.0?[0m
+?[34mtest_period v2=1.0?[0m
+?[32mTestFun | down?[0m
+?[32mTestFun  | setup ?[0m
+?[34mtest_add_sin_cos(PI/4)?[0m
+?[32mTestFun | down?[0m
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
