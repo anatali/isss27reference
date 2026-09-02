@@ -14,6 +14,9 @@ import unibo.basicomm23.utils.ConnectionFactory;
 
 public class Testtfirstprj27 {  
 	//private IApplMessage evalRequest = CommUtils.buildRequest("tester", "evalfun",  "arg(0)", "a");
+	/*
+	 * Definiamo il messaggio come string per poter modificare VX
+	 */
 	private String requestStr = "mmsg(evalfun,request,tester,a,arg(VX),0)";
 
 	@BeforeClass
@@ -52,6 +55,7 @@ public class Testtfirstprj27 {
 	
 	@Test   
 	public void test1Tcp() {
+		CommUtils.outgreen("=== test1Tcp  "  );
 		String req = requestStr.replaceAll("VX", "0");
 		CommUtils.outgreen("test1Tcp req=" + req);
 		String result = callTcp(req);
@@ -61,6 +65,7 @@ public class Testtfirstprj27 {
  
 	@Test   
 	public void test1Coap() {
+		CommUtils.outgreen("=== test1Coap  "  );
 		String req = requestStr.replaceAll("VX", ""+Math.PI/2);
 		CommUtils.outgreen("test1Coap request=" + req);
 		String result = callCoap(req);
