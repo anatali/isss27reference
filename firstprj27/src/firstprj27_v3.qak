@@ -70,7 +70,7 @@ QActor callerforquicktesting context ctxfirstprj27{
 	State showvalues{
 		printCurrentMessage color black
 		onMsg( replyvalues : values(S) ){
-			[# val ReceivedString = payloadArg(0)                                     #]
+			[# val ReceivedString = payloadArg(0)                                      #]
 			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl(ReceivedString) #]
 			[#  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                         #]
 		}
