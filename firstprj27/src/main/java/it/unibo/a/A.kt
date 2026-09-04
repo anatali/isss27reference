@@ -49,17 +49,39 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="doeval",cond=whenRequest("evalfunvalues"))
+					 transition(edgeName="t00",targetState="doeval",cond=whenRequest("evalfun"))
+					transition(edgeName="t01",targetState="doevalvalues",cond=whenRequest("evalfunvalues"))
 				}	 
 				state("doeval") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("arg(V)"), Term.createTerm("arg(V)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val V = payloadArg(0)             
-								CommUtils.outblue("$name - for $V ")
-								 val R = MyCode.FSinSeries.evalSinPoints( V )  
+								CommUtils.outblue("$name - evalfun for $V ")
+								 val R = MyCode.FSin.evalStr( V )  
 								CommUtils.outblue("$name - answer $R for $V ")
-								answer("evalfunvalues", "evalreply", "value($R)"   )  
+								answer("evalfun", "evalreply", "value($R)"   )  
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
+				}	 
+				state("doevalvalues") { //this:State
+					action { //it:State
+						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(A,B,C)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val Min = payloadArg(0).toDouble()              
+								 val Max = payloadArg(1).toDouble()              
+								 val Dx  = payloadArg(2).toDouble()              
+								CommUtils.outmagenta("$name - doevalvalues  Min=$Min Max=$Max Dx=$Dx ")
+								 val R = "'" + MyCode.FSinSeries.evalSinPoints( Min,Max,Dx ) + "'"  
+								CommUtils.outgreen("$name - values: $R  ")
+								answer("evalfunvalues", "replyvalues", "values($R)"   )  
 						}
 						//genTimer( actor, state )
 					}

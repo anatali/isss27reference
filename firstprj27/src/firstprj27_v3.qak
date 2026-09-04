@@ -4,9 +4,11 @@ ModelFor Draft: firstprj27_v3
  * 
  *
  */ 
- 
-Request  evalfunvalues : arg(V)
-Reply    evalreply      : values(V) for evalfunvalues
+Request  evalfun : arg(V)
+Reply evalreply  : value(V) for evalfun
+
+Request  evalfunvalues : args(MIN,MAX,DX)
+Reply    replyvalues   : values(S) for evalfunvalues
  
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 
@@ -21,16 +23,57 @@ QActor a context ctxfirstprj27 {
 		println( "$name - waiting for some request ...") color blue
 	}
 	Transition t0
-		whenRequest evalfunvalues -> doeval
-		 
+		whenRequest evalfun       -> doeval
+		whenRequest evalfunvalues -> doevalvalues
+
 	State doeval{ 
-		onMsg( evalfunvalues : arg(V) ){
+		onMsg( evalfun : arg(V) ){
 			[# val V = payloadArg(0)            #]
-			println( "$name - for $V ") color blue
-			[# val R = MyCode.FSinSeries.evalSinPoints( V ) #]
+			println( "$name - evalfun for $V ") color blue
+			[# val R = MyCode.FSin.evalStr( V ) #]
  			println( "$name - answer $R for $V ") color blue
-			replyTo evalfunvalues with evalreply : value($R)
+			replyTo evalfun with evalreply : value($R)
 		}
 	}
 	Goto waitrequest
+			 
+	State doevalvalues{ 
+		printCurrentMessage color green
+		onMsg( evalfunvalues : args(A,B,C) ){
+			[# val Min = payloadArg(0).toDouble()             #]
+			[# val Max = payloadArg(1).toDouble()             #]
+			[# val Dx  = payloadArg(2).toDouble()             #]
+			println( "$name - doevalvalues  Min=$Min Max=$Max Dx=$Dx ") color magenta
+			//Inserisco apici per creare una String usabile come termine Prolog nella reply
+			[# val R = "'" + MyCode.FSinSeries.evalSinPoints( Min,Max,Dx ) + "'" #]		
+  			println( "$name - values: $R  ") color green
+			replyTo evalfunvalues with replyvalues : values($R)
+		}
+	}
+	Goto waitrequest
+}
+
+/*
+ * Attore introdotto per quick testing
+ */
+QActor callerforquicktesting context ctxfirstprj27{
+	State s0 initial{
+		println( "$name - STARTS   ") color magenta
+			[# val Min = "-4.0"   #]
+			[# val Max = "4.0"    #]
+			[# val Dx  = "0.1"    #]
+		request a -m evalfunvalues : args($Min, $Max, $Dx)
+	}
+	Transition t0 
+		whenReply replyvalues -> showvalues
+		
+	State showvalues{
+		printCurrentMessage color black
+		onMsg( replyvalues : values(S) ){
+			[# val ReceivedString = payloadArg(0)                                     #]
+			[# val chartUrl      = MyCode.ChartUtils.splitResultString(ReceivedString) #]
+			[#  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                         #]
+		}
+		  
+	}
 }
