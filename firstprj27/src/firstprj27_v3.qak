@@ -1,0 +1,36 @@
+System firstprj27
+ModelFor Draft: firstprj27_v3
+/*  
+ * 
+ *
+ */ 
+ 
+Request  evalfunvalues : arg(V)
+Reply    evalreply      : values(V) for evalfunvalues
+ 
+Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
+
+QActor a context ctxfirstprj27 { 
+	State s0 initial{
+		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
+ 		println( "$name STARTS") color blue
+	}
+	Goto waitrequest
+	
+	State waitrequest{ 
+		println( "$name - waiting for some request ...") color blue
+	}
+	Transition t0
+		whenRequest evalfunvalues -> doeval
+		 
+	State doeval{ 
+		onMsg( evalfunvalues : arg(V) ){
+			[# val V = payloadArg(0)            #]
+			println( "$name - for $V ") color blue
+			[# val R = MyCode.FSinSeries.evalSinPoints( V ) #]
+ 			println( "$name - answer $R for $V ") color blue
+			replyTo evalfunvalues with evalreply : value($R)
+		}
+	}
+	Goto waitrequest
+}

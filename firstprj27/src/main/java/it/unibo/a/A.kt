@@ -32,7 +32,8 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						  clearlog("./logs/app_firstprj27.log")  
+						  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml  
+						CommUtils.outblue("$name STARTS")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -48,7 +49,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="doeval",cond=whenRequest("evalfun"))
+					 transition(edgeName="t00",targetState="doeval",cond=whenRequest("evalfunvalues"))
 				}	 
 				state("doeval") { //this:State
 					action { //it:State
@@ -56,9 +57,9 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val V = payloadArg(0)             
 								CommUtils.outblue("$name - for $V ")
-								 val R = MyCode.FSin.evalStr( V )  
+								 val R = MyCode.FSinSeries.evalSinPoints( V )  
 								CommUtils.outblue("$name - answer $R for $V ")
-								answer("evalfun", "evalreply", "value($R)"   )  
+								answer("evalfunvalues", "evalreply", "value($R)"   )  
 						}
 						//genTimer( actor, state )
 					}
