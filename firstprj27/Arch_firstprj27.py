@@ -27,4 +27,6 @@ with Diagram('firstprj27Arch', show=False, outformat='png', graph_attr=graphattr
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
      with Cluster('ctxfirstprj27', graph_attr=nodeattr):
           a=Custom('a','./qakicons/symActorWithobjSmall.png')
+          callerforquicktesting=Custom('callerforquicktesting','./qakicons/symActorWithobjSmall.png')
+     callerforquicktesting >> Edge(color='magenta', style='solid', decorate='true', label='<evalfunvalues<font color="darkgreen"> replyvalues</font> &nbsp; >',  fontcolor='magenta') >> a
 diag
