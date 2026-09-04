@@ -51,7 +51,7 @@ class Callerforquicktesting ( name: String, scope: CoroutineScope, isconfined: B
 						if( checkMsgContent( Term.createTerm("values(S)"), Term.createTerm("values(S)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val ReceivedString = payloadArg(0)                                      
-								 val chartUrl      = MyCode.ChartUtils.splitResultString(ReceivedString)  
+								 val chartUrl       = MyCode.ChartUtils.buildMapChartUrl(ReceivedString)  
 								  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                          
 						}
 						//genTimer( actor, state )

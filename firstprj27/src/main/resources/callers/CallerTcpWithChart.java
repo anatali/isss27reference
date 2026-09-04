@@ -37,7 +37,7 @@ public class CallerTcpWithChart {
 			CommUtils.outblue(name + " | answerValues=" + answerValues);
 			//Answer: values('-1.0,-0.2,0.6###-0.840,-0.200,0.560')
 
-			String chartUrl = ChartUtils.splitResultString( answerValues );
+			String chartUrl = ChartUtils.showmyresultstring( answerValues );
 			ChartUtils.OpenChartInBrowser(chartUrl); 
 
 //			String answer = FSinSeries.evalSinPoints(-3,3,0.1);

@@ -10,7 +10,7 @@ import java.util.Locale;
 
 public class ChartUtils {
 
-	   public static String splitResultString(String stringaRicevuta) {
+	   public static String buildMapChartUrl(String stringaRicevuta) {
 		   System.out.println("stringaRicevuta " + stringaRicevuta);
 			// 2. Ricostruzione delle liste sul client ricevente
 			   String[] parti = stringaRicevuta.split("###", -1); // -1 gestisce eventuali liste vuote
@@ -26,6 +26,8 @@ public class ChartUtils {
 
 	   
     public static String buildMapChartUrl( ArrayList<String> labels, ArrayList<String> values ) {
+    	
+    	
         // Costruzione della struttura JSON minima per Chart.js / QuickChart
        String jsonConfig = String.format(Locale.US,
            "{" +

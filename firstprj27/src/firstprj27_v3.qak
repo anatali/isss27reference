@@ -1,5 +1,5 @@
 System firstprj27
-ModelFor Draft: firstprj27_v3
+ModelFor Project: firstprj27_v3
 /*  
  * 
  *
@@ -71,7 +71,7 @@ QActor callerforquicktesting context ctxfirstprj27{
 		printCurrentMessage color black
 		onMsg( replyvalues : values(S) ){
 			[# val ReceivedString = payloadArg(0)                                     #]
-			[# val chartUrl      = MyCode.ChartUtils.splitResultString(ReceivedString) #]
+			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl(ReceivedString) #]
 			[#  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                         #]
 		}
 		  
