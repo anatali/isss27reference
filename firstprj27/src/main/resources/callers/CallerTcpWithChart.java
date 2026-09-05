@@ -22,6 +22,8 @@ public class CallerTcpWithChart {
 		doJob();
 	}
 	
+	
+	
 	protected void doJob() {
 		try {
 			conn = ConnectionFactory.createClientSupport(ProtocolType.tcp, "localhost", "8120");
