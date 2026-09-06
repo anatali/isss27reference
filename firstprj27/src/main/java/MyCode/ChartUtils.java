@@ -11,15 +11,15 @@ import java.util.Locale;
 public class ChartUtils {
 
 	   public static String buildMapChartUrl(String stringaRicevuta) {
-		   System.out.println("stringaRicevuta " + stringaRicevuta);
+//		   System.out.println("ChartUtils stringaRicevuta " + stringaRicevuta);
 			// 2. Ricostruzione delle liste sul client ricevente
 			   String[] parti = stringaRicevuta.split("###", -1); // -1 gestisce eventuali liste vuote
 
 			   ArrayList<String> labels = new ArrayList<>(Arrays.asList(parti[0].split(",")));
 			   ArrayList<String> values = new ArrayList<>(Arrays.asList(parti[1].split(",")));	  
 			   
-			   System.out.println("labels " + labels + " na=" + labels.size());
-			   System.out.println("values " + values + " nb=" + values.size());
+//			   System.out.println("ChartUtils labels " + labels + " na=" + labels.size());
+//			   System.out.println("ChartUtils values " + values + " nb=" + values.size());
 			   
 			   return buildMapChartUrl(labels,values);
 		   }

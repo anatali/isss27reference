@@ -54,6 +54,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("doeval") { //this:State
 					action { //it:State
+						emit("serviceworking", "serviceworking(evalfun)" ) 
 						if( checkMsgContent( Term.createTerm("arg(V)"), Term.createTerm("arg(V)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val V = payloadArg(0)             
@@ -71,6 +72,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("doevalvalues") { //this:State
 					action { //it:State
+						emit("serviceworking", "serviceworking(doevalvalues)" ) 
 						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
 						if( checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(A,B,C)"), 
