@@ -39,7 +39,7 @@ public class CallerTcpWithChart {
 			CommUtils.outblue(name + " | answerValues=" + answerValues);
 			//Answer: values('-1.0,-0.2,0.6###-0.840,-0.200,0.560')
 
-			String chartUrl = ChartUtils.buildMapChartUrl( answerValues );
+			String chartUrl = ChartUtils.buildMapChartUrl( "Funzione sin", answerValues );
 			ChartUtils.OpenChartInBrowser(chartUrl); 
 
 //			String answer = FSinSeries.evalSinPoints(-3,3,0.1);
