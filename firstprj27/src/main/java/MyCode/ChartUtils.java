@@ -9,8 +9,9 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public class ChartUtils {
+	
 
-	   public static String buildMapChartUrl(String stringaRicevuta) {
+	   public static String buildMapChartUrl(String logo, String stringaRicevuta) {
 //		   System.out.println("ChartUtils stringaRicevuta " + stringaRicevuta);
 			// 2. Ricostruzione delle liste sul client ricevente
 			   String[] parti = stringaRicevuta.split("###", -1); // -1 gestisce eventuali liste vuote
@@ -21,11 +22,11 @@ public class ChartUtils {
 //			   System.out.println("ChartUtils labels " + labels + " na=" + labels.size());
 //			   System.out.println("ChartUtils values " + values + " nb=" + values.size());
 			   
-			   return buildMapChartUrl(labels,values);
+			   return buildMapChartUrl(logo, labels,values);
 		   }
 
 	   
-    public static String buildMapChartUrl( ArrayList<String> labels, ArrayList<String> values ) {
+    public static String buildMapChartUrl( String logo, ArrayList<String> labels, ArrayList<String> values ) {
     	
     	
         // Costruzione della struttura JSON minima per Chart.js / QuickChart
@@ -35,7 +36,8 @@ public class ChartUtils {
            "  data: {" +
            "    labels: [%s]," +
            "    datasets: [{" +
-           "      label: 'Funzione sin'," +
+//           "      label: 'Funzione sin'," +
+           "      label: '" + logo + "'," +
            "      data: [%s]," +
            "      fill: false," +
            "      borderColor: 'rgb(30, 144, 255)'," + // Colore della linea e del box in legenda

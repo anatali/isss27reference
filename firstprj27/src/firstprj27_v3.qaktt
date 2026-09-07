@@ -71,7 +71,7 @@ QActor callerforquicktesting context ctxfirstprj27{
 		printCurrentMessage color black
 		onMsg( replyvalues : values(S) ){
 			[# val ReceivedString = payloadArg(0)                                      #]
-			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl(ReceivedString) #]
+			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl("FSin",ReceivedString) #]
 			[#  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                         #]
 		}
 		  

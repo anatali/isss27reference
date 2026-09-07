@@ -33,7 +33,7 @@ public class LogisticSeries {
     
     public static void main (String args[] ) {
     	String s   = LogisticSeries.evalPoints(3.2, 0.1, 30);
-    	String url = ChartUtils.buildMapChartUrl(s);
+    	String url = ChartUtils.buildMapChartUrl("Funzione logistica", s);
     	ChartUtils.OpenChartInBrowser(url);
     }
 
