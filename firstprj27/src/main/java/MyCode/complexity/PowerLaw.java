@@ -1,4 +1,4 @@
-package MyCode.leggePotenza;
+package MyCode.complexity;
 
 public class PowerLaw {
 //ax^k + o(x^k) per x-> 0

@@ -1,4 +1,4 @@
-package MyCode.leggePotenza;
+package MyCode.complexity;
 
 import java.util.*;
 import java.util.concurrent.*;

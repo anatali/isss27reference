@@ -1,4 +1,4 @@
-package MyCode.leggePotenza;
+package MyCode.complexity;
 
 public class PowerLawDemo {
 
