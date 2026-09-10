@@ -4,10 +4,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
+import it.unibo.kactor.sysUtil;
 import unibo.basicomm23.interfaces.IApplMessage;
 import unibo.basicomm23.interfaces.Interaction;
 import unibo.basicomm23.mqtt.MqttInteraction;
@@ -18,23 +20,24 @@ import unibo.basicomm23.utils.ConnectionFactory;
 
 
 /*
- * Questo test va eseguito solo se esiste la dichiarazione
+ * Questo test va eseguito SOLO SE ESISTE la dichiarazione
  * mqttBroker("localhost", "1883", "firstprj27rIn").
  * 
  */
-public class TesttMqttfirstprj27 {  
+public class TesttMqttfirstprj27_v4 {  
 	private String name = "tester";
 	
 	@BeforeClass
 	public static void setup() {
-		CommUtils.outmagenta("Testtfirstprj27  | start the (micro)service ");	
-		it.unibo.ctxfirstprj27.MainCtxfirstprj27Kt.main(   ) ;	
+ 		it.unibo.ctxfirstprj27.MainCtxfirstprj27Kt.main(   ) ;	
 		CommUtils.delay(1000); //wait a while before calling
+		CommUtils.outmagenta("TesttMqttfirstprj27_v4  | start the (micro)service con MQTT:" + sysUtil.hasMqtt());	
+		Assume.assumeTrue( sysUtil.hasMqtt() ); //deve essere vera per fare i test
  	}
  
 	@After
 	public void down() {
- 		CommUtils.outmagenta("Testtfirstprj27 | down");
+ 		CommUtils.outmagenta("TesttMqttfirstprj27_v4 | down");
 	}
  	
 	protected String  callMqtt( ) {
@@ -47,8 +50,8 @@ public class TesttMqttfirstprj27 {
  	
 	protected String docall(Interaction conn) {		 
  		CommUtils.outyellow( "| docall=" + conn);		
-		 String Min = "'-1.0'";
-		 String Max = "'.0'";
+		 String Min = "'-3.0'";
+		 String Max = "'3.0'";
 		 String Dx  = "'0.5'";
 		 String args = "args("+Min+","+Max+","+Dx+")";
 		 IApplMessage evalRequest = CommUtils.buildRequest(name, "evalfunvalues",  args, "a");

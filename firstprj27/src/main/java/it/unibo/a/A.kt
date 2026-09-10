@@ -19,6 +19,7 @@ import org.json.simple.JSONObject
 
 
 //User imports JAN2024
+import MyCode.*
 
 class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdynamic: Boolean=false ) : 
           ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
@@ -39,9 +40,9 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
+					 transition( edgeName="goto",targetState="working", cond=doswitch() )
 				}	 
-				state("waitrequest") { //this:State
+				state("working") { //this:State
 					action { //it:State
 						CommUtils.outblue("$name - waiting for some request ...")
 						//genTimer( actor, state )
@@ -49,26 +50,54 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="doeval",cond=whenRequest("evalfun"))
-					transition(edgeName="t01",targetState="doevalvalues",cond=whenRequest("evalfunvalues"))
+					 transition(edgeName="t00",targetState="doevalvalues",cond=whenRequest("evalfunvalues"))
+					transition(edgeName="t01",targetState="doSetParams",cond=whenDispatch("setParams"))
 				}	 
-				state("doeval") { //this:State
+				state("doSetParams") { //this:State
 					action { //it:State
-						emit("serviceworking", "serviceworking(evalfun)" ) 
-						if( checkMsgContent( Term.createTerm("arg(V)"), Term.createTerm("arg(V)"), 
+						if( checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(MIN,MAX,DX)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 val V = payloadArg(0)             
-								CommUtils.outblue("$name - evalfun for $V ")
-								 val R = MyCode.FSin.evalStr( V )  
-								CommUtils.outblue("$name - answer $R for $V ")
-								answer("evalfun", "evalreply", "value($R)"   )  
+								 val Min = payloadArg(0).toDouble()  
+								 val Max = payloadArg(1).toDouble()  
+								 val Dx  = payloadArg(2).toDouble()  
+								 FSinSeries.setParams( Min,Max,Dx  ) 
+								CommUtils.outblue("$name - doSetParams done ")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
+					 transition(edgeName="t02",targetState="doEvalAvalue",cond=whenEvent("starteval"))
+				}	 
+				state("doEvalAvalue") { //this:State
+					action { //it:State
+						CommUtils.outyellow("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						 FSinSeries.evalNextPoint()              
+						CommUtils.outblue("$name - evalNextPoint   ")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+				 	 		stateTimer = TimerActor("timer_doEvalAvalue", 
+				 	 					  scope, context!!, "local_tout_"+name+"_doEvalAvalue", 10.toLong() )  //OCT2023
+					}	 	 
+					 transition(edgeName="t03",targetState="doEvalAvalue",cond=whenTimeout("local_tout_"+name+"_doEvalAvalue"))   
+					transition(edgeName="t04",targetState="showValues",cond=whenEvent("stopeval"))
+				}	 
+				state("showValues") { //this:State
+					action { //it:State
+						 var Values = FSinSeries.getEvaluedPoints()         
+						CommUtils.outgreen("$name - values: $Values  ")
+						 val chartUrl = ChartUtils.buildMapChartUrl("Sin", Values)         
+						 ChartUtils.OpenChartInBrowser(chartUrl)                           
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="working", cond=doswitch() )
 				}	 
 				state("doevalvalues") { //this:State
 					action { //it:State
@@ -90,7 +119,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
+					 transition( edgeName="goto",targetState="working", cond=doswitch() )
 				}	 
 			}
 		}

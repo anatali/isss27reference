@@ -2,11 +2,12 @@ System firstprj27
 ModelFor Project: firstprj27_v4
 mqttBroker "localhost" : 1883 eventTopic "firstprj27rIn"
 /*  
+ * Genera, a richiesta, una serie di valori della funzione MyCode.FSin
+ * da MIN a MAX con intervallo DX
  * 
- *
+ * Nello stato doeval, prima di generare la lista dei valori, 
+ * emette l'evento serviceworking sulla topic "firstprj27rIn_out"
  */ 
-Request  evalfun : arg(V)
-Reply evalreply  : value(V) for evalfun
 
 Request  evalfunvalues : args(MIN,MAX,DX)
 Reply    replyvalues   : values(S) for evalfunvalues
@@ -27,20 +28,9 @@ QActor a context ctxfirstprj27 {
 		println( "$name - waiting for some request ...") color blue
 	}
 	Transition t0
-		whenRequest evalfun       -> doeval
 		whenRequest evalfunvalues -> doevalvalues
 
-	State doeval{ 
-		emit serviceworking : serviceworking( evalfun )
-		onMsg( evalfun : arg(V) ){
-			[# val V = payloadArg(0)            #]
-			println( "$name - evalfun for $V ") color blue
-			[# val R = MyCode.FSin.evalStr( V ) #]
- 			println( "$name - answer $R for $V ") color blue
-			replyTo evalfun with evalreply : value($R)
-		}
-	}
-	Goto waitrequest
+
 			 
 	State doevalvalues{ 
 		emit serviceworking : serviceworking( doevalvalues )
@@ -57,8 +47,8 @@ QActor a context ctxfirstprj27 {
 		}
 	}
 	Goto waitrequest
-}
-
+} 
+ 
 /*
  * Attore introdotto per quick testing
  */

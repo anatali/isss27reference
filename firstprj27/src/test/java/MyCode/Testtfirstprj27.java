@@ -2,9 +2,10 @@ package MyCode;
 
 import static org.junit.Assert.assertTrue;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
+import it.unibo.kactor.sysUtil;
 import unibo.basicomm23.interfaces.IApplMessage;
 import unibo.basicomm23.interfaces.Interaction;
 import unibo.basicomm23.msg.ApplMessage;
@@ -12,6 +13,11 @@ import unibo.basicomm23.msg.ProtocolType;
 import unibo.basicomm23.utils.CommUtils;
 import unibo.basicomm23.utils.ConnectionFactory;
 
+/*
+ * Questo test va eseguito solo se NON esiste la dichiarazione
+ * mqttBroker("localhost", "1883", "firstprj27rIn").
+ * 
+ */
 public class Testtfirstprj27 {  
 	//private IApplMessage evalRequest = CommUtils.buildRequest("tester", "evalfun",  "arg(0)", "a");
 	/*
@@ -21,9 +27,11 @@ public class Testtfirstprj27 {
 
 	@BeforeClass
 	public static void setup() {
-		CommUtils.outmagenta("Testtfirstprj27  | start the (micro)service ");	
-		it.unibo.ctxfirstprj27.MainCtxfirstprj27Kt.main(   ) ;		
-		CommUtils.delay(1000); //wait a while before calling
+		it.unibo.ctxfirstprj27.MainCtxfirstprj27Kt.main(   ) ;				
+ 		CommUtils.delay(1000); //wait a while before calling
+		CommUtils.outmagenta("Testtfirstprj27  | start the (micro)service - MQTT:" + sysUtil.hasMqtt());	
+		//Assumptions.assumeTrue(b, "Condizione non soddisfatta: test saltati"); //JUinit5
+		Assume.assumeTrue( ! sysUtil.hasMqtt() ); //deve essere vera per fare i test
  	}
  
 	@After

@@ -27,5 +27,11 @@ with Diagram('firstprj27Arch', show=False, outformat='png', graph_attr=graphattr
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
      with Cluster('ctxfirstprj27', graph_attr=nodeattr):
           a=Custom('a','./qakicons/symActorWithobjSmall.png')
+          callerforquicktesting=Custom('callerforquicktesting','./qakicons/symActorWithobjSmall.png')
+     sys >> Edge( label='starteval', **evattr, decorate='true', fontcolor='darkgreen') >> a
+     sys >> Edge( label='stopeval', **evattr, decorate='true', fontcolor='darkgreen') >> a
      a >> Edge( label='serviceworking', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     callerforquicktesting >> Edge( label='starteval', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     callerforquicktesting >> Edge( label='stopeval', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     callerforquicktesting >> Edge(color='blue', style='solid',  decorate='true', label='<setParams &nbsp; >',  fontcolor='blue') >> a
 diag

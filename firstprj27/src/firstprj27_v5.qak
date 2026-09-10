@@ -1,0 +1,128 @@
+System firstprj27
+ModelFor Project: firstprj27_v5
+mqttBroker "localhost" : 1883 eventTopic "firstprj27rIn"
+/*  
+ * Genera, a richiesta, una serie di valori della funzione MyCode.FSin
+ * da MIN a MAX con intervallo DX
+ * 
+ * A differenza di firstprj27_v4, genera i valori 
+ * in modo da risultare sensibile all'evento 'stopeval'
+ */ 
+
+Request  evalfunvalues : args(MIN,MAX,DX)
+Reply    replyvalues   : values(S) for evalfunvalues
+
+Dispatch setParams : args( MIN,MAX,DX )
+
+Event serviceworking : serviceworking(V)
+Event starteval      : starteval(MIN,MAX,DX)
+Event stopeval       : stopeval(V)
+
+Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
+
+QActor a context ctxfirstprj27 { 
+	import "MyCode.*"
+	
+	State s0 initial{
+		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
+ 		println( "$name STARTS") color blue
+	}
+	Goto working
+	
+	State working{ 
+		println( "$name - waiting for some request ...") color blue
+	}
+	Transition t0
+		whenRequest evalfunvalues -> doevalvalues
+		whenMsg setParams         -> doSetParams
+		
+	State doSetParams{
+		onMsg( setParams : args( MIN,MAX,DX )){
+			[# val Min = payloadArg(0).toDouble() #]
+			[# val Max = payloadArg(1).toDouble() #]
+			[# val Dx  = payloadArg(2).toDouble() #]
+			
+			[# FSinSeries.setParams( Min,Max,Dx  )#]
+			println( "$name - doSetParams done ") color blue
+		}
+	}
+	Transition t0
+		//whenRequest evalfunvalues -> doevalvalues
+		whenEvent starteval -> doEvalAvalue
+
+	State doEvalAvalue{
+		printCurrentMessage color yellow
+		[# FSinSeries.evalNextPoint()             #]	
+		println("$name - evalNextPoint   ") color blue
+	}
+	Transition t0
+		whenTime 10        -> doEvalAvalue
+		whenEvent stopeval -> showValues
+	
+	State showValues{
+		[# var Values = FSinSeries.getEvaluedPoints()        #]
+//		[# val R = "'" + FSinSeries.getEvaluedPoints() + "'" #]
+		println( "$name - values: $Values  ") color green
+		[# val chartUrl = ChartUtils.buildMapChartUrl("Sin", Values)        #]
+		[# ChartUtils.OpenChartInBrowser(chartUrl)                          #]
+	}
+	Goto working
+	
+	
+	/*
+	 * Versione precedente
+	 */
+	
+	State doevalvalues{ 
+		emit serviceworking : serviceworking( doevalvalues )
+		printCurrentMessage color green
+		onMsg( evalfunvalues : args(A,B,C) ){
+			[# val Min = payloadArg(0).toDouble()             #]
+			[# val Max = payloadArg(1).toDouble()             #]
+			[# val Dx  = payloadArg(2).toDouble()             #]
+			println( "$name - doevalvalues  Min=$Min Max=$Max Dx=$Dx ") color magenta
+			//Inserisco apici per creare una String usabile come termine Prolog nella reply
+			[# val R = "'" + MyCode.FSinSeries.evalSinPoints( Min,Max,Dx ) + "'" #]		
+  			println( "$name - values: $R  ") color green
+			replyTo evalfunvalues with replyvalues : values($R)
+		}
+	}
+	Goto working
+	
+	 
+}
+
+/*
+ * Attore introdotto per quick testing
+ */
+
+QActor callerforquicktesting context ctxfirstprj27{
+	State s0 initial{
+		println( "$name - STARTS   ") color magenta
+			[# val Min = "-2.0"   #] 
+			[# val Max = "2.0"    #]
+			[# val Dx  = "0.5"    #]
+		//request a -m evalfunvalues : args($Min, $Max, $Dx)
+		forward a  -m setParams : args( $Min, $Max, $Dx )
+		delay 500
+		println("$name - starteval   ") color magenta
+		emit starteval : starteval( $Min, $Max, $Dx )
+		delay 500
+		println("$name - stopevel   ") color magenta
+		emit stopeval : stopeval( ok )
+	}
+//	Transition t0 
+//		whenReply replyvalues -> showvalues
+//		
+//	State showvalues{
+//		printCurrentMessage color black
+//		onMsg( replyvalues : values(S) ){
+//			[# val ReceivedString = payloadArg(0)                                      #]
+//			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl(ReceivedString) #]
+//			[#  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                         #]
+//		}
+//		  
+//	}
+}
+
+
