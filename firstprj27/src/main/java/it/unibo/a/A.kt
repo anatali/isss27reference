@@ -44,7 +44,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("working") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name - waiting for some request ...")
+						CommUtils.outblue("$name - waiting  ...")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -72,10 +72,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("doEvalAvalue") { //this:State
 					action { //it:State
-						CommUtils.outyellow("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						 FSinSeries.evalNextPoint()              
-						CommUtils.outblue("$name - evalNextPoint   ")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -89,9 +86,10 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				state("showValues") { //this:State
 					action { //it:State
 						 var Values = FSinSeries.getEvaluedPoints()         
-						CommUtils.outgreen("$name - values: $Values  ")
+						CommUtils.outgreen("$name - showValues  ")
 						 val chartUrl = ChartUtils.buildMapChartUrl("Sin", Values)         
 						 ChartUtils.OpenChartInBrowser(chartUrl)                           
+						 System.exit(0)  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

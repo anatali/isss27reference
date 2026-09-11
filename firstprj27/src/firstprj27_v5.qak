@@ -30,7 +30,7 @@ QActor a context ctxfirstprj27 {
 	Goto working
 	
 	State working{ 
-		println( "$name - waiting for some request ...") color blue
+		println( "$name - waiting  ...") color blue
 	}
 	Transition t0
 		whenRequest evalfunvalues -> doevalvalues
@@ -51,9 +51,9 @@ QActor a context ctxfirstprj27 {
 		whenEvent starteval -> doEvalAvalue
 
 	State doEvalAvalue{
-		printCurrentMessage color yellow
+//		printCurrentMessage color yellow
 		[# FSinSeries.evalNextPoint()             #]	
-		println("$name - evalNextPoint   ") color blue
+//		println("$name - evalNextPoint   ") color blue
 	}
 	Transition t0
 		whenTime 10        -> doEvalAvalue
@@ -62,9 +62,11 @@ QActor a context ctxfirstprj27 {
 	State showValues{
 		[# var Values = FSinSeries.getEvaluedPoints()        #]
 //		[# val R = "'" + FSinSeries.getEvaluedPoints() + "'" #]
-		println( "$name - values: $Values  ") color green
+		println( "$name - showValues  ") color green
 		[# val chartUrl = ChartUtils.buildMapChartUrl("Sin", Values)        #]
 		[# ChartUtils.OpenChartInBrowser(chartUrl)                          #]
+		
+		[# System.exit(0) #]
 	}
 	Goto working
 	
@@ -101,28 +103,23 @@ QActor callerforquicktesting context ctxfirstprj27{
 		println( "$name - STARTS   ") color magenta
 			[# val Min = "-2.0"   #] 
 			[# val Max = "2.0"    #]
-			[# val Dx  = "0.5"    #]
+			[# val Dx  = "0.1"    #]
 		//request a -m evalfunvalues : args($Min, $Max, $Dx)
 		forward a  -m setParams : args( $Min, $Max, $Dx )
 		delay 500
 		println("$name - starteval   ") color magenta
 		emit starteval : starteval( $Min, $Max, $Dx )
 		delay 500
-		println("$name - stopevel   ") color magenta
+		println("$name - stopeval   ") color magenta
 		emit stopeval : stopeval( ok )
 	}
-//	Transition t0 
-//		whenReply replyvalues -> showvalues
-//		
-//	State showvalues{
-//		printCurrentMessage color black
-//		onMsg( replyvalues : values(S) ){
-//			[# val ReceivedString = payloadArg(0)                                      #]
-//			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl(ReceivedString) #]
-//			[#  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                         #]
-//		}
-//		  
-//	}
-}
+	Transition t0 
+		whenEvent  stopeval -> handlestop
+		
+	State handlestop{
+		printCurrentMessage color red
+	}	
+ 
+}//callerforquicktesting
 
 

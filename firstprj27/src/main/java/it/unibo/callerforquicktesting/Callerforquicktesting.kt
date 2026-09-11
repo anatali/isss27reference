@@ -35,14 +35,25 @@ class Callerforquicktesting ( name: String, scope: CoroutineScope, isconfined: B
 						CommUtils.outmagenta("$name - STARTS   ")
 						 val Min = "-2.0"    
 						 val Max = "2.0"     
-						 val Dx  = "0.5"     
+						 val Dx  = "0.1"     
 						forward("setParams", "args($Min,$Max,$Dx)" ,"a" ) 
 						delay(500) 
 						CommUtils.outmagenta("$name - starteval   ")
 						emit("starteval", "starteval($Min,$Max,$Dx)" ) 
 						delay(500) 
-						CommUtils.outmagenta("$name - stopevel   ")
+						CommUtils.outmagenta("$name - stopeval   ")
 						emit("stopeval", "stopeval(ok)" ) 
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t05",targetState="handlestop",cond=whenEvent("stopeval"))
+				}	 
+				state("handlestop") { //this:State
+					action { //it:State
+						CommUtils.outred("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

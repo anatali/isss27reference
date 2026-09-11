@@ -33,9 +33,10 @@ public class FSinSeries {
     
     public static void evalNextPoint() {
     	if( curX > Max ) {
-    		CommUtils.outred("Max exceeded");
+    		CommUtils.outred("Max " + Max + "  exceeded since x=" + curX);
     		return;
     	}
+//    	CommUtils.outcyan("evalNextPoint " + curX);
     	double y = FSin.eval(curX);
         labels.add(String.format(Locale.US, "%.1f", curX));
         values.add(String.format(Locale.US, "%.3f", y));    
@@ -43,11 +44,11 @@ public class FSinSeries {
     }
     
     public static String getEvaluedPoints() {
-    	  // 1. Conversione delle due liste in un'unica stringa
+    	  //Conversione delle due liste in un'unica stringa
         String listaAStringa = String.join(",", labels);
         String listaBStringa = String.join(",", values);
         String stringaDaInviare = listaAStringa + "###" + listaBStringa;
-        CommUtils.outcyan("Serie di punti valutata" + stringaDaInviare);
+//        CommUtils.outcyan("FSinSeries | Serie di punti valutata" + stringaDaInviare);
         return stringaDaInviare;
     	
     }
@@ -64,11 +65,11 @@ public class FSinSeries {
           values.add(String.format(Locale.US, "%.3f", y));
      }
      
-  // 1. Conversione delle due liste in un'unica stringa
+  // Conversione delle due liste in un'unica stringa
      String listaAStringa = String.join(",", labels);
      String listaBStringa = String.join(",", values);
      String stringaDaInviare = listaAStringa + "###" + listaBStringa;
-     CommUtils.outcyan("Serie di punti valutata" + stringaDaInviare);
+//     CommUtils.outcyan("FSinSeries | Serie di punti valutata" + stringaDaInviare);
      return stringaDaInviare;
   }
     
