@@ -15,9 +15,6 @@ import unibo.basicomm23.utils.CommUtils;
  */
 public class CallerMqttWithChart {
 
-//	private IApplMessage reqPI_2  = CommUtils.buildRequest("testappl", "evalr", "argr("+Math.PI/2+")", "sistemas");
-//	private IApplMessage reqPI_6  = CommUtils.buildRequest("testappl", "evalr", "argr("+Math.PI/6+")", "sistemas");
-
 	private String name = "callermqtt";
 	private String Min = "'-3.0'";
 	private String Max = "'3.0'";

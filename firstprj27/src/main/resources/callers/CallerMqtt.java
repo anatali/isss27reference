@@ -9,12 +9,10 @@ import unibo.basicomm23.utils.CommUtils;
 
  
 /*
- * La comunicazione avviene  a livello QakActor
+ * La comunicazione avviene  a livello MQTT
  */
 public class CallerMqtt {
 
-//	private IApplMessage reqPI_2  = CommUtils.buildRequest("testappl", "evalr", "argr("+Math.PI/2+")", "sistemas");
-//	private IApplMessage reqPI_6  = CommUtils.buildRequest("testappl", "evalr", "argr("+Math.PI/6+")", "sistemas");
 
 	private String name = "callermqtt";
 	private String Min = "'-3.0'";
@@ -31,8 +29,7 @@ public class CallerMqtt {
         		new MqttInteraction("callermqtt",brokerAddr, "topicin","unibo/qak/a");
         //addObservation( conn );
         
-        try {
-        	
+        try {      	
         	CommUtils.outgreen(name + " | publish " + evalRequest + " on nibo/qak/a" );
         	IApplMessage reply = conn.request(evalRequest);
         	CommUtils.outmagenta(name + " | reply=" + reply   );

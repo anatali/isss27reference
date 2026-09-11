@@ -13,7 +13,7 @@ public class FSinSeries {
     private static double Min;
     private static double Max;
     private static double dx;
-    private static double curX;
+//    private static double curX;
    
     public static void stop() {
     	stopped = true;
@@ -28,19 +28,20 @@ public class FSinSeries {
     	dx  = delta;
     	labels = new ArrayList<>();
     	values = new ArrayList<>();
-    	curX = Min;
+//    	curX = Min;
     }
     
-    public static void evalNextPoint() {
+    public static String evalNextPoint(double curX) {
     	if( curX > Max ) {
     		CommUtils.outred("Max " + Max + "  exceeded since x=" + curX);
-    		return;
+    		return "0";
     	}
 //    	CommUtils.outcyan("evalNextPoint " + curX);
     	double y = FSin.eval(curX);
-        labels.add(String.format(Locale.US, "%.1f", curX));
-        values.add(String.format(Locale.US, "%.3f", y));    
-        curX = curX + dx;
+//        labels.add(String.format(Locale.US, "%.1f", curX));
+//        values.add(String.format(Locale.US, "%.3f", y));    
+//        curX = curX + dx;
+        return ""+y;
     }
     
     public static String getEvaluedPoints() {

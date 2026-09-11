@@ -12,9 +12,9 @@ mqttBroker "localhost" : 1883 eventTopic "firstprj27rIn"
 Request  evalfunvalues : args(MIN,MAX,DX)
 Reply    replyvalues   : values(S) for evalfunvalues
 
-Dispatch setParams : args( MIN,MAX,DX )
+//Dispatch setParams : args( MIN,MAX,DX )
 
-Event serviceworking : serviceworking(V)
+Event serviceelab    : serviceelab(X,Y)
 Event starteval      : starteval(MIN,MAX,DX)
 Event stopeval       : stopeval(V)
 
@@ -23,6 +23,11 @@ Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 QActor a context ctxfirstprj27 { 
 	import "MyCode.*"
 	
+	[# var Min  = 0.0
+	   var Max  = 0.0
+	   var CurX = 0.0    
+	   var Dx   = 0.0 
+	#]
 	State s0 initial{
 		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
  		println( "$name STARTS") color blue
@@ -34,26 +39,27 @@ QActor a context ctxfirstprj27 {
 	}
 	Transition t0
 		whenRequest evalfunvalues -> doevalvalues
-		whenMsg setParams         -> doSetParams
-		
-	State doSetParams{
-		onMsg( setParams : args( MIN,MAX,DX )){
-			[# val Min = payloadArg(0).toDouble() #]
-			[# val Max = payloadArg(1).toDouble() #]
-			[# val Dx  = payloadArg(2).toDouble() #]
-			
-			[# FSinSeries.setParams( Min,Max,Dx  )#]
-			println( "$name - doSetParams done ") color blue
-		}
-	}
-	Transition t0
-		//whenRequest evalfunvalues -> doevalvalues
-		whenEvent starteval -> doEvalAvalue
+		whenEvent starteval      -> doStartEval
 
-	State doEvalAvalue{
-//		printCurrentMessage color yellow
-		[# FSinSeries.evalNextPoint()             #]	
-//		println("$name - evalNextPoint   ") color blue
+	State doStartEval{
+		onMsg( starteval : starteval( MIN,MAX,DX )){
+			[# Min = payloadArg(0).toDouble() #]
+			[# Max = payloadArg(1).toDouble() #]
+			[# Dx  = payloadArg(2).toDouble() #]
+			[# CurX = Min                     #]
+			[# FSinSeries.setParams( Min,Max,Dx  )#] 
+			println( "$name - doStartEval event done $Min, $Max, $Dx") color blue
+			//emit serviceelab : serviceelab(start)
+		}
+	} 
+	Goto doEvalAvalue
+    
+
+	State doEvalAvalue{		
+		println( "$name - doEvalAvalue  ") color green
+		[# val Y = FSinSeries.evalNextPoint(CurX)           #]
+		emit serviceelab : serviceelab($CurX, $Y)
+		[# CurX = CurX + Dx                                 #]
 	}
 	Transition t0
 		whenTime 10        -> doEvalAvalue
@@ -76,7 +82,7 @@ QActor a context ctxfirstprj27 {
 	 */
 	
 	State doevalvalues{ 
-		emit serviceworking : serviceworking( doevalvalues )
+		emit serviceelab : serviceelab( doevalvalues )
 		printCurrentMessage color green
 		onMsg( evalfunvalues : args(A,B,C) ){
 			[# val Min = payloadArg(0).toDouble()             #]
@@ -95,9 +101,26 @@ QActor a context ctxfirstprj27 {
 }
 
 /*
+ * Attore che ricostruisce gli streams x/y
+ */
+ QActor perceiver context ctxfirstprj27{
+ 	State s0 initial{
+ 		println( "$name - STARTS   ") color blue
+ 	}
+ 	Transition t0 
+ 		whenEvent serviceelab -> accumulate
+ 		
+ 	State accumulate{  
+ 		printCurrentMessage color blue
+ 	}
+  	Transition t0 
+ 		whenEvent serviceelab -> accumulate
+ }
+ 
+/*
  * Attore introdotto per quick testing
  */
-
+/* 
 QActor callerforquicktesting context ctxfirstprj27{
 	State s0 initial{
 		println( "$name - STARTS   ") color magenta
@@ -105,8 +128,6 @@ QActor callerforquicktesting context ctxfirstprj27{
 			[# val Max = "2.0"    #]
 			[# val Dx  = "0.1"    #]
 		//request a -m evalfunvalues : args($Min, $Max, $Dx)
-		forward a  -m setParams : args( $Min, $Max, $Dx )
-		delay 500
 		println("$name - starteval   ") color magenta
 		emit starteval : starteval( $Min, $Max, $Dx )
 		delay 500
@@ -117,9 +138,10 @@ QActor callerforquicktesting context ctxfirstprj27{
 		whenEvent  stopeval -> handlestop
 		
 	State handlestop{
+		// never here !!!!!!!!!!!!
 		printCurrentMessage color red
 	}	
  
 }//callerforquicktesting
 
-
+*/

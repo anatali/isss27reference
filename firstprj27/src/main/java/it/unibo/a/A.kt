@@ -30,6 +30,10 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
+		 var Min  = 0.0
+			   var Max  = 0.0
+			   var CurX = 0.0    
+			   var Dx   = 0.0 
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -51,28 +55,32 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 					sysaction { //it:State
 					}	 	 
 					 transition(edgeName="t00",targetState="doevalvalues",cond=whenRequest("evalfunvalues"))
-					transition(edgeName="t01",targetState="doSetParams",cond=whenDispatch("setParams"))
+					transition(edgeName="t01",targetState="doStartEval",cond=whenEvent("starteval"))
 				}	 
-				state("doSetParams") { //this:State
+				state("doStartEval") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(MIN,MAX,DX)"), 
+						if( checkMsgContent( Term.createTerm("starteval(MIN,MAX,DX)"), Term.createTerm("starteval(MIN,MAX,DX)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 val Min = payloadArg(0).toDouble()  
-								 val Max = payloadArg(1).toDouble()  
-								 val Dx  = payloadArg(2).toDouble()  
+								 Min = payloadArg(0).toDouble()  
+								 Max = payloadArg(1).toDouble()  
+								 Dx  = payloadArg(2).toDouble()  
+								 CurX = Min                      
 								 FSinSeries.setParams( Min,Max,Dx  ) 
-								CommUtils.outblue("$name - doSetParams done ")
+								CommUtils.outblue("$name - doStartEval event done $Min, $Max, $Dx")
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="doEvalAvalue",cond=whenEvent("starteval"))
+					 transition( edgeName="goto",targetState="doEvalAvalue", cond=doswitch() )
 				}	 
 				state("doEvalAvalue") { //this:State
 					action { //it:State
-						 FSinSeries.evalNextPoint()              
+						CommUtils.outgreen("$name - doEvalAvalue  ")
+						 val Y = FSinSeries.evalNextPoint(CurX)            
+						emit("serviceelab", "serviceelab($CurX,$Y)" ) 
+						 CurX = CurX + Dx                                  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -80,8 +88,8 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				 	 		stateTimer = TimerActor("timer_doEvalAvalue", 
 				 	 					  scope, context!!, "local_tout_"+name+"_doEvalAvalue", 10.toLong() )  //OCT2023
 					}	 	 
-					 transition(edgeName="t03",targetState="doEvalAvalue",cond=whenTimeout("local_tout_"+name+"_doEvalAvalue"))   
-					transition(edgeName="t04",targetState="showValues",cond=whenEvent("stopeval"))
+					 transition(edgeName="t02",targetState="doEvalAvalue",cond=whenTimeout("local_tout_"+name+"_doEvalAvalue"))   
+					transition(edgeName="t03",targetState="showValues",cond=whenEvent("stopeval"))
 				}	 
 				state("showValues") { //this:State
 					action { //it:State
@@ -99,7 +107,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("doevalvalues") { //this:State
 					action { //it:State
-						emit("serviceworking", "serviceworking(doevalvalues)" ) 
+						emit("serviceelab", "serviceelab(doevalvalues)" ) 
 						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
 						if( checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(A,B,C)"), 

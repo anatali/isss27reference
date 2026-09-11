@@ -12,7 +12,9 @@ import alice.tuprolog.Term;
 import it.unibo.kactor.sysUtil;
 import unibo.basicomm23.interfaces.IApplMessage;
 import unibo.basicomm23.interfaces.Interaction;
+ 
 import unibo.basicomm23.mqtt.MqttInteraction;
+import unibo.basicomm23.mqtt.MqttSupport;
 import unibo.basicomm23.msg.ApplMessage;
 import unibo.basicomm23.msg.ProtocolType;
 import unibo.basicomm23.utils.CommUtils;
@@ -40,41 +42,40 @@ public class TesttMqttfirstprj27_v5 {
  		CommUtils.outmagenta("TesttMqttfirstprj27_v5 | down");
 	}
  	
-	protected String  callMqtt( ) {
+	protected void doMqtt( ) {
         String brokerAddr       = "tcp://localhost:1883"; //"tcp://192.168.137.1:1883"; //"tcp://192.168.1.68:1883"; //"tcp://test.mosquitto.org:1883"; //"tcp://broker.hivemq.com:1883"; //
         ProtocolType protocol   = ProtocolType.mqtt;
         Interaction conn = 
-        		new MqttInteraction("callermqtt",brokerAddr, "firstprj27rIn_out","unibo/qak/a");
-		return docall(conn);
+        		//new MqttInteraction("callermqtt",brokerAddr, "firstprj27rIn_out","unibo/qak/a");
+				new MqttInteraction("callermqtt",brokerAddr, "firstprj27rIn_out","firstprj27rIn");
+		addObservation( conn );
+		addObservationwithsupport();
+		doEmitEvent(conn);
 	}
- 	
-	protected String docall(Interaction conn) {		 
- 		CommUtils.outyellow( "| docall=" + conn);		
-		 String Min = "'-1.0'";
-		 String Max = "'.0'";
-		 String Dx  = "'0.5'";
-		 String args = "args("+Min+","+Max+","+Dx+")";
-		 IApplMessage evalRequest = CommUtils.buildRequest(name, "evalfunvalues",  args, "a");
-		try {
-			IApplMessage result   = conn.request(evalRequest);
-			//String result       = answer.msgContent();
-			String answer = result.msgContent() ;
-			CommUtils.outyellow( "| docall answer=" + answer);
-			return answer	;
-		} catch (Exception e) {
- 			return "fail";
-		}
+	protected void doEmitEvent(Interaction conn) {	
+		 String Min = "'-2.0'";
+		 String Max = "'2.0'";
+		 String Dx  = "'0.1'";
+		 String args = "starteval("+Min+","+Max+","+Dx+")";
+		 IApplMessage startevent = CommUtils.buildEvent(name, "starteval",  args );
+			try {
+				conn.forward(startevent);  //forward anche se event (topic "unibo/qak/a" OPPURE "firstprj27rIn")
+			} catch (Exception e) {
+	 			CommUtils.outred("Error: "+e.getMessage());
+			}		
 	}
 	
+ 
 	@Test   
 	public void test1Mqtt() {
 		CommUtils.outgreen("=== test1Mqtt  "  );
-		String result = callMqtt( );
+		 doMqtt( );
+		 CommUtils.delay(600); 
 		//CommUtils.outgreen("test1Mqtt result=" + result);
-		showData(result); //fare il grafico in fase di testing non è appropriato
- 		assertTrue(  checkAnswer(result)  );  
+//		showData(result); //fare il grafico in fase di testing non è appropriato
+// 		assertTrue(  checkAnswer(result)  );  
 	} 
-	
+/*	
 	protected boolean checkAnswer(String result) {
 		Struct  t = (Struct) Term.parse(result);
 		CommUtils.outblue(name + " | t=" + t.getArg(0).toString());
@@ -98,5 +99,48 @@ public class TesttMqttfirstprj27_v5 {
 		String chartUrl = ChartUtils.buildMapChartUrl( "Funzione sin (test)", answerValues );
 		ChartUtils.OpenChartInBrowser(chartUrl); 	
 	}
+*/	
 	
+	/*
+	 * Gli obervers possono ricostruire lo stream dei dati (valori y)
+	 * ma dovrebbero calcolare lo stream delle x in relazione ai dati emessi
+	 * con l'evento startevent 
+	 */
+	protected void addObservationwithsupport() {
+		new Thread() {
+			public void run() {
+				try {
+					CommUtils.outmagenta("!!!!!!!!!!! addObservation STARTS !!!!!!!!!!!!!!" );
+					MqttSupport support = new MqttSupport();
+					support.connectToBroker("anotherobs", "tcp://localhost:1883");
+					MqttConnectionCallbackForReceive rec = new MqttConnectionCallbackForReceive("anotherobs");
+					support.subscribe("firstprj27rIn_out", rec);
+					CommUtils.outmagenta("subscribed ... :" );
+					while(true) {
+ 						String m = rec.receive();
+						CommUtils.outblack("anotherobs observed ... :" + m);
+					}
+				} catch (Exception e) {
+					CommUtils.outred("callermqtt addObservation ERROR:" + e.getMessage() );
+				}
+				
+			}
+		}.start();
+	}
+	protected void addObservation( Interaction conn ) {
+		new Thread() {
+			public void run() {
+				try {
+					CommUtils.outmagenta("!!!!!!!!!!! addObservation STARTS !!!!!!!!!!!!!!" );
+ 					while(true) {
+ 						String m = conn.receiveMsg();
+ 						CommUtils.outmagenta("observed on conn ... :" + m);
+					}
+				} catch (Exception e) {
+					CommUtils.outred("callermqtt addObservation ERROR:" + e.getMessage() );
+				}
+				
+			}
+		}.start();
+	}
 }
