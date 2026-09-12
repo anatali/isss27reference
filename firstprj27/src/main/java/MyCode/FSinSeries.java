@@ -54,6 +54,14 @@ public class FSinSeries {
     	
     }
     
+    public static String getEvaluedPoints(List<String> labels, List<String> values) {
+        String listaAStringa = String.join(",", labels);
+        String listaBStringa = String.join(",", values);
+        String stringaDaInviare = listaAStringa + "###" + listaBStringa;
+//        CommUtils.outcyan("FSinSeries | Serie di punti valutata" + stringaDaInviare);
+        return stringaDaInviare;   	
+    }
+    
     /*
      * Valutazione non interrompibile
      */

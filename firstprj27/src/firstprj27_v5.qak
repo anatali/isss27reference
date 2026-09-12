@@ -39,7 +39,7 @@ QActor a context ctxfirstprj27 {
 	}
 	Transition t0
 		whenRequest evalfunvalues -> doevalvalues
-		whenEvent starteval      -> doStartEval
+		whenEvent starteval       -> doStartEval
 
 	State doStartEval{
 		onMsg( starteval : starteval( MIN,MAX,DX )){
@@ -56,25 +56,19 @@ QActor a context ctxfirstprj27 {
     
 
 	State doEvalAvalue{		
-		println( "$name - doEvalAvalue  ") color green
+		println( "$name - doEvalAvalue  ") color blue
 		[# val Y = FSinSeries.evalNextPoint(CurX)           #]
 		emit serviceelab : serviceelab($CurX, $Y)
 		[# CurX = CurX + Dx                                 #]
 	}
 	Transition t0
 		whenTime 10        -> doEvalAvalue
-		whenEvent stopeval -> showValues
+		whenEvent stopeval -> end
 	
-	State showValues{
-		[# var Values = FSinSeries.getEvaluedPoints()        #]
-//		[# val R = "'" + FSinSeries.getEvaluedPoints() + "'" #]
-		println( "$name - showValues  ") color green
-		[# val chartUrl = ChartUtils.buildMapChartUrl("Sin", Values)        #]
-		[# ChartUtils.OpenChartInBrowser(chartUrl)                          #]
-		
-		[# System.exit(0) #]
-	}
-	Goto working
+	State end{
+		println( "$name - ENDS  ") color blue
+ 	}
+//	Goto working
 	
 	
 	/*
@@ -83,7 +77,7 @@ QActor a context ctxfirstprj27 {
 	
 	State doevalvalues{ 
 		emit serviceelab : serviceelab( doevalvalues )
-		printCurrentMessage color green
+		printCurrentMessage color blue
 		onMsg( evalfunvalues : args(A,B,C) ){
 			[# val Min = payloadArg(0).toDouble()             #]
 			[# val Max = payloadArg(1).toDouble()             #]
@@ -104,23 +98,48 @@ QActor a context ctxfirstprj27 {
  * Attore che ricostruisce gli streams x/y
  */
  QActor perceiver context ctxfirstprj27{
+ 	import "MyCode.*"
+ 	[# val Labels = ArrayList<String>()  
+ 	   val Values = ArrayList<String>() #]
  	State s0 initial{
- 		println( "$name - STARTS   ") color blue
+ 		println( "$name - STARTS   ") color green
  	}
  	Transition t0 
  		whenEvent serviceelab -> accumulate
  		
  	State accumulate{  
- 		printCurrentMessage color blue
+ 		printCurrentMessage color green
+ 		onMsg( serviceelab : serviceelab(X,Y)){
+ 			[# val X = payloadArg(0).toDouble() #]
+ 			[# val Y = payloadArg(1).toDouble() #]
+ 			[# val SX = ""+String.format(java.util.Locale.US, "%.1f", X)  #]
+ 			[# val SY = ""+String.format(java.util.Locale.US, "%.3f", Y)  #]
+ 			[# Labels.add( SX )       #]
+ 			[# Values.add( SY  )      #]
+ 			
+ 		}
  	}
   	Transition t0 
  		whenEvent serviceelab -> accumulate
+ 		whenEvent stopeval    -> showValues
+ 
+ 	State showValues{
+		[# var S = FSinSeries.getEvaluedPoints(Labels, Values)          #]
+//		[# val R = "'" + FSinSeries.getEvaluedPoints() + "'" #]
+		println( "$name - showValues  ") color green
+		[# val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)        #]
+		[# ChartUtils.OpenChartInBrowser(chartUrl)                          #]
+		
+		[# System.exit(0) #]
+	}
+ 
+ 
  }
  
 /*
  * Attore introdotto per quick testing
  */
-/* 
+
 QActor callerforquicktesting context ctxfirstprj27{
 	State s0 initial{
 		println( "$name - STARTS   ") color magenta
@@ -144,4 +163,4 @@ QActor callerforquicktesting context ctxfirstprj27{
  
 }//callerforquicktesting
 
-*/
+

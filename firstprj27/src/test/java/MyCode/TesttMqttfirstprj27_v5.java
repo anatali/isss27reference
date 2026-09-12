@@ -25,9 +25,19 @@ import unibo.basicomm23.utils.ConnectionFactory;
  * Questo test va eseguito solo se esiste la dichiarazione
  * mqttBroker("localhost", "1883", "firstprj27rIn").
  * 
+ * Emette un evento starteval con i parametri sulla topic "unibo/qak/a"
+ * OPPURE sulla topic "firstprj27rIn"
+ * Attiva un osservatore di eventi sulla topic "firstprj27rIn_out"
+ * che potrebbe ricostruire gli stream di dati valutati
+ * per fare un grafico
+ * 
  */
 public class TesttMqttfirstprj27_v5 {  
 	private String name = "tester";
+	private IApplMessage stoptevent = CommUtils.buildEvent(name, "stopeval",  "stopeval(ok)" );
+	private String brokerAddr       = "tcp://localhost:1883"; //"tcp://192.168.137.1:1883"; //"tcp://192.168.1.68:1883"; //"tcp://test.mosquitto.org:1883"; //"tcp://broker.hivemq.com:1883"; //
+	private ProtocolType protocol   = ProtocolType.mqtt;
+
 	
 	@BeforeClass
 	public static void setup() {
@@ -43,23 +53,27 @@ public class TesttMqttfirstprj27_v5 {
 	}
  	
 	protected void doMqtt( ) {
-        String brokerAddr       = "tcp://localhost:1883"; //"tcp://192.168.137.1:1883"; //"tcp://192.168.1.68:1883"; //"tcp://test.mosquitto.org:1883"; //"tcp://broker.hivemq.com:1883"; //
-        ProtocolType protocol   = ProtocolType.mqtt;
         Interaction conn = 
         		//new MqttInteraction("callermqtt",brokerAddr, "firstprj27rIn_out","unibo/qak/a");
 				new MqttInteraction("callermqtt",brokerAddr, "firstprj27rIn_out","firstprj27rIn");
 		addObservation( conn );
-		addObservationwithsupport();
-		doEmitEvent(conn);
-	}
-	protected void doEmitEvent(Interaction conn) {	
+		addObservationUsingSupport();
+
 		 String Min = "'-2.0'";
 		 String Max = "'2.0'";
 		 String Dx  = "'0.1'";
 		 String args = "starteval("+Min+","+Max+","+Dx+")";
 		 IApplMessage startevent = CommUtils.buildEvent(name, "starteval",  args );
+
+		doEmitEvent(conn, startevent);
+		CommUtils.delay(500); 
+		
+		doEmitEvent(conn, stoptevent);
+		
+	}
+	protected void doEmitEvent(Interaction conn, IApplMessage event) {	
 			try {
-				conn.forward(startevent);  //forward anche se event (topic "unibo/qak/a" OPPURE "firstprj27rIn")
+				conn.forward(event);  //forward anche se event (topic "unibo/qak/a" OPPURE "firstprj27rIn")
 			} catch (Exception e) {
 	 			CommUtils.outred("Error: "+e.getMessage());
 			}		
@@ -70,7 +84,7 @@ public class TesttMqttfirstprj27_v5 {
 	public void test1Mqtt() {
 		CommUtils.outgreen("=== test1Mqtt  "  );
 		 doMqtt( );
-		 CommUtils.delay(600); 
+//		 CommUtils.delay(600); 
 		//CommUtils.outgreen("test1Mqtt result=" + result);
 //		showData(result); //fare il grafico in fase di testing non è appropriato
 // 		assertTrue(  checkAnswer(result)  );  
@@ -106,7 +120,7 @@ public class TesttMqttfirstprj27_v5 {
 	 * ma dovrebbero calcolare lo stream delle x in relazione ai dati emessi
 	 * con l'evento startevent 
 	 */
-	protected void addObservationwithsupport() {
+	protected void addObservationUsingSupport() {
 		new Thread() {
 			public void run() {
 				try {

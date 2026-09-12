@@ -28,8 +28,12 @@ with Diagram('firstprj27Arch', show=False, outformat='png', graph_attr=graphattr
      with Cluster('ctxfirstprj27', graph_attr=nodeattr):
           a=Custom('a','./qakicons/symActorWithobjSmall.png')
           perceiver=Custom('perceiver','./qakicons/symActorWithobjSmall.png')
+          callerforquicktesting=Custom('callerforquicktesting','./qakicons/symActorWithobjSmall.png')
      sys >> Edge( label='starteval', **evattr, decorate='true', fontcolor='darkgreen') >> a
      a >> Edge( label='serviceelab', **eventedgeattr, decorate='true', fontcolor='red') >> sys
      sys >> Edge( label='stopeval', **evattr, decorate='true', fontcolor='darkgreen') >> a
      sys >> Edge( label='serviceelab', **evattr, decorate='true', fontcolor='darkgreen') >> perceiver
+     sys >> Edge( label='stopeval', **evattr, decorate='true', fontcolor='darkgreen') >> perceiver
+     callerforquicktesting >> Edge( label='starteval', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     callerforquicktesting >> Edge( label='stopeval', **eventedgeattr, decorate='true', fontcolor='red') >> sys
 diag

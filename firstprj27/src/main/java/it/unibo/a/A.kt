@@ -77,7 +77,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("doEvalAvalue") { //this:State
 					action { //it:State
-						CommUtils.outgreen("$name - doEvalAvalue  ")
+						CommUtils.outblue("$name - doEvalAvalue  ")
 						 val Y = FSinSeries.evalNextPoint(CurX)            
 						emit("serviceelab", "serviceelab($CurX,$Y)" ) 
 						 CurX = CurX + Dx                                  
@@ -89,26 +89,21 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				 	 					  scope, context!!, "local_tout_"+name+"_doEvalAvalue", 10.toLong() )  //OCT2023
 					}	 	 
 					 transition(edgeName="t02",targetState="doEvalAvalue",cond=whenTimeout("local_tout_"+name+"_doEvalAvalue"))   
-					transition(edgeName="t03",targetState="showValues",cond=whenEvent("stopeval"))
+					transition(edgeName="t03",targetState="end",cond=whenEvent("stopeval"))
 				}	 
-				state("showValues") { //this:State
+				state("end") { //this:State
 					action { //it:State
-						 var Values = FSinSeries.getEvaluedPoints()         
-						CommUtils.outgreen("$name - showValues  ")
-						 val chartUrl = ChartUtils.buildMapChartUrl("Sin", Values)         
-						 ChartUtils.OpenChartInBrowser(chartUrl)                           
-						 System.exit(0)  
+						CommUtils.outblue("$name - ENDS  ")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="working", cond=doswitch() )
 				}	 
 				state("doevalvalues") { //this:State
 					action { //it:State
 						emit("serviceelab", "serviceelab(doevalvalues)" ) 
-						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
 						if( checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(A,B,C)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList

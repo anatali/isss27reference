@@ -13,3 +13,5 @@ context(ctxfirstprj27, "localhost",  "TCP", "8120").
  static(a).
   qactor( perceiver, ctxfirstprj27, "it.unibo.perceiver.Perceiver").
  static(perceiver).
+  qactor( callerforquicktesting, ctxfirstprj27, "it.unibo.callerforquicktesting.Callerforquicktesting").
+ static(callerforquicktesting).

@@ -19,6 +19,7 @@ import org.json.simple.JSONObject
 
 
 //User imports JAN2024
+import MyCode.*
 
 class Perceiver ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdynamic: Boolean=false ) : 
           ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
@@ -29,10 +30,12 @@ class Perceiver ( name: String, scope: CoroutineScope, isconfined: Boolean=false
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
+		 val Labels = ArrayList<String>()  
+		 	   val Values = ArrayList<String>()  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name - STARTS   ")
+						CommUtils.outgreen("$name - STARTS   ")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -42,14 +45,37 @@ class Perceiver ( name: String, scope: CoroutineScope, isconfined: Boolean=false
 				}	 
 				state("accumulate") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
+						if( checkMsgContent( Term.createTerm("serviceelab(X,Y)"), Term.createTerm("serviceelab(X,Y)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val X = payloadArg(0).toDouble()  
+								 val Y = payloadArg(1).toDouble()  
+								 val SX = ""+String.format(java.util.Locale.US, "%.1f", X)   
+								 val SY = ""+String.format(java.util.Locale.US, "%.3f", Y)   
+								 Labels.add( SX )        
+								 Values.add( SY  )       
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
 					 transition(edgeName="t05",targetState="accumulate",cond=whenEvent("serviceelab"))
+					transition(edgeName="t06",targetState="showValues",cond=whenEvent("stopeval"))
+				}	 
+				state("showValues") { //this:State
+					action { //it:State
+						 var S = FSinSeries.getEvaluedPoints(Labels, Values)           
+						CommUtils.outgreen("$name - showValues  ")
+						 val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)         
+						 ChartUtils.OpenChartInBrowser(chartUrl)                           
+						 System.exit(0)  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
 				}	 
 			}
 		}

@@ -23,6 +23,9 @@ import unibo.basicomm23.utils.ConnectionFactory;
  * Questo test va eseguito SOLO SE ESISTE la dichiarazione
  * mqttBroker("localhost", "1883", "firstprj27rIn").
  * 
+ * FUNZIONA ANCHE CON firstprj27_v5
+ * Invia una request evalfunvalues via MQTT sulla topic "unibo/qak/a"
+ * 
  */
 public class TesttMqttfirstprj27_v4 {  
 	private String name = "tester";
@@ -32,6 +35,7 @@ public class TesttMqttfirstprj27_v4 {
  		it.unibo.ctxfirstprj27.MainCtxfirstprj27Kt.main(   ) ;	
 		CommUtils.delay(1000); //wait a while before calling
 		CommUtils.outmagenta("TesttMqttfirstprj27_v4  | start the (micro)service con MQTT:" + sysUtil.hasMqtt());	
+		
 		Assume.assumeTrue( sysUtil.hasMqtt() ); //deve essere vera per fare i test
  	}
  
@@ -52,7 +56,7 @@ public class TesttMqttfirstprj27_v4 {
  		CommUtils.outyellow( "| docall=" + conn);		
 		 String Min = "'-3.0'";
 		 String Max = "'3.0'";
-		 String Dx  = "'0.5'";
+		 String Dx  = "'0.2'";
 		 String args = "args("+Min+","+Max+","+Dx+")";
 		 IApplMessage evalRequest = CommUtils.buildRequest(name, "evalfunvalues",  args, "a");
 		try {
