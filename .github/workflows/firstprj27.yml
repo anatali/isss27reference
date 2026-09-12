@@ -34,13 +34,13 @@ jobs:
       mosquitto:
         image: eclipse-mosquitto:2
         ports:
-            - 1883:1883
+          - 1883:1883
         # Configura Mosquitto per accettare connessioni anomime da localhost
         options: >-
-            --health-cmd "mosquitto_sub -t '$SYS/#' -n -c 1 || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 3
+          --health-cmd "mosquitto_sub -t '$SYS/#' -n -c 1 || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
 
 
     # Definisce la cartella di lavoro per tutti i comandi di questo job
