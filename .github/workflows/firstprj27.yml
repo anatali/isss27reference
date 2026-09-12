@@ -34,7 +34,6 @@ jobs:
       run:
         working-directory: firstprj27
 
-
     steps:
      
       # 1. Checkout del codice sorgente
@@ -51,6 +50,14 @@ jobs:
       # 3. Permessi di esecuzione per gradlew
       - name: Make gradlew executable
         run: chmod +x gradlew
+
+      - name: Run Tests with Mosquitto Local
+        env:
+          # Limita la memoria della JVM per evitare il crash del Kotlin Daemon
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx1536m -XX:MaxMetaspaceSize=384m -Dkotlin.compiler.execution.strategy=in-process"
+          # Sovrascrivi l'URL del broker per indirizzarlo al Mosquitto locale
+          MQTT_BROKER_URL: "tcp://localhost:1883"
+        run: ./gradlew test
         
       # Disable Dependency graph ?
       
@@ -85,3 +92,4 @@ jobs:
           # Il percorso dell'artefatto parte dalla sottocartella
           path: firstprj27/build/
           if-no-files-found: warn
+
