@@ -29,18 +29,6 @@ jobs:
       contents: read
       checks: write
 
-    # Avvia il broker Mosquitto in background durante l'esecuzione del job
-    services:
-      mosquitto:
-        image: eclipse-mosquitto:2
-        ports:
-          - 1883:1883
-        # Configura Mosquitto per accettare connessioni anomime da localhost
-        options: >-
-          --health-cmd "mosquitto_sub -t '$SYS/#' -n -c 1 || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 3
 
 
     # Definisce la cartella di lavoro per tutti i comandi di questo job
@@ -60,6 +48,22 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Start Mosquitto broker
+        run: |
+          docker run -d --name mosquitto \
+            -p 1883:1883 \
+            -v ${{ github.workspace }}/firstprj27/mosquitto.conf:/mosquitto/config/mosquitto.conf \
+            eclipse-mosquitto:2
+
+      - name: Wait for Mosquitto to be ready
+        run: |
+          for i in {1..15}; do
+            docker run --rm --network host eclipse-mosquitto:2 \
+              mosquitto_sub -h localhost -t '$SYS/#' -C 1 -W 2 && break
+            echo "waiting for mosquitto..."; sleep 2
+          done
+
 
       # 3. Permessi di esecuzione per gradlew
       - name: Make gradlew executable
@@ -107,3 +111,6 @@ jobs:
           path: firstprj27/build/
           if-no-files-found: warn
 
+      - name: Stop Mosquitto broker
+        if: always()
+        run: docker stop mosquitto && docker rm mosquitto
