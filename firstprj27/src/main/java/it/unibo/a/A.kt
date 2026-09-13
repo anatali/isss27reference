@@ -59,7 +59,7 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("doStartEval") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("starteval(MIN,MAX,DX)"), Term.createTerm("starteval(MIN,MAX,DX)"), 
+						   if( currentMsg.msgId( )== "starteval" && checkMsgContent( Term.createTerm("starteval(MIN,MAX,DX)"), Term.createTerm("starteval(MIN,MAX,DX)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 Min = payloadArg(0).toDouble()  
 								 Max = payloadArg(1).toDouble()  
@@ -77,9 +77,9 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("doEvalAvalue") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name - doEvalAvalue  ")
 						 val Y = FSinSeries.evalNextPoint(CurX)            
-						emit("serviceelab", "serviceelab($CurX,$Y)" ) 
+						updateResourceRep( "serviceeVal($CurX, $Y)"  
+						)
 						 CurX = CurX + Dx                                  
 						//genTimer( actor, state )
 					}
@@ -102,10 +102,9 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 				}	 
 				state("doevalvalues") { //this:State
 					action { //it:State
-						emit("serviceelab", "serviceelab(doevalvalues)" ) 
 						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(A,B,C)"), 
+						   if( currentMsg.msgId( )== "evalfunvalues" && checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(A,B,C)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val Min = payloadArg(0).toDouble()              
 								 val Max = payloadArg(1).toDouble()              

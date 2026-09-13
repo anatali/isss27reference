@@ -19,6 +19,7 @@ import org.json.simple.JSONObject
 
 
 //User imports JAN2024
+import MyCode.*
 
 class Callerforquicktesting ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdynamic: Boolean=false ) : 
           ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
@@ -33,25 +34,28 @@ class Callerforquicktesting ( name: String, scope: CoroutineScope, isconfined: B
 				state("s0") { //this:State
 					action { //it:State
 						CommUtils.outmagenta("$name - STARTS   ")
-						 val Min = "-2.0"    
-						 val Max = "2.0"     
+						 val Min = "-4.0"    
+						 val Max = "4.0"     
 						 val Dx  = "0.1"     
-						CommUtils.outmagenta("$name - starteval   ")
-						emit("starteval", "starteval($Min,$Max,$Dx)" ) 
-						delay(500) 
-						CommUtils.outmagenta("$name - stopeval   ")
-						emit("stopeval", "stopeval(ok)" ) 
+						request("evalfunvalues", "args($Min,$Max,$Dx)" ,"a" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t07",targetState="handlestop",cond=whenEvent("stopeval"))
+					 transition(edgeName="t09",targetState="showvalues",cond=whenReply("replyvalues"))
 				}	 
-				state("handlestop") { //this:State
+				state("showvalues") { //this:State
 					action { //it:State
-						CommUtils.outred("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						CommUtils.outblack("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
+						   if( currentMsg.msgId( )== "replyvalues" && checkMsgContent( Term.createTerm("values(S)"), Term.createTerm("values(S)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val S = payloadArg(0)                                       
+								 val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)        
+								 ChartUtils.OpenChartInBrowser(chartUrl)                     
+								 System.exit(0)  
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
