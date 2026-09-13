@@ -75,7 +75,7 @@ public class TesttMqttfirstprj27_v4 {
 		CommUtils.outgreen("=== test1Mqtt  "  );
 		String result = callMqtt( );
 		//CommUtils.outgreen("test1Mqtt result=" + result);
-		showData(result); //fare il grafico in fase di testing non è appropriato
+//		showData(result); //fare il grafico in fase di testing non è appropriato
  		assertTrue(  checkAnswer(result)  );  
 	} 
 	

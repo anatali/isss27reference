@@ -31,6 +31,7 @@ public class Testtfirstprj27 {
  		CommUtils.delay(1000); //wait a while before calling
 		CommUtils.outmagenta("Testtfirstprj27  | start the (micro)service - MQTT:" + sysUtil.hasMqtt());	
 		//Assumptions.assumeTrue(b, "Condizione non soddisfatta: test saltati"); //JUinit5
+		
 		Assume.assumeTrue( ! sysUtil.hasMqtt() ); //deve essere vera per fare i test
  	}
  
