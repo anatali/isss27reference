@@ -6,11 +6,13 @@ import java.util.Locale;
 import unibo.basicomm23.utils.CommUtils;
 
 public class LogisticSeries {
-    private double r = 3.2;          // Provoca l'oscillazione stabile
-    private double x = 0.1;          // 10% della capacità iniziale
-    private int anniTotali = 50;     // Estendiamo a 50 anni per vedere bene l'estabilizzazione dell'onda
+    private static double r = 3.8;          //
+    private static double x = 0.1;          // 10% della capacità iniziale
+    private static int anniTotali = 50;     // Estendiamo a 50 anni per vedere bene l'estabilizzazione dell'onda
 
- 
+    public static String evalPoints(  ) {
+    	return evalPoints(r,x,anniTotali);
+    }
     public static String evalPoints(double r, double x, int anni ) {
     	 System.out.println("evalSinPoints r=" + r + " x=" + x + " anni=" + anni);
     	List<String> labels = new ArrayList<>();
@@ -32,8 +34,8 @@ public class LogisticSeries {
   }
     
     public static void main (String args[] ) {
-    	String s   = LogisticSeries.evalPoints(3.2, 0.1, 30);
-    	String url = ChartUtils.buildMapChartUrl("Funzione logistica", s);
+    	String s   = LogisticSeries.evalPoints( );
+    	String url = ChartUtils.buildMapChartUrl("Mappa logistica r=" +r, s);
     	ChartUtils.OpenChartInBrowser(url);
     }
 
