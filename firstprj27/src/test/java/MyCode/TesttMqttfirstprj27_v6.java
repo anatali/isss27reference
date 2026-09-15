@@ -1,26 +1,19 @@
 package MyCode;
 
 import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
 import it.unibo.kactor.sysUtil;
-import unibo.basicomm23.coap.CoapConnection;
-import unibo.basicomm23.coap.CoapInteraction;
 import unibo.basicomm23.interfaces.IApplMessage;
 import unibo.basicomm23.interfaces.Interaction;
-import unibo.basicomm23.mqtt.MqttInteraction;
 import unibo.basicomm23.msg.ProtocolType;
 import unibo.basicomm23.utils.CommUtils;
-import unibo.basicomm23.utils.Connection;
 import unibo.basicomm23.utils.ConnectionFactory;
 
 public class TesttMqttfirstprj27_v6 {
@@ -43,11 +36,10 @@ public class TesttMqttfirstprj27_v6 {
 	}
 
 	protected String doRequestUsingCoap( ) {
-		//CoapConnection conn = new CoapConnection("localhost:8120", "ctxfirstprj27/a" );
-        //conn.trace = true;
-        
+		//CoapConnection conn = new CoapConnection("localhost:8120", "ctxfirstprj27/a" );        
         Interaction conn = ConnectionFactory.createClientSupport(ProtocolType.coap, "localhost:8120", "ctxfirstprj27/a");
-        
+        //conn.trace = true;
+       
         CommUtils.outmagenta("TesttMqttfirstprj27_v6 | doRequestUsingCoap connection DONE");
  
 		 String Min = "'-2.0'";
