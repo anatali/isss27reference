@@ -55,55 +55,13 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 					sysaction { //it:State
 					}	 	 
 					 transition(edgeName="t00",targetState="doevalvalues",cond=whenRequest("evalfunvalues"))
-					transition(edgeName="t01",targetState="doStartEval",cond=whenEvent("starteval"))
-				}	 
-				state("doStartEval") { //this:State
-					action { //it:State
-						   if( currentMsg.msgId( )== "starteval" && checkMsgContent( Term.createTerm("starteval(MIN,MAX,DX)"), Term.createTerm("starteval(MIN,MAX,DX)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								 Min = payloadArg(0).toDouble()  
-								 Max = payloadArg(1).toDouble()  
-								 Dx  = payloadArg(2).toDouble()  
-								 CurX = Min                      
-								 FSinSeries.setParams( Min,Max,Dx  ) 
-								CommUtils.outblue("$name - doStartEval event done $Min, $Max, $Dx")
-						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition( edgeName="goto",targetState="doEvalAvalue", cond=doswitch() )
-				}	 
-				state("doEvalAvalue") { //this:State
-					action { //it:State
-						 val Y = FSinSeries.evalNextPoint(CurX)            
-						updateResourceRep( "serviceeVal($CurX, $Y)"  
-						)
-						 CurX = CurX + Dx                                  
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-				 	 		stateTimer = TimerActor("timer_doEvalAvalue", 
-				 	 					  scope, context!!, "local_tout_"+name+"_doEvalAvalue", 10.toLong() )  //OCT2023
-					}	 	 
-					 transition(edgeName="t02",targetState="doEvalAvalue",cond=whenTimeout("local_tout_"+name+"_doEvalAvalue"))   
-					transition(edgeName="t03",targetState="end",cond=whenEvent("stopeval"))
-				}	 
-				state("end") { //this:State
-					action { //it:State
-						CommUtils.outblue("$name - ENDS  ")
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
 				}	 
 				state("doevalvalues") { //this:State
 					action { //it:State
 						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
+						updateResourceRep( "doevalvalues"  
+						)
 						   if( currentMsg.msgId( )== "evalfunvalues" && checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(A,B,C)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val Min = payloadArg(0).toDouble()              

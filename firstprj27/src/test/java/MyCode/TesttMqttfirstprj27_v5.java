@@ -44,6 +44,7 @@ public class TesttMqttfirstprj27_v5 {
  		it.unibo.ctxfirstprj27.MainCtxfirstprj27Kt.main(   ) ;	
 		CommUtils.delay(1000); //wait a while before calling
 		CommUtils.outmagenta("TesttMqttfirstprj27_v5  | start the (micro)service con MQTT:" + sysUtil.hasMqtt());	
+		
 		Assume.assumeTrue( sysUtil.hasMqtt() ); //deve essere vera per fare i test
  	}
  

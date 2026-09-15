@@ -30,70 +30,30 @@ class Coapobserver ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
-		 val Labels = ArrayList<String>()  
-		 	   val Values = ArrayList<String>()  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						CommUtils.outgreen("$name - STARTS   ")
+						CommUtils.outgreen("$name | STARTS   ")
 						observeResource("localhost","8120","ctxfirstprj27","a","evalued")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t04",targetState="accumulate",cond=whenDispatch("evalued"))
-					transition(edgeName="t05",targetState="accumulate",cond=whenDispatch("coapUpdate"))
+					 transition(edgeName="t01",targetState="showInfo",cond=whenDispatch("evalued"))
+					transition(edgeName="t02",targetState="showInfo",cond=whenDispatch("coapUpdate"))
 				}	 
-				state("accumulate") { //this:State
+				state("showInfo") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						   if( currentMsg.msgId( )== "evalued" && checkMsgContent( Term.createTerm("changed(TERM)"), Term.createTerm("changed(serviceeVal(X,Y))"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								CommUtils.outred("USING msgid evalued")
-								
-												val T0 = Term.createTerm( payloadArg(0) )  
-								 				val X = (T0 as Struct).getArg(0).toString().toDouble()        
-												val Y = (T0 as Struct).getArg(1).toString().toDouble()  
-								 val SX = ""+String.format(java.util.Locale.US, "%.1f", X)   
-								 val SY = ""+String.format(java.util.Locale.US, "%.3f", Y)   
-								 Labels.add( SX )        
-								 Values.add( SY  )       
-						}
-						   if( currentMsg.msgId( )== "coapUpdate" && checkMsgContent( Term.createTerm("changed(TERM)"), Term.createTerm("changed(serviceeVal(X,Y))"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								CommUtils.outred("USING coapUpdate")
-								
-												val T0 = Term.createTerm( payloadArg(0) )  
-								 				val X = (T0 as Struct).getArg(0).toString().toDouble()        
-												val Y = (T0 as Struct).getArg(1).toString().toDouble()  
-								 val SX = ""+String.format(java.util.Locale.US, "%.1f", X)   
-								 val SY = ""+String.format(java.util.Locale.US, "%.3f", Y)   
-								 Labels.add( SX )        
-								 Values.add( SY  )       
-						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t06",targetState="accumulate",cond=whenDispatch("evalued"))
-					transition(edgeName="t07",targetState="accumulate",cond=whenDispatch("coapUpdate"))
-					transition(edgeName="t08",targetState="showValues",cond=whenEvent("stopeval"))
-				}	 
-				state("showValues") { //this:State
-					action { //it:State
-						 var S = FSinSeries.getEvaluedPoints(Labels, Values)           
-						CommUtils.outgreen("$name - showValues  ")
-						 val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)         
-						 ChartUtils.OpenChartInBrowser(chartUrl)                           
-						 System.exit(0)  
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
+					 transition(edgeName="t03",targetState="showInfo",cond=whenDispatch("evalued"))
+					transition(edgeName="t04",targetState="showInfo",cond=whenDispatch("coapUpdate"))
 				}	 
 			}
 		}

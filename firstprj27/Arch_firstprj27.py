@@ -28,10 +28,5 @@ with Diagram('firstprj27Arch', show=False, outformat='png', graph_attr=graphattr
      with Cluster('ctxfirstprj27', graph_attr=nodeattr):
           a=Custom('a','./qakicons/symActorWithobjSmall.png')
           coapobserver=Custom('coapobserver','./qakicons/symActorWithobjSmall.png')
-          callerforquicktesting=Custom('callerforquicktesting','./qakicons/symActorWithobjSmall.png')
-     sys >> Edge( label='starteval', **evattr, decorate='true', fontcolor='darkgreen') >> a
-     sys >> Edge( label='stopeval', **evattr, decorate='true', fontcolor='darkgreen') >> a
-     sys >> Edge( label='stopeval', **evattr, decorate='true', fontcolor='darkgreen') >> coapobserver
-     callerforquicktesting >> Edge(color='magenta', style='solid', decorate='true', label='<evalfunvalues<font color="darkgreen"> replyvalues</font> &nbsp; >',  fontcolor='magenta') >> a
      a >> Edge(color='blue', style='solid',  decorate='true', label='<evalued &nbsp; >',  fontcolor='blue') >> coapobserver
 diag

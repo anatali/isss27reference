@@ -43,17 +43,16 @@ class Callerforquicktesting ( name: String, scope: CoroutineScope, isconfined: B
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t09",targetState="showvalues",cond=whenReply("replyvalues"))
+					 transition(edgeName="t05",targetState="showvalues",cond=whenReply("replyvalues"))
 				}	 
 				state("showvalues") { //this:State
 					action { //it:State
-						CommUtils.outblack("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						   if( currentMsg.msgId( )== "replyvalues" && checkMsgContent( Term.createTerm("values(S)"), Term.createTerm("values(S)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val S = payloadArg(0)                                       
 								 val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)        
 								 ChartUtils.OpenChartInBrowser(chartUrl)                     
+								CommUtils.outmagenta("$name - ENDS   ")
 								 System.exit(0)  
 						}
 						//genTimer( actor, state )

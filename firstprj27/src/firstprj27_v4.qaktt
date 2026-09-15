@@ -12,7 +12,6 @@ mqttBroker "localhost" : 1883 eventTopic "firstprj27rIn"
 Request  evalfunvalues : args(MIN,MAX,DX)
 Reply    replyvalues   : values(S) for evalfunvalues
 
-
 Event serviceworking : serviceworking(V)
 
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]

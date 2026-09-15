@@ -1,19 +1,18 @@
-System firstprj27
+System /* -trace */ firstprj27
 ModelFor Project: firstprj27_v6
  
 /*  
+  * INTERAZIONE via CoAP 
+ * ---------------------------------------------------------------------
  * Genera, a richiesta, una serie di valori della funzione MyCode.FSin
  * da MIN a MAX con intervallo DX
  * 
- * Rende disponibili valori via Coap
+ *  a è una risorsa observable
  */   
 
 Request  evalfunvalues : args(MIN,MAX,DX) 
 Reply    replyvalues   : values(S) for evalfunvalues
  
-Event starteval      : starteval(MIN,MAX,DX)
-Event stopeval       : stopeval(V)
-
 Dispatch coapUpdate : changed( TERM )  //coapUpdate : Default name se non uso msgid in observeResource
 Dispatch evalued    : changed( TERM )  //changed è SEMPRE il payload di una updateresource
 
@@ -38,52 +37,12 @@ QActor a context ctxfirstprj27 {
 	}
 	Transition t0
 		whenRequest evalfunvalues -> doevalvalues
-		whenEvent starteval       -> doStartEval
-
-	State doStartEval{
-		onMsg( starteval : starteval( MIN,MAX,DX )){
-			[# Min = payloadArg(0).toDouble() #]
-			[# Max = payloadArg(1).toDouble() #]
-			[# Dx  = payloadArg(2).toDouble() #]
-			[# CurX = Min                     #]
-			[# FSinSeries.setParams( Min,Max,Dx  )#] 
-			println( "$name - doStartEval event done $Min, $Max, $Dx") color blue
-			//emit serviceeVal : serviceeVal(start)
-		}
-	} 
-	Goto doEvalAvalue
-    
-
-	State doEvalAvalue{		
-		//println( "$name - doEvalAvalue  ") color blue
-		[# val Y = FSinSeries.evalNextPoint(CurX)           #]
-		//emit serviceeVal : serviceeVal($CurX, $Y)
-		updateResource [# "serviceeVal($CurX, $Y)" #]
-		
-		/*
-		 * STRUTTURA dei messaggi inviati
-		 * updateResourceRep msg(coapUpdate,dispatch,a,coapobserver,changed( serviceeVal(1.2000000000000008, 0.93) ),32)
-		 * updateResourceRep msg(evalued,dispatch,a,coapobserver,changed( serviceeVal(1.2000000000000008, 0.93) ),32)
-		 */
-		[# CurX = CurX + Dx                                 #]
-	}
-	Transition t0
-		whenTime 10        -> doEvalAvalue
-		whenEvent stopeval -> end
-	
-	State end{
-		println( "$name - ENDS  ") color blue
- 	}
  
-	
-	
-	/*
-	 * Versione precedente
-	 */
 	
 	State doevalvalues{ 
 		//emit serviceeVal : serviceeVal( doevalvalues )
 		printCurrentMessage color blue
+		updateResource [# "doevalvalues" #]
 		onMsg( evalfunvalues : args(A,B,C) ){
 			[# val Min = payloadArg(0).toDouble()             #]
 			[# val Max = payloadArg(1).toDouble()             #]
@@ -102,63 +61,25 @@ QActor a context ctxfirstprj27 {
 
 QActor coapobserver context ctxfirstprj27{
 	 	import "MyCode.*"
-	
- 	[# val Labels = ArrayList<String>()  
- 	   val Values = ArrayList<String>() #]
  	State s0 initial{
- 		println( "$name - STARTS   ") color green
+ 		println( "$name | STARTS   ") color green
  		observeResource a  msgid evalued
  	}
 	Transition t0 
-  		whenMsg evalued    -> accumulate	
-  		whenMsg coapUpdate -> accumulate
-  
-
-	State accumulate{  
- 		printCurrentMessage color green
- 		onMsg( evalued : changed( serviceeVal(X,Y) ) ){
- 			println("USING msgid evalued") color red 
- 			[#
-				val T0 = Term.createTerm( payloadArg(0) )  
- 				val X = (T0 as Struct).getArg(0).toString().toDouble()        
-				val Y = (T0 as Struct).getArg(1).toString().toDouble()  
- 			#]
- 			[# val SX = ""+String.format(java.util.Locale.US, "%.1f", X)  #]
- 			[# val SY = ""+String.format(java.util.Locale.US, "%.3f", Y)  #]
- 			[# Labels.add( SX )       #]
- 			[# Values.add( SY  )      #]
- 			 
- 		} 
- 		onMsg( coapUpdate : changed( serviceeVal(X,Y) ) ){
- 			println("USING coapUpdate") color red
- 			[#
-				val T0 = Term.createTerm( payloadArg(0) )  
- 				val X = (T0 as Struct).getArg(0).toString().toDouble()        
-				val Y = (T0 as Struct).getArg(1).toString().toDouble()  
- 			#]
- 			[# val SX = ""+String.format(java.util.Locale.US, "%.1f", X)  #]
- 			[# val SY = ""+String.format(java.util.Locale.US, "%.3f", Y)  #]
- 			[# Labels.add( SX )       #]
- 			[# Values.add( SY  )      #]
- 			
- 		} 	}
-  	Transition t0 
- 		whenMsg evalued       -> accumulate
-   		whenMsg coapUpdate    -> accumulate
- 		whenEvent stopeval    -> showValues
- 
- 	State showValues{
-		[# var S = FSinSeries.getEvaluedPoints(Labels, Values)          #]
-//		[# val R = "'" + FSinSeries.getEvaluedPoints() + "'" #]
-		println( "$name - showValues  ") color green
-		[# val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)        #]
-		[# ChartUtils.OpenChartInBrowser(chartUrl)                          #]
-		
-		[# System.exit(0) #]
+  		whenMsg evalued    -> showInfo	
+  		whenMsg coapUpdate -> showInfo
+	 	
+	State showInfo{
+		printCurrentMessage color green
 	}
+	Transition t0 
+  		whenMsg evalued    -> showInfo	
+  		whenMsg coapUpdate -> showInfo
 
-} 
+}
 
+
+/* 
 QActor callerforquicktesting context ctxfirstprj27{
 	import "MyCode.*"
 	
@@ -169,47 +90,22 @@ QActor callerforquicktesting context ctxfirstprj27{
 			[# val Dx  = "0.1"    #]
 		request a -m evalfunvalues : args($Min, $Max, $Dx)
 	}
-	Transition t0 
+	Transition t0  
 		whenReply replyvalues -> showvalues
 		
 	State showvalues{
-		printCurrentMessage color black
+//		printCurrentMessage color black
 		onMsg( replyvalues : values(S) ){
 			[# val S = payloadArg(0)                                      #]
 			[# val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)       #]
 			[# ChartUtils.OpenChartInBrowser(chartUrl)                    #]
+			
+			println( "$name - ENDS   ") color magenta
+			
 			[# System.exit(0) #]
 		}
 		  
 	}
 }
  
-/*
- * Attore introdotto per quick testing
- */
- /* 
-QActor emitterforquicktesting context ctxfirstprj27{
-	State s0 initial{
-		println( "$name - STARTS   ") color magenta
-			[# val Min = "-2.0"   #] 
-			[# val Max = "2.0"    #]
-			[# val Dx  = "0.1"    #]
-		//request a -m evalfunvalues : args($Min, $Max, $Dx)
-		delay 1000
-		println("$name - starteval   ") color magenta
-		emit starteval : starteval( $Min, $Max, $Dx )
-		delay 500
-		println("$name - stopeval   ") color magenta
-		emit stopeval : stopeval( ok )
-	}
-	Transition t0 
-		whenEvent  stopeval -> handlestop
-		
-	State handlestop{
-		// never here !!!!!!!!!!!!
-		printCurrentMessage color red
-	}	
- 
-}//emitterforquicktesting
 */
-

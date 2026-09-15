@@ -1,22 +1,23 @@
-System firstprj27
-ModelFor Project: firstprj27_v5
-mqttBroker "localhost" : 1883 eventTopic "firstprj27rIn"
-/* 
- * INTERAZIONE A EVENTI USANDO MQTT
+System /* -trace */ firstprj27
+ModelFor Project: firstprj27_v6
+ 
+/*  
+  * INTERAZIONE a EVENTI con Observer CoAP
  * ---------------------------------------------------------------------
  * Genera, a richiesta, una serie di valori della funzione MyCode.FSin
  * da MIN a MAX con intervallo DX
  * 
- * A differenza di firstprj27_v4, genera i valori 
- * in modo da risultare sensibile all'evento 'stopeval'
- */ 
+ *  
+ */   
 
-Request  evalfunvalues : args(MIN,MAX,DX)
+Request  evalfunvalues : args(MIN,MAX,DX) 
 Reply    replyvalues   : values(S) for evalfunvalues
-
-Event serviceelab    : serviceelab(X,Y)
+ 
 Event starteval      : starteval(MIN,MAX,DX)
 Event stopeval       : stopeval(V)
+
+Dispatch coapUpdate : changed( TERM )  //coapUpdate : Default name se non uso msgid in observeResource
+Dispatch evalued    : changed( TERM )  //changed è SEMPRE il payload di una updateresource
 
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 
@@ -48,18 +49,25 @@ QActor a context ctxfirstprj27 {
 			[# Dx  = payloadArg(2).toDouble() #]
 			[# CurX = Min                     #]
 			[# FSinSeries.setParams( Min,Max,Dx  )#] 
-			println( "$name - doStartEval event done $Min, $Max, $Dx") color blue
-			//emit serviceelab : serviceelab(start)
+			println( "$name - doStartEval starteval event done $Min, $Max, $Dx") color blue
+			//emit serviceeVal : serviceeVal(start)
 		}
 	} 
 	Goto doEvalAvalue
     
 
 	State doEvalAvalue{		
-		println( "$name - doEvalAvalue  ") color blue
+		//println( "$name - doEvalAvalue  ") color blue
 		[# val Y = FSinSeries.evalNextPoint(CurX)           #]
-		emit serviceelab : serviceelab($CurX, $Y)
-		[# CurX = CurX + Dx                                 #]
+		//emit serviceeVal : serviceeVal($CurX, $Y)
+		updateResource [# "serviceeVal($CurX, $Y)" #]
+		
+		/*
+		 * STRUTTURA dei messaggi inviati
+		 * updateResourceRep msg(coapUpdate,dispatch,a,coapobserver,changed( serviceeVal(1.2000000000000008, 0.93) ),32)
+		 * updateResourceRep msg(evalued,dispatch,a,coapobserver,changed( serviceeVal(1.2000000000000008, 0.93) ),32)
+		 */
+		[# CurX = CurX + Dx     #]
 	}
 	Transition t0
 		whenTime 10        -> doEvalAvalue
@@ -69,14 +77,9 @@ QActor a context ctxfirstprj27 {
 		println( "$name - ENDS  ") color blue
  	}
  
-	
-	
-	/*
-	 * Versione precedente
-	 */
+ 
 	
 	State doevalvalues{ 
-		emit serviceelab : serviceelab( doevalvalues )
 		printCurrentMessage color blue
 		onMsg( evalfunvalues : args(A,B,C) ){
 			[# val Min = payloadArg(0).toDouble()             #]
@@ -85,7 +88,7 @@ QActor a context ctxfirstprj27 {
 			println( "$name - doevalvalues  Min=$Min Max=$Max Dx=$Dx ") color magenta
 			//Inserisco apici per creare una String usabile come termine Prolog nella reply
 			[# val R = "'" + MyCode.FSinSeries.evalSinPoints( Min,Max,Dx ) + "'" #]		
-  			println( "$name - values: $R  ") color green
+//  			println( "$name - values: $R  ") color green
 			replyTo evalfunvalues with replyvalues : values($R)
 		}
 	}
@@ -93,60 +96,108 @@ QActor a context ctxfirstprj27 {
 	
 	 
 }
+ 
 
-/*
- * Attore che ricostruisce gli streams x/y
- */
- QActor perceiver context ctxfirstprj27{
- 	import "MyCode.*"
+QActor coapobserver context ctxfirstprj27{
+	 	import "MyCode.*"
+	
  	[# val Labels = ArrayList<String>()  
  	   val Values = ArrayList<String>() #]
  	State s0 initial{
- 		println( "$name - STARTS   ") color green
+ 		println( "$name | STARTS   ") color green
+ 		observeResource a  msgid evalued
  	}
- 	Transition t0 
- 		whenEvent serviceelab -> accumulate
- 		
- 	State accumulate{  
- 		printCurrentMessage color green
- 		onMsg( serviceelab : serviceelab(X,Y)){
- 			[# val X = payloadArg(0).toDouble() #]
- 			[# val Y = payloadArg(1).toDouble() #]
+	Transition t0 
+  		whenMsg evalued    -> accumulate	
+  		whenMsg coapUpdate -> accumulate
+  
+
+	State accumulate{  
+ 		println("$name | accumulate ${currentMsg.msgId() }")  color green
+ 		onMsg( evalued : changed( serviceeVal(X,Y) ) ){
+ 			println("USING msgid evalued") color red 
+ 			[#
+				val T0 = Term.createTerm( payloadArg(0) )  
+ 				val X = (T0 as Struct).getArg(0).toString().toDouble()        
+				val Y = (T0 as Struct).getArg(1).toString().toDouble()  
+ 			#]
+ 			[# val SX = ""+String.format(java.util.Locale.US, "%.1f", X)  #]
+ 			[# val SY = ""+String.format(java.util.Locale.US, "%.3f", Y)  #]
+ 			[# Labels.add( SX )       #]
+ 			[# Values.add( SY  )      #]
+ 			 
+ 		} 
+ 		onMsg( coapUpdate : changed( serviceeVal(X,Y) ) ){
+ 			println("USING coapUpdate") color red
+ 			[#
+				val T0 = Term.createTerm( payloadArg(0) )  
+ 				val X = (T0 as Struct).getArg(0).toString().toDouble()        
+				val Y = (T0 as Struct).getArg(1).toString().toDouble()  
+ 			#]
  			[# val SX = ""+String.format(java.util.Locale.US, "%.1f", X)  #]
  			[# val SY = ""+String.format(java.util.Locale.US, "%.3f", Y)  #]
  			[# Labels.add( SX )       #]
  			[# Values.add( SY  )      #]
  			
- 		}
+ 		} 	
  	}
   	Transition t0 
- 		whenEvent serviceelab -> accumulate
- 		whenEvent stopeval    -> showValues
+ 		whenMsg evalued       -> accumulate
+   		whenMsg coapUpdate    -> accumulate
+// 		whenEvent stopeval    -> showValues
  
  	State showValues{
 		[# var S = FSinSeries.getEvaluedPoints(Labels, Values)          #]
-//		[# val R = "'" + FSinSeries.getEvaluedPoints() + "'" #]
-		println( "$name - showValues  ") color green
+//		println( "$name - showValues  ") color green
 		[# val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)        #]
 		[# ChartUtils.OpenChartInBrowser(chartUrl)                          #]
 		
 		[# System.exit(0) #]
 	}
- 
- 
- }
- 
+
+} 
+
 /*
- * Attore introdotto per quick testing
+ * Attore introdotto per quick testing delle request
  */
 
 QActor callerforquicktesting context ctxfirstprj27{
+	import "MyCode.*"
+	
+	State s0 initial{
+		println( "$name - STARTS   ") color magenta
+			[# val Min = "-4.0"   #] 
+			[# val Max = "4.0"    #]
+			[# val Dx  = "0.1"    #]
+		request a -m evalfunvalues : args($Min, $Max, $Dx)
+	}
+	Transition t0 
+		whenReply replyvalues -> showvalues
+		
+	State showvalues{
+//		printCurrentMessage color black
+		onMsg( replyvalues : values(S) ){
+			[# val S = payloadArg(0)                                      #]
+			[# val chartUrl = ChartUtils.buildMapChartUrl("Sin", S)       #]
+			[# ChartUtils.OpenChartInBrowser(chartUrl)                    #]
+			[# System.exit(0) #]
+		}
+		  
+	}
+}
+ 
+/*
+ * Attore introdotto per quick testing degli EVENTI
+ */
+ 
+QActor emitterforquicktesting context ctxfirstprj27{
 	State s0 initial{
 		println( "$name - STARTS   ") color magenta
 			[# val Min = "-2.0"   #] 
 			[# val Max = "2.0"    #]
 			[# val Dx  = "0.1"    #]
 		//request a -m evalfunvalues : args($Min, $Max, $Dx)
+		delay 1000
 		println("$name - starteval   ") color magenta
 		emit starteval : starteval( $Min, $Max, $Dx )
 		delay 500
@@ -161,6 +212,6 @@ QActor callerforquicktesting context ctxfirstprj27{
 		printCurrentMessage color red
 	}	
  
-}//callerforquicktesting
+}//emitterforquicktesting
 
 
