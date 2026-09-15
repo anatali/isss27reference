@@ -22,9 +22,9 @@ QActor a context ctxfirstprj27 {
 	import "MyCode.*"
 	
 	[# var Min  = 0.0
-	   var Max  = 0.0
+	   var Max  = 0.0 
 	   var CurX = 0.0    
-	   var Dx   = 0.0 
+	   var Dx   = 0.0  
 	#]
 	State s0 initial{
 		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]

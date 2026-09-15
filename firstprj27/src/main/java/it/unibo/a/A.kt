@@ -31,9 +31,9 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
 		 var Min  = 0.0
-			   var Max  = 0.0
+			   var Max  = 0.0 
 			   var CurX = 0.0    
-			   var Dx   = 0.0 
+			   var Dx   = 0.0  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State

@@ -1,8 +1,8 @@
 System /* -trace */ firstprj27
-ModelFor Project: firstprj27_v6
+ModelFor Project: firstprj27_v7
  
 /*  
-  * INTERAZIONE a EVENTI con Observer CoAP
+  * INTERAZIONE a EVENTI 
  * ---------------------------------------------------------------------
  * Genera, a richiesta, una serie di valori della funzione MyCode.FSin
  * da MIN a MAX con intervallo DX
@@ -60,7 +60,7 @@ QActor a context ctxfirstprj27 {
 		//println( "$name - doEvalAvalue  ") color blue
 		[# val Y = FSinSeries.evalNextPoint(CurX)           #]
 		//emit serviceeVal : serviceeVal($CurX, $Y)
-		updateResource [# "serviceeVal($CurX, $Y)" #]
+		updateResource [# "serviceeVal($CurX, $Y)" #]   
 		
 		/*
 		 * STRUTTURA dei messaggi inviati
@@ -96,6 +96,8 @@ QActor a context ctxfirstprj27 {
 	
 	 
 }
+
+
  
 
 QActor coapobserver context ctxfirstprj27{
@@ -144,7 +146,7 @@ QActor coapobserver context ctxfirstprj27{
   	Transition t0 
  		whenMsg evalued       -> accumulate
    		whenMsg coapUpdate    -> accumulate
-// 		whenEvent stopeval    -> showValues
+ 		whenEvent stopeval    -> showValues
  
  	State showValues{
 		[# var S = FSinSeries.getEvaluedPoints(Labels, Values)          #]
@@ -157,10 +159,11 @@ QActor coapobserver context ctxfirstprj27{
 
 } 
 
+
 /*
  * Attore introdotto per quick testing delle request
  */
-
+/*
 QActor callerforquicktesting context ctxfirstprj27{
 	import "MyCode.*"
 	
@@ -185,7 +188,7 @@ QActor callerforquicktesting context ctxfirstprj27{
 		  
 	}
 }
- 
+  */
 /*
  * Attore introdotto per quick testing degli EVENTI
  */
