@@ -1,0 +1,8 @@
+A Claude
+
+Vorrei una pagina HTML che visualizza il grafico delle mappa logistica
+[ x_{n+1} = r * x_n (1 - x_n) ] essendo noti i valori di x_0, r ed n.
+
+Suddetti valori dovrebbero essere fissati dall'utente usando altrettanti campi di input
+proposti dalla pagina, che dovrà indicare anche i rispettivi 
+domini (x_0 > 0.0, 0 <=r<1, 0<n<100).

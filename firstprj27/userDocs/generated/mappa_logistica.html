@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mappa logistica</title>
+<style>
+  :root {
+    --bg: #10141a;
+    --panel: #171d26;
+    --panel-border: #2a3341;
+    --text: #e8ecf1;
+    --text-dim: #8a94a6;
+    --accent: #5ee6c1;
+    --accent-dim: #3a8f79;
+    --danger: #e6725e;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, Segoe UI, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+  }
+
+  header {
+    max-width: 760px;
+    width: 100%;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+  }
+
+  .formula {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 22px 24px;
+  }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  @media (max-width: 620px) {
+    .controls-grid { grid-template-columns: 1fr; }
+  }
+
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .field .domain {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent-dim);
+    margin-left: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    padding: 9px 10px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus {
+    border-color: var(--accent);
+  }
+
+  .field input.invalid {
+    border-color: var(--danger);
+  }
+
+  .field .error-msg {
+    font-size: 0.72rem;
+    color: var(--danger);
+    margin-top: 5px;
+    min-height: 14px;
+    font-family: var(--mono);
+  }
+
+  .status-line {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--panel-border);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .status-line strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  canvas {
+    width: 100%;
+    height: 380px;
+    display: block;
+    background: #0d1117;
+    border-radius: 8px;
+  }
+
+  .canvas-panel {
+    padding: 18px;
+  }
+
+  footer {
+    max-width: 760px;
+    width: 100%;
+    margin-top: 6px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  footer code {
+    font-family: var(--mono);
+    color: var(--accent-dim);
+    background: #0d1117;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mappa logistica</h1>
+  <p class="formula">x<sub>n+1</sub> = r &middot; x<sub>n</sub> &middot; (1 &minus; x<sub>n</sub>)</p>
+  <p class="subtitle">Imposta il valore iniziale, il parametro r e il numero di iterazioni per visualizzare l'evoluzione della sequenza.</p>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="controls-grid">
+      <div class="field">
+        <label for="x0">x&#8320; <span class="domain">(&gt; 0.0)</span></label>
+        <input type="number" id="x0" value="0.5" step="0.01">
+        <div class="error-msg" id="err-x0"></div>
+      </div>
+      <div class="field">
+        <label for="r">r <span class="domain">(0 &le; r &lt; 4)</span></label>
+        <input type="number" id="r" value="0.9" step="0.01">
+        <div class="error-msg" id="err-r"></div>
+      </div>
+      <div class="field">
+        <label for="n">n <span class="domain">(0 &lt; n &lt; 100)</span></label>
+        <input type="number" id="n" value="50" step="1">
+        <div class="error-msg" id="err-n"></div>
+      </div>
+    </div>
+
+    <div class="status-line">
+      <span>Ultimo valore: <strong id="last-val">&mdash;</strong></span>
+      <span>Iterazioni tracciate: <strong id="iter-count">&mdash;</strong></span>
+    </div>
+  </section>
+
+  <section class="panel canvas-panel">
+    <canvas id="chart" width="1200" height="760"></canvas>
+  </section>
+</main>
+
+<footer>
+  Nota sul dominio:  
+</footer>
+
+<script>
+(function () {
+  const inputX0 = document.getElementById('x0');
+  const inputR = document.getElementById('r');
+  const inputN = document.getElementById('n');
+  const errX0 = document.getElementById('err-x0');
+  const errR = document.getElementById('err-r');
+  const errN = document.getElementById('err-n');
+  const lastValEl = document.getElementById('last-val');
+  const iterCountEl = document.getElementById('iter-count');
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+
+  function validate() {
+    let ok = true;
+    const x0 = parseFloat(inputX0.value);
+    const r = parseFloat(inputR.value);
+    const n = parseInt(inputN.value, 10);
+
+    errX0.textContent = '';
+    errR.textContent = '';
+    errN.textContent = '';
+    inputX0.classList.remove('invalid');
+    inputR.classList.remove('invalid');
+    inputN.classList.remove('invalid');
+
+    if (isNaN(x0) || x0 <= 0.0) {
+      errX0.textContent = 'x0 deve essere > 0.0';
+      inputX0.classList.add('invalid');
+      ok = false;
+    }
+    if (isNaN(r) || r < 0 || r > 4) {
+      errR.textContent = 'r deve essere in [0, 1)';
+      inputR.classList.add('invalid');
+      ok = false;
+    }
+    if (isNaN(n) || n <= 0 || n >= 100 || !Number.isInteger(n)) {
+      errN.textContent = 'n deve essere un intero in (0, 100)';
+      inputN.classList.add('invalid');
+      ok = false;
+    }
+
+    return ok ? { x0, r, n } : null;
+  }
+
+  function computeSequence(x0, r, n) {
+    const seq = [x0];
+    let x = x0;
+    for (let i = 0; i < n; i++) {
+      x = r * x * (1 - x);
+      seq.push(x);
+    }
+    return seq;
+  }
+
+  function draw(seq) {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const padL = 60, padR = 30, padT = 30, padB = 50;
+    const plotW = w - padL - padR;
+    const plotH = h - padT - padB;
+
+    const maxVal = Math.max(0.1, ...seq);
+    const minVal = 0;
+
+    // griglia orizzontale
+    ctx.strokeStyle = '#232b37';
+    ctx.lineWidth = 1;
+    ctx.font = '20px "IBM Plex Mono", monospace';
+    ctx.fillStyle = '#5a6577';
+    const gridSteps = 5;
+    for (let i = 0; i <= gridSteps; i++) {
+      const v = minVal + (maxVal - minVal) * (i / gridSteps);
+      const y = padT + plotH - (v - minVal) / (maxVal - minVal) * plotH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+      ctx.fillText(v.toFixed(2), 8, y + 6);
+    }
+
+    // asse x - label
+    const n = seq.length - 1;
+    const xLabelSteps = Math.min(10, n);
+    for (let i = 0; i <= xLabelSteps; i++) {
+      const idx = Math.round(n * (i / xLabelSteps));
+      const x = padL + (idx / n) * plotW;
+      ctx.fillText(idx, x - 8, h - padB + 24);
+    }
+
+    ctx.fillStyle = '#8a94a6';
+    ctx.font = '22px "IBM Plex Mono", monospace';
+    ctx.fillText('n', w / 2, h - 8);
+
+    // linea della sequenza
+    ctx.strokeStyle = '#5ee6c1';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    seq.forEach((v, i) => {
+      const x = padL + (i / n) * plotW;
+      const y = padT + plotH - (v - minVal) / (maxVal - minVal) * plotH;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // punti
+    ctx.fillStyle = '#5ee6c1';
+    seq.forEach((v, i) => {
+      const x = padL + (i / n) * plotW;
+      const y = padT + plotH - (v - minVal) / (maxVal - minVal) * plotH;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  function update() {
+    const params = validate();
+    if (!params) {
+      lastValEl.textContent = '—';
+      iterCountEl.textContent = '—';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    const seq = computeSequence(params.x0, params.r, params.n);
+    draw(seq);
+    lastValEl.textContent = seq[seq.length - 1].toFixed(6);
+    iterCountEl.textContent = params.n;
+  }
+
+  [inputX0, inputR, inputN].forEach(el => el.addEventListener('input', update));
+  update();
+})();
+</script>
+
+</body>
+</html>

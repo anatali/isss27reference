@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mappa logistica</title>
+<style>
+  :root {
+    --bg: #10141a;
+    --panel: #171d26;
+    --panel-border: #2a3341;
+    --text: #e8ecf1;
+    --text-dim: #8a94a6;
+    --accent: #5ee6c1;
+    --accent-dim: #3a8f79;
+    --danger: #e6725e;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, Segoe UI, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+  }
+
+  header {
+    max-width: 760px;
+    width: 100%;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+  }
+
+  .formula {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 22px 24px;
+  }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  @media (max-width: 620px) {
+    .controls-grid { grid-template-columns: 1fr; }
+  }
+
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .field .domain {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent-dim);
+    margin-left: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    padding: 9px 10px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus {
+    border-color: var(--accent);
+  }
+
+  .field input.invalid {
+    border-color: var(--danger);
+  }
+
+  .field .error-msg {
+    font-size: 0.72rem;
+    color: var(--danger);
+    margin-top: 5px;
+    min-height: 14px;
+    font-family: var(--mono);
+  }
+
+  .status-line {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--panel-border);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .status-line strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  canvas {
+    width: 100%;
+    height: 380px;
+    display: block;
+    background: #0d1117;
+    border-radius: 8px;
+  }
+
+  .canvas-panel {
+    padding: 18px;
+  }
+
+  footer {
+    max-width: 760px;
+    width: 100%;
+    margin-top: 6px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  footer code {
+    font-family: var(--mono);
+    color: var(--accent-dim);
+    background: #0d1117;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .mqtt-title {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--text);
+  }
+
+  .mqtt-hint {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 0 0 18px;
+  }
+
+  .mqtt-hint code {
+    font-family: var(--mono);
+    color: var(--accent-dim);
+    background: #0d1117;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .mqtt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 18px;
+    margin-bottom: 18px;
+  }
+
+  .mqtt-grid .field:first-child {
+    grid-column: 1 / -1;
+  }
+
+  @media (max-width: 620px) {
+    .mqtt-grid { grid-template-columns: 1fr; }
+  }
+
+  .mqtt-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  #mqtt-connect-btn {
+    background: var(--accent);
+    color: #0d1117;
+    border: none;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 9px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  #mqtt-connect-btn:hover {
+    opacity: 0.85;
+  }
+
+  #mqtt-connect-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .mqtt-status {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  .mqtt-status-off {
+    color: var(--text-dim);
+    background: #0d1117;
+  }
+
+  .mqtt-status-on {
+    color: var(--accent);
+    background: rgba(94, 230, 193, 0.12);
+  }
+
+  .mqtt-status-err {
+    color: var(--danger);
+    background: rgba(230, 114, 94, 0.12);
+  }
+
+  .mqtt-log {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: var(--text-dim);
+    background: #0d1117;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    max-height: 140px;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+
+  .mqtt-log .log-entry-new { color: var(--accent); }
+  .mqtt-log .log-entry-err { color: var(--danger); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mappa logistica</h1>
+  <p class="formula">x<sub>n+1</sub> = r &middot; x<sub>n</sub> &middot; (1 &minus; x<sub>n</sub>)</p>
+  <p class="subtitle">Imposta il valore iniziale, il parametro r e il numero di iterazioni per visualizzare l'evoluzione della sequenza.</p>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="controls-grid">
+      <div class="field">
+        <label for="x0">x&#8320; <span class="domain">(&gt; 0.0)</span></label>
+        <input type="number" id="x0" value="0.5" step="0.01">
+        <div class="error-msg" id="err-x0"></div>
+      </div>
+      <div class="field">
+        <label for="r">r <span class="domain">(0 &le; r &le; 4)</span></label>
+        <input type="number" id="r" value="0.9" step="0.01">
+        <div class="error-msg" id="err-r"></div>
+      </div>
+      <div class="field">
+        <label for="n">n <span class="domain">(0 &lt; n &lt; 100)</span></label>
+        <input type="number" id="n" value="50" step="1">
+        <div class="error-msg" id="err-n"></div>
+      </div>
+    </div>
+
+    <div class="status-line">
+      <span>Ultimo valore: <strong id="last-val">&mdash;</strong></span>
+      <span>Iterazioni tracciate: <strong id="iter-count">&mdash;</strong></span>
+    </div>
+  </section>
+
+  <section class="panel canvas-panel">
+    <canvas id="chart" width="1200" height="760"></canvas>
+  </section>
+
+  <section class="panel" id="mqtt-panel">
+    <p class="mqtt-title">Aggiornamento via MQTT</p>
+    <p class="mqtt-hint">
+      Richiede un broker raggiungibile via WebSocket (es. Mosquitto con listener <code>ws</code> attivo).
+      Ogni topic riceve il valore numerico di un solo parametro come payload (es. <code>"0.75"</code>).
+    </p>
+
+    <div class="mqtt-grid">
+      <div class="field">
+        <label for="mqtt-url">URL broker (WebSocket)</label>
+        <input type="text" id="mqtt-url" value="ws://localhost:9001" placeholder="ws://host:9001">
+      </div>
+      <div class="field">
+        <label for="mqtt-topic-x0">Topic per x&#8320;</label>
+        <input type="text" id="mqtt-topic-x0" value="logistic/x0">
+      </div>
+      <div class="field">
+        <label for="mqtt-topic-r">Topic per r</label>
+        <input type="text" id="mqtt-topic-r" value="logistic/r">
+      </div>
+      <div class="field">
+        <label for="mqtt-topic-n">Topic per n</label>
+        <input type="text" id="mqtt-topic-n" value="logistic/n">
+      </div>
+    </div>
+
+    <div class="mqtt-actions">
+      <button id="mqtt-connect-btn" type="button">Connetti</button>
+      <span id="mqtt-status" class="mqtt-status mqtt-status-off">disconnesso</span>
+    </div>
+
+    <div id="mqtt-log" class="mqtt-log"></div>
+  </section>
+</main>
+
+<footer>
+  Nota sul comportamento: per r &lt; 3 la sequenza converge a un punto fisso; per 3 &le; r &lt; 3.57 circa
+  compaiono cicli periodici (biforcazioni); oltre r &asymp; 3.57 la mappa entra in regime caotico.
+  Prova a variare r per osservare questi diversi regimi.
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+<script>
+(function () {
+  const inputX0 = document.getElementById('x0');
+  const inputR = document.getElementById('r');
+  const inputN = document.getElementById('n');
+  const errX0 = document.getElementById('err-x0');
+  const errR = document.getElementById('err-r');
+  const errN = document.getElementById('err-n');
+  const lastValEl = document.getElementById('last-val');
+  const iterCountEl = document.getElementById('iter-count');
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+
+  function validate() {
+    let ok = true;
+    const x0 = parseFloat(inputX0.value);
+    const r = parseFloat(inputR.value);
+    const n = parseInt(inputN.value, 10);
+
+    errX0.textContent = '';
+    errR.textContent = '';
+    errN.textContent = '';
+    inputX0.classList.remove('invalid');
+    inputR.classList.remove('invalid');
+    inputN.classList.remove('invalid');
+
+    if (isNaN(x0) || x0 <= 0.0) {
+      errX0.textContent = 'x0 deve essere > 0.0';
+      inputX0.classList.add('invalid');
+      ok = false;
+    }
+    if (isNaN(r) || r < 0 || r > 4) {
+      errR.textContent = 'r deve essere in [0, 4]';
+      inputR.classList.add('invalid');
+      ok = false;
+    }
+    if (isNaN(n) || n <= 0 || n >= 100 || !Number.isInteger(n)) {
+      errN.textContent = 'n deve essere un intero in (0, 100)';
+      inputN.classList.add('invalid');
+      ok = false;
+    }
+
+    return ok ? { x0, r, n } : null;
+  }
+
+  function computeSequence(x0, r, n) {
+    const seq = [x0];
+    let x = x0;
+    for (let i = 0; i < n; i++) {
+      x = r * x * (1 - x);
+      seq.push(x);
+    }
+    return seq;
+  }
+
+  function draw(seq) {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const padL = 60, padR = 30, padT = 30, padB = 50;
+    const plotW = w - padL - padR;
+    const plotH = h - padT - padB;
+
+    const maxVal = Math.max(0.1, ...seq);
+    const minVal = 0;
+
+    // griglia orizzontale
+    ctx.strokeStyle = '#232b37';
+    ctx.lineWidth = 1;
+    ctx.font = '20px "IBM Plex Mono", monospace';
+    ctx.fillStyle = '#5a6577';
+    const gridSteps = 5;
+    for (let i = 0; i <= gridSteps; i++) {
+      const v = minVal + (maxVal - minVal) * (i / gridSteps);
+      const y = padT + plotH - (v - minVal) / (maxVal - minVal) * plotH;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - padR, y);
+      ctx.stroke();
+      ctx.fillText(v.toFixed(2), 8, y + 6);
+    }
+
+    // asse x - label
+    const n = seq.length - 1;
+    const xLabelSteps = Math.min(10, n);
+    for (let i = 0; i <= xLabelSteps; i++) {
+      const idx = Math.round(n * (i / xLabelSteps));
+      const x = padL + (idx / n) * plotW;
+      ctx.fillText(idx, x - 8, h - padB + 24);
+    }
+
+    ctx.fillStyle = '#8a94a6';
+    ctx.font = '22px "IBM Plex Mono", monospace';
+    ctx.fillText('n', w / 2, h - 8);
+
+    // linea della sequenza
+    ctx.strokeStyle = '#5ee6c1';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    seq.forEach((v, i) => {
+      const x = padL + (i / n) * plotW;
+      const y = padT + plotH - (v - minVal) / (maxVal - minVal) * plotH;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // punti
+    ctx.fillStyle = '#5ee6c1';
+    seq.forEach((v, i) => {
+      const x = padL + (i / n) * plotW;
+      const y = padT + plotH - (v - minVal) / (maxVal - minVal) * plotH;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  function update() {
+    const params = validate();
+    if (!params) {
+      lastValEl.textContent = '—';
+      iterCountEl.textContent = '—';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    const seq = computeSequence(params.x0, params.r, params.n);
+    draw(seq);
+    lastValEl.textContent = seq[seq.length - 1].toFixed(6);
+    iterCountEl.textContent = params.n;
+  }
+
+  [inputX0, inputR, inputN].forEach(el => el.addEventListener('input', update));
+  update();
+
+  // --- Integrazione MQTT ---
+  const mqttUrlInput = document.getElementById('mqtt-url');
+  const mqttTopicX0Input = document.getElementById('mqtt-topic-x0');
+  const mqttTopicRInput = document.getElementById('mqtt-topic-r');
+  const mqttTopicNInput = document.getElementById('mqtt-topic-n');
+  const connectBtn = document.getElementById('mqtt-connect-btn');
+  const statusEl = document.getElementById('mqtt-status');
+  const logEl = document.getElementById('mqtt-log');
+
+  let client = null;
+  let currentTopics = { x0: null, r: null, n: null };
+
+  function logLine(text, cls) {
+    const line = document.createElement('div');
+    if (cls) line.className = cls;
+    const time = new Date().toLocaleTimeString();
+    line.textContent = '[' + time + '] ' + text;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function setStatus(text, cls) {
+    statusEl.textContent = text;
+    statusEl.className = 'mqtt-status ' + cls;
+  }
+
+  function disconnect() {
+    if (client) {
+      client.end(true);
+      client = null;
+    }
+    setStatus('disconnesso', 'mqtt-status-off');
+    connectBtn.textContent = 'Connetti';
+    [mqttUrlInput, mqttTopicX0Input, mqttTopicRInput, mqttTopicNInput].forEach(el => el.disabled = false);
+  }
+
+  function applyIncomingValue(field, rawPayload) {
+    const value = parseFloat(rawPayload);
+    if (isNaN(value)) {
+      logLine('Payload non numerico su topic "' + field.topic + '": ' + rawPayload, 'log-entry-err');
+      return;
+    }
+    field.input.value = value;
+    logLine(field.name + ' <- ' + value + '  (topic: ' + field.topic + ')', 'log-entry-new');
+    update();
+  }
+
+  function connect() {
+    const url = mqttUrlInput.value.trim();
+    const topicX0 = mqttTopicX0Input.value.trim();
+    const topicR = mqttTopicRInput.value.trim();
+    const topicN = mqttTopicNInput.value.trim();
+
+    if (!url) {
+      logLine('Specifica un URL broker valido (es. ws://localhost:9001)', 'log-entry-err');
+      return;
+    }
+
+    currentTopics = { x0: topicX0, r: topicR, n: topicN };
+
+    setStatus('connessione...', 'mqtt-status-off');
+    connectBtn.disabled = true;
+
+    try {
+      client = mqtt.connect(url);
+    } catch (e) {
+      logLine('Errore di connessione: ' + e.message, 'log-entry-err');
+      setStatus('errore', 'mqtt-status-err');
+      connectBtn.disabled = false;
+      return;
+    }
+
+    client.on('connect', function () {
+      setStatus('connesso', 'mqtt-status-on');
+      connectBtn.disabled = false;
+      connectBtn.textContent = 'Disconnetti';
+      [mqttUrlInput, mqttTopicX0Input, mqttTopicRInput, mqttTopicNInput].forEach(el => el.disabled = true);
+
+      const topicsToSubscribe = [topicX0, topicR, topicN].filter(t => t.length > 0);
+      topicsToSubscribe.forEach(topic => {
+        client.subscribe(topic, function (err) {
+          if (err) logLine('Errore sottoscrizione a "' + topic + '": ' + err.message, 'log-entry-err');
+          else logLine('Sottoscritto a "' + topic + '"', null);
+        });
+      });
+    });
+
+    client.on('message', function (topic, payload) {
+      const raw = payload.toString();
+      if (topic === currentTopics.x0) {
+        applyIncomingValue({ input: inputX0, name: 'x0', topic: topic }, raw);
+      } else if (topic === currentTopics.r) {
+        applyIncomingValue({ input: inputR, name: 'r', topic: topic }, raw);
+      } else if (topic === currentTopics.n) {
+        applyIncomingValue({ input: inputN, name: 'n', topic: topic }, raw);
+      }
+    });
+
+    client.on('error', function (err) {
+      logLine('Errore MQTT: ' + err.message, 'log-entry-err');
+      setStatus('errore', 'mqtt-status-err');
+      connectBtn.disabled = false;
+    });
+
+    client.on('close', function () {
+      if (statusEl.textContent !== 'errore') setStatus('disconnesso', 'mqtt-status-off');
+    });
+  }
+
+  connectBtn.addEventListener('click', function () {
+    if (client) {
+      disconnect();
+    } else {
+      connect();
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
