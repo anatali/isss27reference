@@ -1,0 +1,16 @@
+System /* -trace */ demoprologqak
+ModelFor Project: demoprolog_v0
+
+Context ctxfdemoprolog ip [ host="localhost" port=8220 ]
+
+QActor actorusingprolog context ctxfdemoprolog { 
+	State s0 initial{
+//		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
+ 		println( "$name STARTS") color blue
+ 		delay 1000
+ 		//terminate 1 
+ 		println( "$name ENDS") color blue
+ 		[# System.exit(0) #]
+	}
+//	Goto working
+}
