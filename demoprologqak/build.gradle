@@ -96,6 +96,10 @@ dependencies {
     implementation name: 'unibo.basicomm23-1.0'
 
 
+// Source: https://mvnrepository.com/artifact/org.graalvm.js/js-scriptengine
+// VErsione adatta per Java17
+implementation("org.graalvm.polyglot:polyglot:23.1.12")
+implementation("org.graalvm.polyglot:js:23.1.12")
     
     
 }

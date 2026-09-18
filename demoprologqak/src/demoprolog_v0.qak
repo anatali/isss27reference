@@ -4,13 +4,132 @@ ModelFor Project: demoprolog_v0
 Context ctxfdemoprolog ip [ host="localhost" port=8220 ]
 
 QActor actorusingprolog context ctxfdemoprolog { 
+	
+import "org.graalvm.polyglot.*"
+import "utils.FileUtils"
+
+	[# 
+	    
+	   var CurPlan = ""
+	   var CurMove = "" 
+	   var RSTEP   = false
+	   var Goon    = true
+	    	 //val context     = Context.create()  //Escono warming
+			 val Jsctx = Context.newBuilder()
+		        .option("engine.WarnInterpreterOnly", "false")
+		        .build();
+	  
+	  
+	  val LogisticJs = "function mappaLogistica(n, r, x0){"+
+	  "let x = x0; const risultati = [x0] ;"+
+	  "for (let i = 0; i < n; i++) {"+
+	    "x = r * x * (1 - x);"+
+	    "risultati.push(x);"+
+	  "} return risultati;}"
+
+//	  +
+//	  "valori = mappaLogistica(5, 3.8, 0.5);"+
+//	  "console.log(valori)"
+	  
+	  
+	#]
 	State s0 initial{
-//		[#  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml #]
- 		println( "$name STARTS") color blue
- 		delay 1000
+		[#  clearlog("./logs/app_demoprologqak.log") 	//vedi src/main/resources/logback.xml #]
+		//println( "$name STARTS  $LogisticJs") color blue
+ 		//delay 1000
  		//terminate 1 
- 		println( "$name ENDS") color blue
- 		[# System.exit(0) #]
+ 		//println( "$name ENDS") color blue		
 	}
-//	Goto working
+//	Goto useLogisticMap
+//	Goto useCellMap
+	Goto testJs
+	
+	State testJs{
+//		[#
+//			 val ProgramJs   = "3 + 4 * 2"
+//			 var Risultatojs =Jsctx.eval("js", ProgramJs);
+//		#] 
+//  		println( "$name | valorejs=$Risultatojs") color blue
+//  		
+
+/*
+ * ESPERIMENTO CON funzione DEFiNITA IN LogisticJs
+ */
+ 		println( "$name | STARTS USING STRING") color green
+  		[# Jsctx.eval("js", LogisticJs) #] 		
+  		[# val F = Jsctx.getBindings("js").getMember("mappaLogistica") #]
+  		println( "F=$F") color cyan
+  		[# var Valorijs = F.execute(10, 3.7, 0.5) #]
+  		println( "valorejs=$Valorijs") color blue
+ 
+ /*
+ * ESPERIMENTO CON funzione DEFiNITA IN UN FILE
+ */
+  		
+  		println( "$name | STARTS USING FILE") color green
+  		[#  
+  		   val CurrentDir = System.getProperty("user.dir")
+  		   val P       = FileUtils.leggiFile("$CurrentDir/src/main/java/utils/logisticmap.txt");
+  		   val FUN     = Jsctx.eval("js", P)
+   		#]
+  		
+  		println( P ) color yellow
+  		[#			
+  		   val FJS     = Jsctx.getBindings("js").getMember("logisticmap")
+  		   var Values  = FJS.execute(0.5, 3.7, 5)
+  		#]
+  		println( "FROM polyglot to Kotlin") color green
+  		[#
+  			CommUtils.outcyan("Converto da org.graalvm.polyglot.Value a Double")
+  		   //Values è un oggetto Polyglot. org.graalvm.polyglot.Value è un wrapper di GraalVM
+  		   // Converte il Value di GraalVM in un List<Double>
+  		   val listaValori = Values.`as`(List::class.java) as List<Double>
+  		   
+  		   CommUtils.outcyan("Stampo dopo converisone")
+  		   
+  		   listaValori.forEachIndexed { i:Int, v:Double? ->
+    			CommUtils.outmagenta("v=$v i=$i")   //CommUtils.outmagenta
+			}
+  		    
+  		#]
+   		
+//  		println( "$Values" )
+		[# System.exit(0) #]
+	}
+	
+	
+	State useCellMap{ 
+		[# val CurrentDir = System.getProperty("user.dir"); #]
+		[# val CurrentPath = java.nio.file.Paths.get("").toAbsolutePath(); #]
+		println( "$name useMap") color blue
+		solve( consult("${CurrentDir}/src/main/resources/mapProlog.pl")	 )
+		solve( consult("${CurrentDir}/src/main/resources/maprules.pl")	 )
+ //		solve( consult("mapProlog.pl")	 )
+//		solve( consult("maprules.pl")	 )
+		solve( showCells ) 
+		println("$name | execThePlan SOLVE") color magenta   
+   		//solve( test(P) )
+  		solve( plan(0,0,2,4,down,P) ) 
+		println( "$currentSolution" ) color blue
+ 		[# CurPlan = getCurSol("P").toString().replace("[","").replace("]","").replace(",","") #]
+		println("PATH=$CurPlan") color blue		
+		
+		[# System.exit(0) #]
+	}
+ 
+	State useLogisticMap{ 
+		[# val CurrentDir = System.getProperty("user.dir"); #]
+		println( "$name useLogisticMap") color blue
+ 		solve( consult("${CurrentDir}/src/main/resources/logisticmap.pl")	 )
+ 		[# val N = 4
+ 		   val R = 3.5
+ 		   val X = 0.5
+ 		   //var RES = "" 
+ 		#]
+ 		solve( mappa_logistica($R,$X,$N,P) ) 
+// 		[# val RES = getCurSol("P").toString() #] //.replace("[","").replace("]","").replace(",","")
+//		println("$name | Risultato= $RES") color magenta   
+		
+		[# System.exit(0) #]
+	}
 }

@@ -19,6 +19,8 @@ import org.json.simple.JSONObject
 
 
 //User imports JAN2024
+import org.graalvm.polyglot.*
+import utils.FileUtils
 
 class Actorusingprolog ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdynamic: Boolean=false ) : 
           ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
@@ -29,12 +31,108 @@ class Actorusingprolog ( name: String, scope: CoroutineScope, isconfined: Boolea
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
+		 
+			    
+			   var CurPlan = ""
+			   var CurMove = "" 
+			   var RSTEP   = false
+			   var Goon    = true
+			    	 //val context     = Context.create()  //Escono warming
+					 val Jsctx = Context.newBuilder()
+				        .option("engine.WarnInterpreterOnly", "false")
+				        .build();
+			  
+			  
+			  val LogisticJs = "function mappaLogistica(n, r, x0){"+
+			  "let x = x0; const risultati = [x0] ;"+
+			  "for (let i = 0; i < n; i++) {"+
+			    "x = r * x * (1 - x);"+
+			    "risultati.push(x);"+
+			  "} return risultati;}"
+		
+		//	  +
+		//	  "valori = mappaLogistica(5, 3.8, 0.5);"+
+		//	  "console.log(valori)"
+			  
+			  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name STARTS")
-						delay(1000) 
-						CommUtils.outblue("$name ENDS")
+						  clearlog("./logs/app_demoprologqak.log") 	//vedi src/main/resources/logback.xml  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="testJs", cond=doswitch() )
+				}	 
+				state("testJs") { //this:State
+					action { //it:State
+						CommUtils.outgreen("$name | STARTS USING STRING")
+						 Jsctx.eval("js", LogisticJs)  
+						 val F = Jsctx.getBindings("js").getMember("mappaLogistica")  
+						CommUtils.outcyan("F=$F")
+						 var Valorijs = F.execute(10, 3.7, 0.5)  
+						CommUtils.outblue("valorejs=$Valorijs")
+						CommUtils.outgreen("$name | STARTS USING FILE")
+						  
+						  		   val CurrentDir = System.getProperty("user.dir")
+						  		   val P       = FileUtils.leggiFile("$CurrentDir/src/main/java/utils/logisticmap.txt");
+						  		   val FUN     = Jsctx.eval("js", P)
+						CommUtils.outyellow(P)
+									
+						  		   val FJS     = Jsctx.getBindings("js").getMember("logisticmap")
+						  		   var Values  = FJS.execute(0.5, 3.7, 5)
+						CommUtils.outgreen("FROM polyglot to Kotlin")
+						
+						  			CommUtils.outcyan("Converto da org.graalvm.polyglot.Value a Double")
+						  		   //Values è un oggetto Polyglot. org.graalvm.polyglot.Value è un wrapper di GraalVM
+						  		   // Converte il Value di GraalVM in un List<Double>
+						  		   val listaValori = Values.`as`(List::class.java) as List<Double>
+						  		   
+						  		   CommUtils.outcyan("Stampo dopo converisone")
+						  		   
+						  		   listaValori.forEachIndexed { i:Int, v:Double? ->
+						    			CommUtils.outmagenta("v=$v i=$i")   //CommUtils.outmagenta
+									}
+						  		    
+						 System.exit(0)  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+				}	 
+				state("useCellMap") { //this:State
+					action { //it:State
+						 val CurrentDir = System.getProperty("user.dir");  
+						 val CurrentPath = java.nio.file.Paths.get("").toAbsolutePath();  
+						CommUtils.outblue("$name useMap")
+						solve("consult('${CurrentDir}/src/main/resources/mapProlog.pl')","") //set resVar	
+						solve("consult('${CurrentDir}/src/main/resources/maprules.pl')","") //set resVar	
+						solve("showCells","") //set resVar	
+						CommUtils.outmagenta("$name | execThePlan SOLVE")
+						solve("plan(0,0,2,4,down,P)","") //set resVar	
+						CommUtils.outblue("$currentSolution")
+						 CurPlan = getCurSol("P").toString().replace("[","").replace("]","").replace(",","")  
+						CommUtils.outblue("PATH=$CurPlan")
+						 System.exit(0)  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+				}	 
+				state("useLogisticMap") { //this:State
+					action { //it:State
+						 val CurrentDir = System.getProperty("user.dir");  
+						CommUtils.outblue("$name useLogisticMap")
+						solve("consult('${CurrentDir}/src/main/resources/logisticmap.pl')","") //set resVar	
+						 val N = 4
+						 		   val R = 3.5
+						 		   val X = 0.5
+						 		   //var RES = "" 
+						solve("mappa_logistica($R,$X,$N,P)","") //set resVar	
 						 System.exit(0)  
 						//genTimer( actor, state )
 					}

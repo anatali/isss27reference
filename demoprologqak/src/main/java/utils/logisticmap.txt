@@ -1,0 +1,14 @@
+  function logisticmap(x0, r, n) {
+    const seq = [x0];
+    let x = x0;
+    for (let i = 0; i < n; i++) {
+      x = r * x * (1 - x);
+      seq.push(x);
+    }
+    
+//    seq.forEach( (v,i) => {
+//    	console.log("v="+v+ " i="+i);
+//    })
+    
+    return seq;
+  }
