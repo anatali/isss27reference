@@ -1,7 +1,10 @@
 System firstprj27
 ModelFor Project: firstprj27_v3
 /*  
+ * Goal: rispondere a 
  * 
+ * - una richiesta di valutare il valore di una funzione in un punto
+ * - una richiesta di valutare i valori di una funzione in punti a distanza DX entro un intervallo (MIN,MAX) 
  *
  */ 
 Request  evalfun : arg(V)

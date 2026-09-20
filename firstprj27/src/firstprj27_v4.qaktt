@@ -9,6 +9,9 @@ mqttBroker "localhost" : 1883 eventTopic "firstprj27rIn"
  * emette l'evento serviceworking sulla topic "firstprj27rIn_out"
  */ 
 
+//TODO: supera i test di v3???????
+
+
 Request  evalfunvalues : args(MIN,MAX,DX)
 Reply    replyvalues   : values(S) for evalfunvalues
 
