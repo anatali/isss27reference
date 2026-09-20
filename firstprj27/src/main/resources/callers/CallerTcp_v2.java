@@ -5,13 +5,13 @@ import unibo.basicomm23.msg.ProtocolType;
 import unibo.basicomm23.utils.CommUtils;
 import unibo.basicomm23.utils.ConnectionFactory;
 
-public class CallerTcp {
+public class CallerTcp_v2 {
 	private Interaction conn ;
 	private String name = "acaller";
 	private String v    = ""+Math.PI / 2;
 	private IApplMessage evalRequest = CommUtils.buildRequest(name, "evalfun",  "arg("+v+")", "a");
 	
-	public CallerTcp() {
+	public CallerTcp_v2() {
 		doJob();
 	}
 	
@@ -27,7 +27,7 @@ public class CallerTcp {
 	}
 	
 	public static void main(String[] args) {
-		new CallerTcp();
+		new CallerTcp_v2();
 	}
 
 }
