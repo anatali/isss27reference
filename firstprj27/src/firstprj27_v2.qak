@@ -6,9 +6,9 @@ Reply evalreply  : value(V) for evalfun
 
 /*  
  * In questa versione del modello, il componente QActor di nome a
- * - realizza un microservizio per la valutazione dei valori di una funzione
- * - si avvale della classe Java MyCode/EvalFun per calcolare il valore di varie fuznioni
- * - alla classe EvalFun è associata alle procedura di testing definite in MyCode/TestFun.java
+ * - realizza un microservizio per la valutazione dei valori della funzione sin(x)
+ * - si avvale della classe Java MyCode/FSin per calcolare il valore della funzione sin
+ * - alla classe FSin è associata la procedura di testing definite in MyCode/TestFSin.java
  */  
  
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]

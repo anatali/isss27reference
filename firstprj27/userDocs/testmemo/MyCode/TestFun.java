@@ -1,16 +1,13 @@
 package MyCode;
-import static org.junit.Assert.assertFalse;
+
 import static org.junit.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import MyCode.EvalFun;
-import MyCode.FSin;
 import unibo.basicomm23.utils.CommUtils;
 
 public class TestFun {  
-
+//Usa MyCode.EvlaFun
 	private double h( double x ) {
 		//Funzione equivalente a add_sin_cos PERIODICA di 2PI
 		double val = Math.sqrt(2) * Math.sin( x + Math.PI/4);

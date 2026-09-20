@@ -19,7 +19,6 @@ import org.json.simple.JSONObject
 
 
 //User imports JAN2024
-import MyCode.*
 
 class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdynamic: Boolean=false ) : 
           ActorBasicFsm( name, scope, confined=isconfined, dynamically=isdynamic ){
@@ -30,54 +29,43 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
-		 var Min  = 0.0
-			   var Max  = 0.0 
-			   var CurX = 0.0    
-			   var Dx   = 0.0  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						  clearlog("./logs/app_firstprj27.log") 	//vedi src/main/resources/logback.xml  
-						CommUtils.outblue("$name STARTS")
+						  clearlog("./logs/app_firstprj27.log")  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="working", cond=doswitch() )
+					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
 				}	 
-				state("working") { //this:State
+				state("waitrequest") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name - waiting  ...")
+						CommUtils.outblue("$name - waiting for some request ...")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="doevalvalues",cond=whenRequest("evalfunvalues"))
+					 transition(edgeName="t00",targetState="doeval",cond=whenRequest("evalfun"))
 				}	 
-				state("doevalvalues") { //this:State
+				state("doeval") { //this:State
 					action { //it:State
-						CommUtils.outblue("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						updateResourceRep( "doevalvalues"  
-						)
-						   if( currentMsg.msgId( )== "evalfunvalues" && checkMsgContent( Term.createTerm("args(MIN,MAX,DX)"), Term.createTerm("args(A,B,C)"), 
+						   if( currentMsg.msgId( )== "evalfun" && checkMsgContent( Term.createTerm("arg(V)"), Term.createTerm("arg(V)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 val Min = payloadArg(0).toDouble()              
-								 val Max = payloadArg(1).toDouble()              
-								 val Dx  = payloadArg(2).toDouble()              
-								CommUtils.outmagenta("$name - doevalvalues  Min=$Min Max=$Max Dx=$Dx ")
-								 val R = "'" + MyCode.FSinSeries.evalSinPoints( Min,Max,Dx ) + "'"  
-								CommUtils.outgreen("$name - values: $R  ")
-								answer("evalfunvalues", "replyvalues", "values($R)"   )  
+								 val V = payloadArg(0)             
+								CommUtils.outblue("$name - for $V ")
+								 val R = MyCode.FSin.evalStr( V )  
+								CommUtils.outblue("$name - answer $R for $V ")
+								answer("evalfun", "evalreply", "value($R)"   )  
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="working", cond=doswitch() )
+					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
 				}	 
 			}
 		}

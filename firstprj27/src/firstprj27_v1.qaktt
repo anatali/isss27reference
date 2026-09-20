@@ -4,7 +4,7 @@ ModelFor Draft: firstprj27_v1
  * In questa versione del modello, introduciamo
  * un componente QActor di nome a 
  */  
- 
+
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 
 /*

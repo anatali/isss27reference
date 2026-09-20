@@ -3,7 +3,7 @@ System firstprj27
  * Siamo in una fase iniziale di sperimentazione: pertanto
  * definiamo un modello di tipo Draft di un sistema software 
  * che opera in un contesto di nome ctxfirstprj27,
- * al momento senza alcun componente 
+ * al momento senza alcun componente applicativo
  */
 ModelFor Draft: firstprj27_v0  
 
