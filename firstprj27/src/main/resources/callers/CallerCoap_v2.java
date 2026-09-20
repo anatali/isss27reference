@@ -5,7 +5,7 @@ import unibo.basicomm23.msg.ProtocolType;
 import unibo.basicomm23.utils.CommUtils;
 import unibo.basicomm23.utils.ConnectionFactory;
 
-public class CallerCoap_v2 {
+public class CallerCoap_v2 { 
 	private Interaction conn ;
 	private String name = "acaller";
 	private String v    = ""+Math.PI / 2;
