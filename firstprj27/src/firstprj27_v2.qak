@@ -9,7 +9,7 @@ Reply evalreply  : value(V) for evalfun
  * - realizza un microservizio per la valutazione dei valori della funzione sin(x)
  * - si avvale della classe Java MyCode/FSin per calcolare il valore della funzione sin
  * - alla classe FSin è associata la procedura di testing definite in MyCode/TestFSin.java
- */  
+ */   
  
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 
