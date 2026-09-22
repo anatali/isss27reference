@@ -18,7 +18,6 @@ QActor a context ctxfirstprj27 { //withobj evaluator using "MyCode.EvalFun()"{
 		[#  clearlog("./logs/app_firstprj27.log") #]
 //		[# val R = MyCode.FunToEval.getValue( Math.PI / 2) #]
 // 		println( "$name - result of evaluation==$R") color blue
-// 		
 // 		[ #System.exit(0) #]
 	}
 	Goto waitrequest

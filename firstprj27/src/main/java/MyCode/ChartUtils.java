@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
+import unibo.basicomm23.utils.CommUtils;
+
 public class ChartUtils {
 	
 
@@ -63,6 +65,7 @@ public class ChartUtils {
        );
         // Encoding dell'URL per gestire correttamente i caratteri speciali del JSON
        String encodedConfig = URLEncoder.encode(jsonConfig, StandardCharsets.UTF_8);
+       CommUtils.outgreen(encodedConfig);
        return "https://quickchart.io/chart?v=3&c=" + encodedConfig;
    }
 

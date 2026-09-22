@@ -59,6 +59,7 @@ QActor a context ctxfirstprj27 {
 /*
  * Attore introdotto per quick testing
  */
+ /*
 QActor callerforquicktesting context ctxfirstprj27{
 	State s0 initial{
 		println( "$name - STARTS   ") color magenta
@@ -73,10 +74,12 @@ QActor callerforquicktesting context ctxfirstprj27{
 	State showvalues{
 		printCurrentMessage color black
 		onMsg( replyvalues : values(S) ){
-			[# val ReceivedString = payloadArg(0)                                      #]
+			[# val ReceivedString = payloadArg(0)                                             #]
 			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl("FSin",ReceivedString) #]
-			[#  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                         #]
+			[#  MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                                #]
 		}
 		  
 	}
 }
+* *
+*/
