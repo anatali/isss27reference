@@ -12,8 +12,8 @@ import unibo.basicomm23.msg.ProtocolType;
 import unibo.basicomm23.utils.CommUtils;
 import unibo.basicomm23.utils.ConnectionFactory;
 
-
 public class TesttTCPfirstprj27_v2 {  
+
 	//private IApplMessage evalRequest = CommUtils.buildRequest("tester", "evalfun",  "arg(0)", "a");
 	/*
 	 * Definiamo il messaggio come string per poter modificare VX
@@ -46,7 +46,6 @@ public class TesttTCPfirstprj27_v2 {
 		CommUtils.outyellow( "| docall=" + req);		
 		try {
 			IApplMessage result   = conn.request(reqmsg);
-			//String result       = answer.msgContent();
 			CommUtils.outyellow( "| docall answer=" + result);
 			return result.msgContent();
 		} catch (Exception e) {
