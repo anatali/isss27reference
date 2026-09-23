@@ -29,7 +29,10 @@ QActor a context ctxfirstprj27 {
 		whenRequest evalfun       -> doeval
 		whenRequest evalfunvalues -> doevalvalues
 
-	State doeval{ 
+	/*
+	 * Parte precedente
+	 */
+	State doeval{  
 		onMsg( evalfun : arg(V) ){
 			[# val V = payloadArg(0)            #]
 			println( "$name - evalfun for $V ") color blue
@@ -40,6 +43,9 @@ QActor a context ctxfirstprj27 {
 	}
 	Goto waitrequest
 			 
+	/*
+	 * Parte nuova
+	 */
 	State doevalvalues{ 
 		printCurrentMessage color green
 		onMsg( evalfunvalues : args(A,B,C) ){

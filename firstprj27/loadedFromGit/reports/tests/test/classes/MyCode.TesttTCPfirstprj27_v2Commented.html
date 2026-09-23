@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class MyCode.TesttTCPfirstprj27_v2Commented</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class MyCode.TesttTCPfirstprj27_v2Commented</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/MyCode.html">MyCode</a> &gt; TesttTCPfirstprj27_v2Commented</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">2</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.020s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">test1Coap</td>
+<td class="success">0.015s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">test1Tcp</td>
+<td class="success">0.005s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>?[33m               %%% sysUtil | loadheory  firstprj27.pl?[0m
+?[33m               %%% sysUtil | loadheory  sysRules.pl?[0m
+?[35m               %%% sysUtil +++ createContexts ctxfirstprj27?[0m
+?[33m               %%% CoapResourceCtx ctxfirstprj27 | created AFTER INIT ?[0m
+		?[31mtcpSrv | costruct ERROR: Address already in use?[0m
+               %%% QakContext ctxfirstprj27 |  serverCoap error: None of the server endpoints could be started
+?[36m               %%% sysUtil | INJECTION ctxsMap.put ctxfirstprj27 mqttAddr=?[0m
+?[31mtcpSrv | probably socket closed: Cannot invoke &quot;java.net.ServerSocket.accept()&quot; because &quot;this.serversock&quot; is null?[0m
+?[33m               %%% CoapResourceCtx ctxfirstprj27 | created AFTER INIT ?[0m
+		?[31mtcpSrv | costruct ERROR: Address already in use?[0m
+               %%% QakContext ctxfirstprj27 |  serverCoap error: None of the server endpoints could be started
+?[36m               %%% sysUtil | INJECTION ctxsMap.put ctxfirstprj27 mqttAddr=?[0m
+?[31mtcpSrv | probably socket closed: Cannot invoke &quot;java.net.ServerSocket.accept()&quot; because &quot;this.serversock&quot; is null?[0m
+?[33m               sysUtil  | createActor class for it.unibo.a.A   class it.unibo.a.A?[0m
+?[33m               sysUtil  | createActor class for it.unibo.a.A   class it.unibo.a.A?[0m
+?[35mclear log ./logs/app_firstprj27.log ---- ?[0m
+?[34ma - waiting for some request ...?[0m
+?[33m               sysUtil  | createActor class for it.unibo.a.A   class it.unibo.a.A?[0m
+?[35mclear log ./logs/app_firstprj27.log ---- ?[0m
+?[34ma - waiting for some request ...?[0m
+?[33m               sysUtil  | createActor class for it.unibo.a.A   class it.unibo.a.A?[0m
+?[35mclear log ./logs/app_firstprj27.log ---- ?[0m
+?[34ma - waiting for some request ...?[0m
+?[33m               sysUtil  | createActor class for it.unibo.a.A   class it.unibo.a.A?[0m
+?[35mclear log ./logs/app_firstprj27.log ---- ?[0m
+?[34ma - waiting for some request ...?[0m
+?[32m               %%%  ActorBasic a | waiting for context ...?[0m
+?[33m               sysUtil  | createActor class for it.unibo.a.A   class it.unibo.a.A?[0m
+?[32m               %%%  ActorBasic a | waiting for context ...?[0m
+?[35mclear log ./logs/app_firstprj27.log ---- ?[0m
+?[34ma - waiting for some request ...?[0m
+?[35mclear log ./logs/app_firstprj27.log ---- ?[0m
+?[34ma - waiting for some request ...?[0m
+?[35mTesttfirstprj27  | start the (micro)service - MQTT:false?[0m
+?[32m======================= test1Tcp  ?[0m
+?[32mtest1Tcp req=mmsg(evalfun,request,tester,a,arg(0),0)?[0m
+?[33m    --- ConnectionFactory | create tcp port:8120?[0m
+?[33mtcpSrv | TcpServer 8120 accepted connection on 56638 with userDefHandler=ctxfirstprj27MsgH thname=tcpSrv?[0m
+?[33m| docall=mmsg(evalfun,request,tester,a,arg(0),0)?[0m
+?[34ma - for 0 ?[0m
+?[34ma - answer 0.0 for 0 ?[0m
+?[33m| docall answer=msg(evalreply,reply,a,tester,value(0.0),35)?[0m
+?[34ma - waiting for some request ...?[0m
+?[32mtest1Tcp result=value(0.0)?[0m
+?[35mTesttfirstprj27 | down?[0m
+?[32mTesttfirstprj27.java test1Coap  ?[0m
+?[32mtest1Coap request=mmsg(evalfun,request,tester,a,arg(1.5707963267948966),0)?[0m
+?[33m    --- ConnectionFactory | create coap conn localhost:8120 entry=ctxfirstprj27/a?[0m
+?[33m| docall=mmsg(evalfun,request,tester,a,arg(1.5707963267948966),0)?[0m
+?[34ma - for 1.5707963267948966 ?[0m
+?[34ma - answer 1.0 for 1.5707963267948966 ?[0m
+?[34ma - waiting for some request ...?[0m
+?[33m| docall answer=msg(evalreply,reply,a,tester,value(1.0),38)?[0m
+?[32mtest1Coap result=value(1.0)?[0m
+?[35mTesttfirstprj27 | down?[0m
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 8.6</a> at Sep 22, 2026, 2:36:19 PM</p>
+</div>
+</div>
+</body>
+</html>

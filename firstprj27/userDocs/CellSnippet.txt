@@ -1,0 +1,12 @@
+// Esempio concettuale di una Cella pura senza variabili
+QActor cell_0 context ctxTuring {
+    State cellIsZero { }
+    Transition t0 whenMsg read -> replyZero
+                  whenMsg writeOne -> gotoCellOne
+
+    State cellIsOne { }
+    Transition t1 whenMsg read -> replyOne
+                  whenMsg writeZero -> gotoCellZero
+    
+    // ...
+}
