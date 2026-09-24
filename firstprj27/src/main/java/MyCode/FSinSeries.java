@@ -22,6 +22,12 @@ public class FSinSeries {
     	stopped = false;
     } 
     
+	public static double eval(double x) {
+		double sinValue = Math.sin(x)  ;
+		// Arrotonda a 2 cifre decimali
+		return Math.round(sinValue * 100.0) / 100.0;
+	} 
+    
     public static void setParams(double MinVal, double MaxVal, double delta ) {
     	Min = MinVal;
     	Max = MaxVal;
@@ -69,7 +75,7 @@ public class FSinSeries {
     public static String evalSinPoints(double Min, double Max, double dx ) {
     	 System.out.println("evalSinPoints Min=" + Min + " Max=" + Max + " Dx=" + dx);
      for (double x = Min; x <= Max; x += dx) {
-          double y = FSin.eval(x);
+          double y = eval(x);
           labels.add(String.format(Locale.US, "%.1f", x));
           values.add(String.format(Locale.US, "%.3f", y));
      }

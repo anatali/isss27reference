@@ -1,0 +1,18 @@
+System logisticmap
+ModelFor Analysis: logisticmap_v0
+ 
+Context ctxlogisticmap ip [ host="localhost" port=8333 ]
+
+QActor mapservice context ctxlogisticmap{
+	State s0 initial{
+		[#  clearlog("./logs/app_logisticmap.log") 	//vedi src/main/resources/logback.xml #]
+ 		println( "$name STARTS") color blue
+ 		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
+	}
+	Goto waitrequest
+	
+	State waitrequest{ 
+		println( "$name - waiting for some request ...") color blue
+	}
+	
+}
