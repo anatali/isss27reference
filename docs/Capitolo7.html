@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capitolo 7: Primi esperimenti e modello firstprj27_v3</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background-color: #ffffff;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            border-bottom: 2px solid #2b4c7e;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            color: #2b4c7e;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            color: #1a202c;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 35px;
+        }
+
+        .focus-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #2b4c7e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .concept-annotation {
+            background-color: #f1f5f9;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .concept-title {
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 5px;
+        }
+
+        .code-inline {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #0f172a;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #0284c7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                max-width: 100%;
+            }
+            .focus-box, .concept-annotation {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Capitolo 7: Primi esperimenti</h1>
+        <div class="subtitle">Evoluzione del modello QAK per la valutazione di serie di dati e integrazione di servizi di visualizzazione grafica</div>
+    </header>
+
+    <section class="focus-box">
+        <p><strong>Goal del Capitolo:</strong> Definire un Microservizio capace di restituire una stringa contenente una coppia di sequenze di valori per la funzione <i>sin(x)</i> campionata in più punti a intervalli regolari. Per supportare tale interazione viene introdotto un nuovo pattern di messaggistica Request-Reply nel modello QAK.</p>
+    </section>
+
+    <section>
+        <h2>1. Definizione dell'Interfaccia di Comunicazione</h2>
+        <p>Nel nuovo modello definito in <a href="https://github.com/anatali/isss27reference/blob/c553ffaa7386e8706aa4f97dcb771970ea9ebb96/firstprj27/src/firstprj27_v3.qaktt#L1" target="_blank" rel="noopener">src/firstprj27_v3.qak</a>, la comunicazione asincrona a due vie per il calcolo della serie matematica viene formalizzata mediante la seguente coppia richiesta/risposta:</p>
+
+        <ul>
+            <li><span class="code-inline">Request evalfunvalues : args(MIN, MAX, DX)</span></li>
+            <li><span class="code-inline">Reply replyvalues : values(S) for evalfunvalues</span></li>
+        </ul>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Approfondimento: Coppia di valori (Ascisse e Ordinate)</div>
+            La stringa generata rappresenta il campionamento matematico della funzione <span class="code-inline">f(x) = sin(x)</span> nell'intervallo compreso tra il valore minimo (<span class="code-inline">MIN</span>) e il valore massimo (<span class="code-inline">MAX</span>). La serie comprende due elenchi sincronizzati: le coordinate di campionamento sull'asse x e i rispettivi valori calcolati sull'asse y.
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Approfondimento: Passo di incremento DX</div>
+            Il parametro <span class="code-inline">DX</span> rappresenta il passo di discretizzazione dell'intervallo continuo. Determina la distanza costante tra due ascisse successive lungo l'asse x (<span class="code-inline">x<sub>i+1</sub> = x<sub>i</sub> + DX</span>). Minore è il valore di <span class="code-inline">DX</span>, maggiore sarà il numero di punti campionati e la precisione del grafico risultante.
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Approfondimento: Intervallo (MIN, MAX)</div>
+            L'intervallo delimitato dai valori boundary <span class="code-inline">MIN</span> e <span class="code-inline">MAX</span> definisce il dominio di calcolo entro cui viene valutata la funzione trigonometrica. Il primo punto campionato corrisponde a <span class="code-inline">x<sub>0</sub> = MIN</span>, mentre l'ultimo corrisponde al massimo valore <span class="code-inline">x<sub>n</sub> &le; MAX</span>.
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Approfondimento: Messaggio di richiesta con relativa Reply</div>
+            Nell'architettura basata su QActor, le richieste di tipo <span class="code-inline">Request</span> introducono un vincolo di interazione richiedendo che il mittente riceva una risposta esplicita (<span class="code-inline">Reply</span>) correlata al messaggio originale tramite un identificatore unico. Il microservizio riceve il messaggio, calcola i valori e risponde senza bloccare le proprie capacità reattive.
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Logica di Dominio: Generazione della Serie</h2>
+        <p>La sequenza di coppie di valori viene costruita dal metodo statico:</p>
+
+        <p><span class="code-inline">public static String evalSinPoints(double Min, double Max, double dx)</span></p>
+
+        <p>della classe <a href="https://github.com/anatali/isss27reference/blob/c553ffaa7386e8706aa4f97dcb771970ea9ebb96/firstprj27/src/main/java/MyCode/FSinSeries.java#L8" target="_blank" rel="noopener">FSinSeries.java</a>. Il metodo formatta i risultati aggregando la sequenza delle ascisse e la sequenza delle ordinate in un'unica stringa codificata.</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Approfondimento: Codifica del payload A ### B</div>
+            I risultati del calcolo vengono serializzati all'interno del payload di risposta secondo la sintassi convenzionale <span class="code-inline">A ### B</span>:
+            <ul>
+                <li><strong>Sottostringa A:</strong> Contiene una sequenza di <span class="code-inline">NA</span> valori corrispondenti alle ascisse a distanza costante <span class="code-inline">dx</span>.</li>
+                <li><strong>Separatore ###:</strong> Token di demarcazione utilizzato per consentire al chiamante di effettuare il parsing della risposta in due sottostringhe distinte.</li>
+                <li><strong>Sottostringa B:</strong> Contiene una sequenza di <span class="code-inline">NB</span> valori calcolati relativi alle ordinate.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Collaudo e Verifica Automatizzata</h2>
+        <p>Il testing del nuovo modello viene definito nel file <a href="https://github.com/anatali/isss27reference/blob/c553ffaa7386e8706aa4f97dcb771970ea9ebb96/firstprj27/src/test/java/MyCode/TesttTCPfirstprj27_v3.java#L20" target="_blank" rel="noopener">TesttTCPfirstprj27_v3.java</a>. Il test controlla formalmente che la stringa prodotta sia nella forma <span class="code-inline">A ### B</span>.</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Approfondimento: Criterio di validazione NB = NA</div>
+            Il test automatizzato controlla che la sequenza <span class="code-inline">A</span> di <span class="code-inline">NA</span> ascisse e la sequenza <span class="code-inline">B</span> di <span class="code-inline">NB</span> ordinate rispettino la condizione <span class="code-inline">NB = NA</span>. Questa invariante garantisce l'assenza di disallineamenti o perdite di dati durante il ciclo di calcolo e la serializzazione della risposta.
+        </div>
+    </section>
+
+    <section>
+        <h2>4. Visualizzazione Grafica con QuickChart</h2>
+        <p>Viene inoltre definito il programma <span class="code-inline">CallerTcpWithChart_v3.java</span> che invia una richiesta <span class="code-inline">evalfunvalues</span> al Microservizio e visualizza la coppia di sequenze della reply avvalendosi della classe <a href="https://github.com/anatali/isss27reference/blob/c553ffaa7386e8706aa4f97dcb771970ea9ebb96/firstprj27/src/main/java/MyCode/ChartUtils.java#L13" target="_blank" rel="noopener">MyCode/ChartUtils.java</a>.</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Approfondimento: Integrazione del servizio QuickChart</div>
+            La classe <span class="code-inline">ChartUtils.java</span> delega la generazione del grafico al servizio online <a href="https://quickchart.io/chart" target="_blank" rel="noopener">https://quickchart.io/chart</a>. Trasformando la coppia di sequenze in un'interrogazione per l'API web di QuickChart, il client ottiene l'immagine del grafico pronta per essere renderizzata a schermo senza richiedere componenti di grafica complessi sul server.
+        </div>
+    </section>
+
+</body>
+</html>
