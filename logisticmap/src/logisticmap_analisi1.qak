@@ -1,0 +1,31 @@
+System logisticmap
+ModelFor Analysis: logisticmap_analisi1
+ 
+Request  evallogistic  : args(MIN,MAX,DX)
+Reply    replylogistic : result(R) for evallogistic  //R to be defined
+
+Dispatch showgraph : values(SOFPAIRS) //SOFPAIRS = x1 , x2 ,...xn ### y1, y2, ... xn
+
+Context ctxlogisticmap ip [ host="localhost" port=8333 ]
+
+QActor mapservice context ctxlogisticmap{
+	State s0 initial{
+		[#  clearlog("./logs/app_logisticmap.log") 	//vedi src/main/resources/logback.xml #]
+ 		println( "$name STARTS") color blue
+ 		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
+	}
+	Goto waitrequest
+	
+	State waitrequest{ 
+		println( "$name - waiting for some request ...") color blue
+	}
+}
+
+QActor viewer context ctxlogisticmap{
+	State s0 initial{
+		[#  clearlog("./logs/app_logisticmap.log") 	//vedi src/main/resources/logback.xml #]
+ 		println( "$name STARTS") color green
+ 		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
+	}
+	 
+}

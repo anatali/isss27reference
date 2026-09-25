@@ -6,13 +6,30 @@ import java.util.Locale;
 import unibo.basicomm23.utils.CommUtils;
 
 public class LogisticSeries {
-    private static double r = 3.8;          //
-    private static double x = 0.1;          // 10% della capacità iniziale
+    private static double r  = 3.8;          //
+    private static double x1 = 0.1;          // 10% della capacità iniziale
     private static int anniTotali = 50;     // Estendiamo a 50 anni per vedere bene l'estabilizzazione dell'onda
 
-    public static String evalPoints(  ) {
-    	return evalPoints(r,x,anniTotali);
+    public static void setParameters(double r_p, double x1_p, int anni_p ) {
+    	r = r_p;
+    	x1 = x1_p;
+    	anniTotali = anni_p;
     }
+    
+    public static String eval( ) {
+    	double xold = x1;
+    	double x1   = r * xold * (1.0 - xold);
+    	return xold+"###"+x1;
+    }
+    
+    public static String evalPoints(  ) {
+    	return evalPoints(r,x1,anniTotali);
+    }
+    
+    public static String evalAllPoints( ) {
+    	return evalPoints(r,x1,anniTotali);
+    }
+    
     public static String evalPoints(double r, double x, int anni ) {
     	 System.out.println("evalSinPoints r=" + r + " x=" + x + " anni=" + anni);
     	List<String> labels = new ArrayList<>();
