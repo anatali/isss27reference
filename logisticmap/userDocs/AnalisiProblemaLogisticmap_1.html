@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capitolo 9: Prima Analisi del Problema - Mappa Logistica</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background-color: #ffffff;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            border-bottom: 2px solid #2b4c7e;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            color: #2b4c7e;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            color: #1a202c;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 35px;
+        }
+
+        .focus-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #2b4c7e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .concept-annotation {
+            background-color: #f1f5f9;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .concept-title {
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 5px;
+        }
+
+        .code-inline {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #0f172a;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #0284c7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                max-width: 100%;
+            }
+            .focus-box, .concept-annotation {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Analisi del Problema - Mappa Logistica</h1>
+        <div class="subtitle">Modellazione logica del servizio mapservice, valutazione delle criticità e riprogettazione dell'architettura di visualizzazione</div>
+    </header>
+<!--
+    <section class="focus-box">
+        <p><strong>Goal dell'Analisi:</strong> Definire il comportamento logico dei componenti del sistema destinato al calcolo e alla visualizzazione della Mappa Logistica, formalizzabile mediante l'equazione iterativa $$x_{t+1} = r \cdot x_t \cdot (1 - x_t)$$ Evidenziare i limiti architetturali della prima soluzione per orientare l'evoluzione verso un microservizio Web distribuito e disaccoppiato.</p>
+    </section>
+-->
+    <section>
+        <h2>1. Prima Modellazione dell'Architettura Logica</h2>
+        <p>Un primo approccio per concettualizzare il comportamento dei componenti del sistema consiste nell'estendere lo schema di interazione asincrona e separazione delle responsabilità tramite QActor:</p>
+
+        <ol>
+            <li>
+                <strong>Supporto di Calcolo:</strong> Il QActor <span class="code-inline">mapservice</span> si avvale della classe POJO <a href="https://github.com/anatali/isss27reference/blob/f9e46ab3beab8218b9a62405c64b23673fa785a8/firstprj27/src/main/java/MyCode/LogisticSeries.java#L1" target="_blank" rel="noopener">LogisticSeries.java</a> per eseguire la logica di dominio:
+                <ul>
+                    <li><span class="code-inline">public static void setParameters(double r, double x1, int anni)</span>: imposta i parametri del modello matematico.</li>
+                    <li><span class="code-inline">public static String eval()</span>: calcola il singolo punto successivo restituendo la coppia in formato <span class="code-inline">x###y</span>.</li>
+                    <li><span class="code-inline">public static String evalAllPoints()</span>: valuta l'intera serie temporale restituendo una stringa serializzata <span class="code-inline">x1 x2 ... ### y1 y2 ...</span>.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Gestione della Richiesta:</strong> Alla ricezione del messaggio <span class="code-inline">evallogistic</span>, il QActor <span class="code-inline">mapservice</span> estrae il payload, configura i parametri con <span class="code-inline">setParameters</span>, genera la stringa di coppie <span class="code-inline">SOFPAIRS</span> tramite <span class="code-inline">evalAllPoints</span> e risponde al mittente con <span class="code-inline">replylogistic</span> contenente <span class="code-inline">result(done)</span>.
+            </li>
+            <li>
+                <strong>Delegazione della Rendering:</strong> Per visualizzare i dati, <span class="code-inline">mapservice</span> invia in modo asincrono un messaggio di controllo al QActor <span class="code-inline">viewer</span>:
+                <br><br>
+                <span class="code-inline">Dispatch showgraph : values(SOFPAIRS)</span>
+            </li>
+            <li>
+                <strong>Componente Visualizzatore:</strong> Il QActor <span class="code-inline">viewer</span> riceve la serie ed effettua la resa grafica.
+            </li>
+        </ol>
+
+        <p>Questa strategia è espressa in modo formale nella specifica QAK <a href="https://github.com/anatali/isss27reference/blob/main/firstprj27/src/logisticmap_analisi1.qaktt" target="_blank" rel="noopener">logisticmap_analisi1.qaktt</a>.</p>
+    </section>
+
+    <section>
+        <h2>2. Critica dell'Architettura Iniziale e Limiti Operativi</h2>
+        <p>Ipotizzando che il componente <span class="code-inline">viewer</span> utilizzi direttamente un servizio di terze parti come QuickChart (generando l'immagine tramite chiamata remota), la soluzione presenta due importanti criticità architetturali:</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Criticità 1: Rigidità del Dominio Temporale (Anni Fissi)</div>
+            Il calcolo presuppone la determinazione a priori di un numero prefissato di passaggi temporali (<span class="code-inline">anni</span>). Si potrebbe ipotizzare che il cliente guidi il servizio in modo dinamico tramite comandi operativi di <span class="code-inline">start/stop</span>. Tuttavia, l'analisi formale dei requisiti evidenzia che tale funzionalità <strong>non è richiesta dalla committenza</strong>, come specificato nell'issue <a href="https://github.com/anatali/isss27reference/issues/20" target="_blank" rel="noopener">Issue #20: Requisiti Mappa Logistica</a>.
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Criticità 2: Vincolo di Locazione e Dipendenza dal Desktop Locale</div>
+            Se il grafico viene erogato tramite una risorsa web, la soluzione attuale obbliga il client a risiedere sulla stessa macchina fisica su cui è in esecuzione <span class="code-inline">mapservice</span>. L'apertura della pagina avviene infatti invocando il metodo nativo:
+            <br><br>
+            <span class="code-inline">Desktop.getDesktop().browse(new URI(chartUrl))</span>
+            <br><br>
+            Questa istruzione forza l'avvio del browser locale dell'ambiente operativo (Chrome, Firefox, Edge, Safari), rendendo impossibile la fruizione distribuita da parte di client remoti che non condividono l'indirizzo IP del server.
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Proposta di Ecosistema Riprogettato: Viewer come Web Service</h2>
+        <p>A fronte delle criticità emerse, è opportuno modificare l'organizzazione dell'architettura logica prima di passare alla fase di progettazione e codifica finale.</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Impostazione di 'viewer' come Microservizio Web Dedicato</div>
+            Anziché demandare l'apertura del browser locale all'ambiente di esecuzione di <span class="code-inline">mapservice</span>, l'attore <span class="code-inline">viewer</span> viene strutturato come un vero e proprio <strong>microservizio web autonomo</strong> (es. sviluppato con Spring Boot, Express.js o Ktor).
+        </div>
+
+        <p>Il nuovo flusso operativo distribuito si articola nei seguenti punti:</p>
+        <ul>
+            <li><strong>Esposizione di un Endpoint HTTP/WebSocket:</strong> Il componente <span class="code-inline">viewer</span> espone una porta di rete nota accessibile da qualunque client Web remoto.</li>
+            <li><strong>Disaccoppiamento del Rendering:</strong> Quando il chiamante invia la richiesta <span class="code-inline">evallogistic</span> a <span class="code-inline">mapservice</span>, il servizio non forza più la visualizzazione locale ma restituisce nella reply l'URL dell'endpoint erogato dal <span class="code-inline">viewer</span>:
+                <br><br>
+                <span class="code-inline">Reply replylogistic : done(URL_PAGINA_WEB) for evallogistic</span>
+            </li>
+            <li><strong>Aggiornamento Dinamico del Grafico:</strong> Il <span class="code-inline">viewer</span> riceve i punti da <span class="code-inline">mapservice</span> (via dispatch interno o bus di messaggi) e li rende disponibili alla pagina HTML visualizzata dal client tramite chiamate REST o flussi Push (Server-Sent Events / WebSockets), eliminando qualsiasi dipendenza dalle API grafiche della JVM (<span class="code-inline">java.awt.Desktop</span>).</li>
+        </ul>
+    </section>
+
+</body>
+</html>

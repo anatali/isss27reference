@@ -3,7 +3,7 @@ ModelFor Analysis: logisticmap_analisi1
  
 Request  evallogistic  : args(MIN,MAX,DX)
 Reply    replylogistic : result(R) for evallogistic  //R to be defined
-
+ 
 Dispatch showgraph : values(SOFPAIRS) //SOFPAIRS = x1 , x2 ,...xn ### y1, y2, ... xn
 
 Context ctxlogisticmap ip [ host="localhost" port=8333 ]
