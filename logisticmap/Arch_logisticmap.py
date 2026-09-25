@@ -27,4 +27,5 @@ with Diagram('logisticmapArch', show=False, outformat='png', graph_attr=graphatt
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
      with Cluster('ctxlogisticmap', graph_attr=nodeattr):
           mapservice=Custom('mapservice','./qakicons/symActorWithobjSmall.png')
+          viewer=Custom('viewer','./qakicons/symActorWithobjSmall.png')
 diag
