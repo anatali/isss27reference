@@ -1,6 +1,9 @@
 System logisticmap
 ModelFor Requirements: logisticmap_requisiti0
  
+Request  evallogistic  : args(MIN,MAX,DX)
+Reply    replylogistic : result(R) for evallogistic  //R to be defined
+
 Context ctxlogisticmap ip [ host="localhost" port=8333 ]
 
 QActor mapservice context ctxlogisticmap{
