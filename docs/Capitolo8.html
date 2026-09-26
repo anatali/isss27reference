@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capitolo 8: Analisi del Problema e Modellazione dell'Architettura Logica</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background-color: #ffffff;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            border-bottom: 2px solid #2b4c7e;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            color: #2b4c7e;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            color: #1a202c;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 35px;
+        }
+
+        .focus-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #2b4c7e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .concept-annotation {
+            background-color: #f1f5f9;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .concept-title {
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 5px;
+        }
+
+        .code-inline {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #0f172a;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #0284c7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+ 
+        /* --- STILI PER LA STAMPA (Nessun blocco nero) --- */
+        @media print {
+            body {
+                max-width: 100%;
+                padding: 0;
+                color: #000000;
+            }
+            pre, code {
+                background-color: #ffffff !important;
+                border: 1px solid #999999 !important;
+                color: #000000 !important;
+            }
+            .note-box {
+                background-color: #ffffff !important;
+                border-left: 3px solid #000000 !important;
+                border-top: 1px solid #ccc;
+                border-right: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+            }
+            a {
+                text-decoration: none;
+                color: #000000;
+            }
+        }		
+        /* --- NOTE DIDATTICHE / ANNOTAZIONI --- */
+        .note-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0969da;
+            padding: 12px 18px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .note-box header {
+            font-weight: bold;
+            color: #0969da;
+            text-transform: uppercase;
+            font-size: 0.82em;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Capitolo 8: Introduzione all'Analisi del Problema e Modello dell'Architettura Logica</h1>
+        <div class="subtitle">Verso lo sviluppo cooperativo: valutazione delle opzioni progettuali e definizione del modello formale</div>
+    </header>
+
+    <section class="focus-box">
+        <p><strong>Goal del Capitolo:</strong> Motivare l'importanza fondamentale della fase di analisi del problema nello sviluppo del software. Prima di procedere alla scrittura del codice, è necessario impostare una discussione comparata tra le diverse alternative operative per giungere alla definizione formale di un modello che esprima l'architettura logica del sistema. A questo scopo, vengono introdotti anche gli strumenti di lavoro cooperativo forniti da GitHub.</p>
+    </section>
+
+    <section>
+        <h2>1. Il Problema dell'Erogazione dei Servizi di Calcolo e Visualizzazione</h2>
+        <p>La classe <a href="https://github.com/anatali/isss27reference/blob/c553ffaa7386e8706aa4f97dcb771970ea9ebb96/firstprj27/src/main/java/MyCode/FSinSeries.java#L8" target="_blank" rel="noopener">FSinSeries.java</a> 
+		consente sia il calcolo puntuale <span class="code-inline">y = sin(x)</span> sia la generazione di una sequenza di coppie 
+		di valori di lunghezza determinata. Nel modello basato su QActor, il microservizio <span class="code-inline">a</span> 
+		può adottare diverse strategie per rispondere a una richiesta di valutazione:</p>
+
+        <ul>
+            <li><strong>Generazione aggregata lato server:</strong> L'attore <span class="code-inline">a</span> delega interamente il calcolo della sequenza al metodo 
+			<span class="code-inline">evalSinPoints</span> e restituisce l'intera struttura dati al chiamante.</li>
+            <li><strong>Gestione interna del ciclo:</strong> L'attore <span class="code-inline">a</span> invoca 
+			iterativamente il metodo <span class="code-inline">eval</span> 
+			(presente anche nella classe <a href="https://github.com/anatali/isss27reference/blob/478991dd18d2ff16b2c9bf85eb3581a089096fb2/firstprj27/src/main/java/MyCode/FSin.java#L1" target="_blank" rel="noopener">FSin.java</a>), 
+			calcolando un punto alla volta e prendendosi l'onere di creare la sequenza.</li>
+            <li><strong>Delegazione della visualizzazione:</strong> L'attore <span class="code-inline">a</span> 
+			assume il compito di visualizzare il grafico delegando un attore specializzato 
+			(es. <span class="code-inline">viewer</span>) o un servizio remoto, che restituisce al chiamante una risposta contenente 
+			l'URL dell'immagine del grafico:
+                <br><br>
+                <span class="code-inline">Request evalfunvalues : args(MIN, MAX, DX)</span><br>
+                <span class="code-inline">Reply replyaval : done(URL) for evalfunvalues</span>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>2. Discussione Comparata e Analisi delle Alternative</h2>
+        <p>Prima di implementare qualsiasi soluzione, l'analista deve condurre una valutazione critica sulle opzioni 
+		architetturali disponibili:</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Analisi dell'impatto di rete: Calcolo batch vs Visualizzazione incrementale</div>
+            L'idea che l'attore <span class="code-inline">a</span> calcoli un valore alla volta inviandolo incrementalmente 
+			a un servizio remoto di rendering potrebbe rivelarsi inefficace per funzioni semplici come 
+			<span class="code-inline">sin(x)</span>, in quanto genera un elevato overhead causato dal traffico di messaggi sulla rete.
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Contesto applicativo: Il caso della "Mappa Logistica"</div>
+            Se la funzione da valutare non è una semplice curva trigonometrica ma una "mappa logistica" 
+			(implementata nella classe <a href="https://github.com/anatali/isss27reference/blob/f9e46ab3beab8218b9a62405c64b23673fa785a8/firstprj27/src/main/java/MyCode/LogisticSeries.java#L1" target="_blank" rel="noopener">LogisticSeries.java</a> 
+			che descrive l'evoluzione temporale di una popolazione), il tempo che intercorre tra due iterazioni successive 
+			può essere significativo. In tal caso, la trasmissione e visualizzazione incrementale punto per punto diventa 
+			un requisito operativo quasi obbligatorio.
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Supporto al Lavoro Cooperativo con GitHub</h2>
+        <p>Per condurre in modo trasparente e strutturato la discussione sulle alternative architetturali 
+		all'interno di un team, è opportuno avvalersi di strumenti di tracciamento coordinato.
+		GitHub fornisce un ecosistema integrato per coniugare l'avanzamento del codice sorgente con la gestione analitica del progetto.
+		</p>
+
+  <div class="note-box">
+        <header>Concetto: Sviluppo Cooperativo del Software</header>
+        <p>Metodologia di lavoro strutturata in cui più sviluppatori collaborano sul medesimo repository. 
+		Richiede strumenti per sincronizzare le modifiche al codice (Git) e coordinare la pianificazione 
+		delle funzionalità (GitHub Projects/Issues), garantendo tracciabilità, riduzione dei conflitti 
+		e qualità del software attraverso la revisione tra pari.</p>
+    </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Strumenti di lavoro cooperativo</div>
+            GitHub mette a disposizione funzionalità avanzate per la gestione del flusso metodologico agile, 
+			consentendo ai componenti del team di condividere decisioni di analisi prima della scrittura del codice.
+        </div>
+ 
+        <div class="concept-annotation">
+            <div class="concept-title">Sviluppo cooperativo del software e Sezione Project</div>
+            La sezione <i>Project</i> di GitHub (accessibile ad esempio nel workspace di progetto 
+			<a href="https://github.com/users/anatali/projects/9" target="_blank" rel="noopener">History_firstPrj27</a>) permette di organizzare il lavoro di analisi e sviluppo mediante <i>board Kanban</i>, roadmap e tabelle dinamiche. Attraverso la gestione integrata di <i>Issues</i>, <i>Pull Requests</i> e note di lavoro, il team mantiene la completa tracciabilità del processo decisionale.
+        </div>
+		
+    <div class="note-box">
+        <header>Concetto: Sezione Project e Viste di Pianificazione</header>
+        <p><strong>Project</strong> è lo strumento di gestione di GitHub che consente di organizzare le attività mediante <strong>board Kanban</strong> (vista a colonne per rappresentare il flusso di lavoro) o <strong>tabelle e roadmap</strong> (viste analitiche e temporali). Permette di tracciare l'evoluzione di <strong>Issues</strong> (task da svolgere), <strong>Pull Requests</strong> (proposte di modifica al codice) e note operative.</p>
+        <p><em>Principio architetturale:</em> Un Project rappresenta un livello di astrazione gestionale. Non contiene codice sorgente ed è del tutto opzionale rispetto al ciclo di vita del repository Git.</p>
+    </div>		
+
+        <p>E' importante evidenziare che:</p>
+        <ul>
+            <li>La sezione <i>Project</i> gestisce il processo di lavoro e non coincide con il codice sorgente del repository.</li>
+            <li>L'adozione di <i>Project</i> è del tutto opzionale, ma costituisce un fattore abilitante primario nei contesti di sviluppo cooperativo distribuiti.</li>
+        </ul>
+    </section>
+
+
+    <section>
+	
+	   <h2>4. Creazione e Configurazione di un Project</h2>
+	   <p>
+	   Impostiamo nel nostro repository 
+	   <a href="https://github.com/anatali/isss27reference/tree/main" target="git">isss27reference</a>
+	   un nuovo project di nome 
+	    <a href="https://github.com/anatali/isss27reference/tree/main/logisticmap" target="git">logisticmap</a>
+	   </p>
+       <p>Richiamando i principi metodologici introdotti per lo sviluppo distribuito, 
+	      l'organizzazione delle attività relative a questo nuovo project viene formalizzata all'interno 
+		  della dashboard di un Project  denominata 
+		  <a href="https://github.com/anatali/isss27reference/tree/54af593f6c4dbdb22ac34e8105551a816995c21d/logisticmap" target="git">LogisticmapPrj</a>
+
+  
+    <div class="note-box">
+        <header>Operatività: Creazione, Collegamento ed Eliminazione di un Project</header>
+        <ul>
+            <li><strong>Creazione:</strong> Dalla scheda <em>Projects</em> del repository, cliccare su <em>Link a project</em> 
+			e selezionare <em>New project</em>. È possibile scegliere un modello come <strong>Board</strong> 
+			(vista Kanban standard a colonne) o <strong>Table</strong> (vista tabellare a foglio di calcolo) 
+			e assegnare un nome (es. <code>LogisticMapPrj</code>).</li>
+            <li><strong>Collegamento (Link a project):</strong> Se un progetto viene creato a livello di organizzazione o utente, 
+			la funzione <em>Link a project</em> permette di associarlo al repository (es. <code>iss27reference</code>), 
+			rendendolo accessibile direttamente dalla pagina del codice.</li>
+            <li><strong>Eliminazione:</strong> Accedendo alle impostazioni del Project (<em>Settings</em>), è possibile 
+			eliminare definitivamente il tabellone o rimuovere il collegamento col repository senza intaccare 
+			la storia dei commit o delle Issue.</li>
+        </ul>
+		
+		Esempio: <a href="https://github.com/users/anatali/projects/13/views/1" target="git">Link a LogistuicmapPrj</a>
+    </div>
+
+    <div class="note-box">
+        <header>Operatività: Gestione della Board Kanban</header>
+        <p>La vista <strong>Board</strong> organizza il flusso visivo a colonne. Le schede (item) 
+		rappresentano le unità di lavoro e vengono fatte avanzare trascinandole da sinistra a destra 
+		tra le colonne di stato 
+		(tipicamente: <code>Todo</code> &rarr; <code>In Progress</code> &rarr; <code>In Review</code> &rarr; <code>Done</code>) 
+		in parallelo con i commit e le Pull Request.</p>
+				
+    </div>
+    <div class="note-box">
+	<header>Pull request</header>
+		La <strong>push</strong> è un'operazione tecnica di invio dati,  mentre la <strong> pull request</strong> fa parte di un processo di 
+	    collaborazione, in quanto chiede di revisionare e unire (<b>merge</b>) i cambiamenti di un <i>branch</i> nel ramo principale. 
+	</div>
+    </section>
+
+   <section>
+	
+	   <h2>5. GitHub Pages</h2>
+	   <p>
+	   </p>
+
+ 
+
+    <section>
+         
+        <p><strong>GitHub Pages</strong> è un servizio di hosting statico fornito direttamente da GitHub che trasforma i file HTML, CSS, JavaScript e Markdown presenti in un repository in un sito web pubblicamente accessibile via HTTP/HTTPS.</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Differenza tra sorgente GitHub e rendering GitHub Pages</div>
+            Quando si naviga all'interno dell'interfaccia standard del repository su GitHub, l'apertura di un file <span class="code-inline">.html</span> mostra il codice sorgente (il markup raw) per motivi di sicurezza. Tramite <strong>GitHub Pages</strong>, invece, il file viene interpretato ed eseguito dal browser, consentendo la visualizzazione completa dell'interfaccia grafica, dei fogli di stile, delle formule matematiche (es. MathJax) e il corretto funzionamento di tutti i collegamenti ipertestuali (permalink).
+        </div>
+
+        <h3>Valore nel Processo Agile e Cooperativo</h3>
+        <ul>
+            <li><strong>Accessibilità della Documentazione:</strong> Consente a committenti, revisori e membri del team di consultare l'analisi dei requisiti e i report architetturali in formato visuale senza dover scaricare il progetto in locale.</li>
+            <li><strong>Preservazione dei Permalink:</strong> Tutti i riferimenti incrociati verso sorgenti del repository (es. file <span class="code-inline">.java</span> o <span class="code-inline">.qaktt</span>) o verso altre pagine HTML rimangono pienamente operativi.</li>
+            <li><strong>Automazione CI/CD:</strong> Ogni aggiornamento (commit/push) effettuato sul ramo principale rigenera automaticamente la documentazione online.</li>
+        </ul>
+    </section>
+
+    <section>
+    <div class="note-box">
+        <header>Operatività: Procedura di Creazione e Configurazione</header>
+
+        <p>Esistono due modalità principali per configurare GitHub Pages in base alla struttura delle directory scelta nel repository.</p>
+
+         
+            <div class="concept-title">Modalità A: Pubblicazione Nativa tramite cartella '/docs' (Consigliata)</div>
+            È l'approccio più semplice ed essenziale, ideale per mantenere pulita la radice del repository:
+            <ol>
+                <li>All'interno del repository, creare la cartella denominata <span class="code-inline">docs/</span>.</li>
+                <li>Inserire i file della documentazione HTML (es. <span class="code-inline">docs/index.html</span>, <span class="code-inline">docs/capitolo9.html</span>).</li>
+                <li>Effettuare il commit e il push su GitHub:
+                    <br><br>
+                    <span class="code-inline">git add docs/</span><br>
+                    <span class="code-inline">git commit -m "Aggiunta documentazione HTML in docs"</span><br>
+                    <span class="code-inline">git push origin main</span>
+                </li>
+                <li>Nel repository su GitHub, accedere a <strong>Settings</strong> &gt; <strong>Pages</strong>.</li>
+                <li>Alla voce <strong>Build and deployment</strong>:
+                    <ul>
+                        <li>Impostare <strong>Source</strong> su <span class="code-inline">Deploy from a branch</span>.</li>
+                        <li>Selezionare il ramo <span class="code-inline">main</span> (o il ramo predefinito).</li>
+                        <li>Nel menu a tendina delle cartelle, selezionare <strong>/docs</strong> anziché <i>/ (root)</i>.</li>
+                    </ul>
+                </li>
+                <li>Cliccare su <strong>Save</strong>.</li>
+            </ol>
+         
+
+         
+            <div class="concept-title">Modalità B: Cartella Personalizzata (es. 'repoDocs') tramite GitHub Action</div>
+            Se per convenzione di progetto occorre utilizzare una directory diversa (ad esempio <span class="code-inline">repoDocs</span>):
+            <ol>
+                <li>Creare la cartella <span class="code-inline">repoDocs/</span> e inserirvi i file HTML.</li>
+                <li>Creare il file di workflow in <span class="code-inline">.github/workflows/static.yml</span>.</li>
+                <li>Nel file di workflow, specificare il percorso della cartella nel parametro <span class="code-inline">path: 'repoDocs'</span>.</li>
+                <li>Nelle impostazioni del repository (<strong>Settings</strong> &gt; <strong>Pages</strong>), impostare <strong>Source</strong> su <span class="code-inline">GitHub Actions</span>.</li>
+            </ol>
+       </div>  
+    </section>
+	
+    <section>
+  <div class="note-box">
+	<header>Operatività: Struttura dell'URL e Verifica del Deploy</header>
+        <p>Una volta completato il primo deployment (richiede solitamente circa 30-60 secondi), la documentazione sarà pubblicata ed esposta al pubblico al seguente indirizzo:</p>
+
+        <div class="focus-box">
+            <span class="code-inline">https://&lt;nome-utente&gt;.github.io/&lt;nome-repository&gt;/&lt;nome-file.html&gt;</span>
+        </div>
+
+        <p>Ad esempio, questo file 
+		 sarà accessibile in rendering diretto all'indirizzo:</p>
+        <p><span class="code-inline">https://anatali.github.io/isss27reference/capitolo8.html</span></p>
+    </div>
+	</section>
+
+
+
+
+
+
+
+
+</body>
+</html>
