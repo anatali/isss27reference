@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capitolo 8: Analisi del Problema e Modellazione dell'Architettura Logica</title>
+    <title>Capitolo 8: Analisi del Problema e lavoro cooperativo</title>
     <style>
         body {
             font-family: "Helvetica Neue", Arial, sans-serif;
@@ -138,7 +138,7 @@
 <body>
 
     <header>
-        <h1>Capitolo 8: Introduzione all'Analisi del Problema e Modello dell'Architettura Logica</h1>
+        <h1>Capitolo 8: Introduzione all'Analisi del Problema e al lavoro cooperativo</h1>
         <div class="subtitle">Verso lo sviluppo cooperativo: valutazione delle opzioni progettuali e definizione del modello formale</div>
     </header>
 
@@ -282,10 +282,48 @@
 	    collaborazione, in quanto chiede di revisionare e unire (<b>merge</b>) i cambiamenti di un <i>branch</i> nel ramo principale. 
 	</div>
     </section>
+	
+		<section>
+    <h2>5. Flusso Operativo: dall'Issue al Merge della PR</h2>
+	
+	<p>Richiamando i principi metodologici introdotti per lo sviluppo distribuito, 
+	      l'organizzazione delle attività di esempio viene formalizzata all'interno della dashboard di progetto denominata
+</p>
+    <p>Il ciclo di vita completo di una funzionalità all'interno del flusso cooperativo si articola secondo le seguenti fasi automatizzate:</p>
+
+    <pre>
++-----------------+  gh pr create +--------------+  gh pr merge   +---------------+
+| Todo / Backlog  |  &minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&gt; | In Review /  |  &minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&gt; |   Done        |
+| Issue registrata| (Fixes #Issue)| In Progress  | (PR integrata) |(Issue chiusa  |
++-----------------+               +--------------+                +---------------+
+    </pre>
+
+
+        <div class="concept-annotation">
+            <div class="concept-title">Comandi e configurazione della Board 'LogisticmapPrj'</div>
+            
+			La creazione della Board permette di associare automaticamente le <i>Issues</i> aperte nel repository 
+			e di farle avanzare tra le colonne dello stato operativo.
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Workflows attivi e flussi principali nel Project</div>
+            Accedendo alla sezione <i>Workflows</i> di <span class="code-inline">LogisticmapPrj</span> è possibile configurare regole di automazione. Tra i flussi principali vi sono:
+            <ul>
+                <li>Spostamento automatico di una scheda in <i>In Progress</i> quando la relativa Issue viene assegnata o legata a una Pull Request.</li>
+                <li>Chiusura automatica e transizione in <i>Done</i> al completamento del merge del codice.</li>
+            </ul>
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Risoluzione operativa: Sblocco del menu 'Set Value' nei Workflows</div>
+            Se durante la configurazione delle regole automatiche del progetto il menu a tendina <i>Set value</i> risulta disabilitato, significa che l'interfaccia si trova in modalità di sola lettura (<i>Viewing mode</i>). Per procedere occorre cliccare sul pulsante <i>Edit</i> in alto a destra. È inoltre indispensabile assicurarsi che la colonna di destinazione selezionata sia associata al campo standard di sistema denominato <strong>Status</strong>.
+        </div>
+    </section>
 
    <section>
 	
-	   <h2>5. GitHub Pages</h2>
+	   <h2>6. GitHub Pages</h2>
 	   <p>
 	   </p>
 
@@ -353,15 +391,14 @@
     <section>
   <div class="note-box">
 	<header>Operatività: Struttura dell'URL e Verifica del Deploy</header>
-        <p>Una volta completato il primo deployment (richiede solitamente circa 30-60 secondi), la documentazione sarà pubblicata ed esposta al pubblico al seguente indirizzo:</p>
+        <p>Una volta completato il primo deployment (richiede solitamente circa 30-60 secondi), la documentazione 
+		sarà pubblicata ed esposta al pubblico al seguente indirizzo:</p>
 
-        <div class="focus-box">
+         
             <span class="code-inline">https://&lt;nome-utente&gt;.github.io/&lt;nome-repository&gt;/&lt;nome-file.html&gt;</span>
-        </div>
-
-        <p>Ad esempio, questo file 
-		 sarà accessibile in rendering diretto all'indirizzo:</p>
-        <p><span class="code-inline">https://anatali.github.io/isss27reference/capitolo8.html</span></p>
+   		 <p>
+		 In particolare: 
+         <span class="code-inline">https://anatali.github.io/isss27reference/capitolo8.html</span></p>
     </div>
 	</section>
 
