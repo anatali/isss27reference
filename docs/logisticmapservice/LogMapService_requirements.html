@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capitolo 8: Analisi del Problema e lavoro cooperativo</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background-color: #ffffff;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            border-bottom: 2px solid #2b4c7e;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            color: #2b4c7e;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            color: #1a202c;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 35px;
+        }
+
+        .focus-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #2b4c7e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .concept-annotation {
+            background-color: #f1f5f9;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .concept-title {
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 5px;
+        }
+
+        .code-inline {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #0f172a;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #0284c7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+ 
+        /* --- STILI PER LA STAMPA (Nessun blocco nero) --- */
+        @media print {
+            body {
+                max-width: 100%;
+                padding: 0;
+                color: #000000;
+            }
+            pre, code {
+                background-color: #ffffff !important;
+                border: 1px solid #999999 !important;
+                color: #000000 !important;
+            }
+            .note-box {
+                background-color: #ffffff !important;
+                border-left: 3px solid #000000 !important;
+                border-top: 1px solid #ccc;
+                border-right: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+            }
+            a {
+                text-decoration: none;
+                color: #000000;
+            }
+        }		
+        /* --- NOTE DIDATTICHE / ANNOTAZIONI --- */
+        .note-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0969da;
+            padding: 12px 18px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .note-box header {
+            font-weight: bold;
+            color: #0969da;
+            text-transform: uppercase;
+            font-size: 0.82em;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>logisticmapservice: i requisiti</h1>
+      </header>
+      <ul>
+            <li><div class="concept-title">Goal</div> Realizzare un microservizio denominato 
+			    <span class="code-inline">mapservice</span> che calcoli e renda visualizzabile il grafico della funzione 
+				iterativa nota come <i>mappa logistica</i>:
+                <br><br>
+                <span class="code-inline">x<sub>t+1</sub> = r &middot; x<sub>t</sub> &middot; (1 - x<sub>t</sub>)</span>
+                <br><br>
+                Il servizio deve rendere il grafico preferibilmente fruibile all'interno di una pagina HTML accessibile via Web.
+            </li>
+			<li> <div class="concept-title">User Story del Servizio</div> 
+			Dal punto di vista dell'utilizzatore del sistema: come fruitore del servizio, invio a 
+			<span class="code-inline">mapservice</span> una richiesta (<span class="code-inline">Request</span>) 
+			fornendo come parametri il valore iniziale <span class="code-inline">x<sub>0</sub></span>, 
+			il parametro di crescita <span class="code-inline">r</span> e il numero totale di 
+			iterazioni <span class="code-inline">N</span>, attendendomi di ricevere in risposta 
+			la rappresentazione grafica della funzione.
+			</li>
+			
+        </ul>
+</body>
+</html>

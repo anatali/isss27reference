@@ -139,17 +139,23 @@
 
     <header>
         <h1>Capitolo 8: Introduzione all'Analisi del Problema e al lavoro cooperativo</h1>
-        <div class="subtitle">Verso lo sviluppo cooperativo: valutazione delle opzioni progettuali e definizione del modello formale</div>
+        <div class="subtitle">Verso lo sviluppo cooperativo: valutazione delle opzioni analitich e progettuali 
+		</div>
     </header>
 
     <section class="focus-box">
-        <p><strong>Goal del Capitolo:</strong> Motivare l'importanza fondamentale della fase di analisi del problema nello sviluppo del software. Prima di procedere alla scrittura del codice, è necessario impostare una discussione comparata tra le diverse alternative operative per giungere alla definizione formale di un modello che esprima l'architettura logica del sistema. A questo scopo, vengono introdotti anche gli strumenti di lavoro cooperativo forniti da GitHub.</p>
+        <p><strong>Goal del Capitolo:</strong> Motivare l'importanza fondamentale della fase di analisi del problema 
+		nello sviluppo del software. Prima di procedere alla scrittura del codice, è necessario impostare una 
+		<b>discussione comparata</b> tra le diverse alternative operative per giungere alla definizione formale 
+		di un modello che esprima l'architettura logica del sistema. In questa fase,
+		risultano molto utili gli strumenti di lavoro cooperativo forniti da GitHub.</p>
     </section>
 
     <section>
         <h2>1. Il Problema dell'Erogazione dei Servizi di Calcolo e Visualizzazione</h2>
         <p>La classe <a href="https://github.com/anatali/isss27reference/blob/c553ffaa7386e8706aa4f97dcb771970ea9ebb96/firstprj27/src/main/java/MyCode/FSinSeries.java#L8" target="_blank" rel="noopener">FSinSeries.java</a> 
-		consente sia il calcolo puntuale <span class="code-inline">y = sin(x)</span> sia la generazione di una sequenza di coppie 
+		introdotta in precedenza, consente sia il calcolo puntuale <span class="code-inline">y = sin(x)</span> 
+		sia la generazione di una coppia di sequenze
 		di valori di lunghezza determinata. Nel modello basato su QActor, il microservizio <span class="code-inline">a</span> 
 		può adottare diverse strategie per rispondere a una richiesta di valutazione:</p>
 
@@ -159,10 +165,11 @@
             <li><strong>Gestione interna del ciclo:</strong> L'attore <span class="code-inline">a</span> invoca 
 			iterativamente il metodo <span class="code-inline">eval</span> 
 			(presente anche nella classe <a href="https://github.com/anatali/isss27reference/blob/478991dd18d2ff16b2c9bf85eb3581a089096fb2/firstprj27/src/main/java/MyCode/FSin.java#L1" target="_blank" rel="noopener">FSin.java</a>), 
-			calcolando un punto alla volta e prendendosi l'onere di creare la sequenza.</li>
+			calcolando un punto alla volta e prendendosi l'onere di creare la coppia di sequenze.</li>
             <li><strong>Delegazione della visualizzazione:</strong> L'attore <span class="code-inline">a</span> 
-			assume il compito di visualizzare il grafico delegando un attore specializzato 
-			(es. <span class="code-inline">viewer</span>) o un servizio remoto, che restituisce al chiamante una risposta contenente 
+			si assume anche il compito di visualizzare il grafico, oppure delega a ciò un attore specializzato 
+			(es. <span class="code-inline">viewer</span>) o un servizio remoto. 
+			In ogni caso, al chiamante viene restituita una risposta contenente 
 			l'URL dell'immagine del grafico:
                 <br><br>
                 <span class="code-inline">Request evalfunvalues : args(MIN, MAX, DX)</span><br>
@@ -174,7 +181,7 @@
     <section>
         <h2>2. Discussione Comparata e Analisi delle Alternative</h2>
         <p>Prima di implementare qualsiasi soluzione, l'analista deve condurre una valutazione critica sulle opzioni 
-		architetturali disponibili:</p>
+		architetturali e comportamentali disponibili. Ad esempio:</p>
 
         <div class="concept-annotation">
             <div class="concept-title">Analisi dell'impatto di rete: Calcolo batch vs Visualizzazione incrementale</div>
@@ -195,7 +202,7 @@
 
     <section>
         <h2>3. Supporto al Lavoro Cooperativo con GitHub</h2>
-        <p>Per condurre in modo trasparente e strutturato la discussione sulle alternative architetturali 
+        <p>Per condurre in modo trasparente e strutturato la discussione 
 		all'interno di un team, è opportuno avvalersi di strumenti di tracciamento coordinato.
 		GitHub fornisce un ecosistema integrato per coniugare l'avanzamento del codice sorgente con la gestione analitica del progetto.
 		</p>
@@ -204,27 +211,28 @@
         <header>Concetto: Sviluppo Cooperativo del Software</header>
         <p>Metodologia di lavoro strutturata in cui più sviluppatori collaborano sul medesimo repository. 
 		Richiede strumenti per sincronizzare le modifiche al codice (Git) e coordinare la pianificazione 
-		delle funzionalità (GitHub Projects/Issues), garantendo tracciabilità, riduzione dei conflitti 
+		delle funzionalità (GitHub <b>Projects/Issues</b>), garantendo tracciabilità, riduzione dei conflitti 
 		e qualità del software attraverso la revisione tra pari.</p>
     </div>
 
-        <div class="concept-annotation">
-            <div class="concept-title">Strumenti di lavoro cooperativo</div>
-            GitHub mette a disposizione funzionalità avanzate per la gestione del flusso metodologico agile, 
-			consentendo ai componenti del team di condividere decisioni di analisi prima della scrittura del codice.
-        </div>
- 
+ <!--
         <div class="concept-annotation">
             <div class="concept-title">Sviluppo cooperativo del software e Sezione Project</div>
             La sezione <i>Project</i> di GitHub (accessibile ad esempio nel workspace di progetto 
 			<a href="https://github.com/users/anatali/projects/9" target="_blank" rel="noopener">History_firstPrj27</a>) permette di organizzare il lavoro di analisi e sviluppo mediante <i>board Kanban</i>, roadmap e tabelle dinamiche. Attraverso la gestione integrata di <i>Issues</i>, <i>Pull Requests</i> e note di lavoro, il team mantiene la completa tracciabilità del processo decisionale.
         </div>
-		
+-->		
     <div class="note-box">
         <header>Concetto: Sezione Project e Viste di Pianificazione</header>
         <p><strong>Project</strong> è lo strumento di gestione di GitHub che consente di organizzare le attività mediante <strong>board Kanban</strong> (vista a colonne per rappresentare il flusso di lavoro) o <strong>tabelle e roadmap</strong> (viste analitiche e temporali). Permette di tracciare l'evoluzione di <strong>Issues</strong> (task da svolgere), <strong>Pull Requests</strong> (proposte di modifica al codice) e note operative.</p>
         <p><em>Principio architetturale:</em> Un Project rappresenta un livello di astrazione gestionale. Non contiene codice sorgente ed è del tutto opzionale rispetto al ciclo di vita del repository Git.</p>
     </div>		
+
+   <div class="note-box">
+	<header>Pull request</header>
+		La <strong>push</strong> è un'operazione tecnica di invio dati,  mentre la <strong> pull request</strong> fa parte di un processo di 
+	    collaborazione, in quanto chiede di revisionare e unire (<b>merge</b>) i cambiamenti di un <i>branch</i> nel ramo principale. 
+	</div>
 
         <p>E' importante evidenziare che:</p>
         <ul>
@@ -243,10 +251,11 @@
 	   un nuovo project di nome 
 	    <a href="https://github.com/anatali/isss27reference/tree/main/logisticmap" target="git">logisticmap</a>
 	   </p>
-       <p>Richiamando i principi metodologici introdotti per lo sviluppo distribuito, 
-	      l'organizzazione delle attività relative a questo nuovo project viene formalizzata all'interno 
-		  della dashboard di un Project  denominata 
-		  <a href="https://github.com/anatali/isss27reference/tree/54af593f6c4dbdb22ac34e8105551a816995c21d/logisticmap" target="git">LogisticmapPrj</a>
+       <p>
+	      L'organizzazione delle attività relative a questo nuovo project viene formalizzata all'interno 
+		  della dashboard di un Project  denominato
+		  <a href="https://github.com/anatali/isss27reference/tree/54af593f6c4dbdb22ac34e8105551a816995c21d/logisticmap" target="git">
+		  LogisticmapPrj</a>
 
   
     <div class="note-box">
@@ -255,7 +264,7 @@
             <li><strong>Creazione:</strong> Dalla scheda <em>Projects</em> del repository, cliccare su <em>Link a project</em> 
 			e selezionare <em>New project</em>. È possibile scegliere un modello come <strong>Board</strong> 
 			(vista Kanban standard a colonne) o <strong>Table</strong> (vista tabellare a foglio di calcolo) 
-			e assegnare un nome (es. <code>LogisticMapPrj</code>).</li>
+			e assegnare un nome (es. <code>LogisticmapPrj</code>).</li>
             <li><strong>Collegamento (Link a project):</strong> Se un progetto viene creato a livello di organizzazione o utente, 
 			la funzione <em>Link a project</em> permette di associarlo al repository (es. <code>iss27reference</code>), 
 			rendendolo accessibile direttamente dalla pagina del codice.</li>
@@ -264,7 +273,7 @@
 			la storia dei commit o delle Issue.</li>
         </ul>
 		
-		Esempio: <a href="https://github.com/users/anatali/projects/13/views/1" target="git">Link a LogistuicmapPrj</a>
+		Esempio: <a href="https://github.com/users/anatali/projects/13/views/1" target="git">Link a LogisticmapPrj</a>
     </div>
 
     <div class="note-box">
@@ -276,20 +285,13 @@
 		in parallelo con i commit e le Pull Request.</p>
 				
     </div>
-    <div class="note-box">
-	<header>Pull request</header>
-		La <strong>push</strong> è un'operazione tecnica di invio dati,  mentre la <strong> pull request</strong> fa parte di un processo di 
-	    collaborazione, in quanto chiede di revisionare e unire (<b>merge</b>) i cambiamenti di un <i>branch</i> nel ramo principale. 
-	</div>
-    </section>
+     </section>
 	
 		<section>
     <h2>5. Flusso Operativo: dall'Issue al Merge della PR</h2>
 	
-	<p>Richiamando i principi metodologici introdotti per lo sviluppo distribuito, 
-	      l'organizzazione delle attività di esempio viene formalizzata all'interno della dashboard di progetto denominata
 </p>
-    <p>Il ciclo di vita completo di una funzionalità all'interno del flusso cooperativo si articola secondo le seguenti fasi automatizzate:</p>
+    <p>Il ciclo di vita di una funzionalità all'interno del flusso cooperativo si articola secondo le seguenti fasi automatizzate:</p>
 
     <pre>
 +-----------------+  gh pr create +--------------+  gh pr merge   +---------------+
@@ -308,7 +310,9 @@
 
         <div class="concept-annotation">
             <div class="concept-title">Workflows attivi e flussi principali nel Project</div>
-            Accedendo alla sezione <i>Workflows</i> di <span class="code-inline">LogisticmapPrj</span> è possibile configurare regole di automazione. Tra i flussi principali vi sono:
+            Accedendo alla sezione <b><i>Workflows</i></b> di 
+			<a href="https://github.com/users/anatali/projects/13/views/1" target="git">LogisticcmapPrj</a>
+			è possibile configurare regole di automazione. Tra i flussi principali vi sono:
             <ul>
                 <li>Spostamento automatico di una scheda in <i>In Progress</i> quando la relativa Issue viene assegnata o legata a una Pull Request.</li>
                 <li>Chiusura automatica e transizione in <i>Done</i> al completamento del merge del codice.</li>
@@ -342,7 +346,10 @@
         <ul>
             <li><strong>Accessibilità della Documentazione:</strong> Consente a committenti, revisori e membri del team di consultare l'analisi dei requisiti e i report architetturali in formato visuale senza dover scaricare il progetto in locale.</li>
             <li><strong>Preservazione dei Permalink:</strong> Tutti i riferimenti incrociati verso sorgenti del repository (es. file <span class="code-inline">.java</span> o <span class="code-inline">.qaktt</span>) o verso altre pagine HTML rimangono pienamente operativi.</li>
-            <li><strong>Automazione CI/CD:</strong> Ogni aggiornamento (commit/push) effettuato sul ramo principale rigenera automaticamente la documentazione online.</li>
+            <li><strong>Automazione CI/CD:</strong> 
+			Ogni aggiornamento (commit/push) effettuato sul ramo principale rigenera automaticamente la documentazione online.
+ 			
+			</li>
         </ul>
     </section>
 
@@ -390,7 +397,7 @@
 	
     <section>
   <div class="note-box">
-	<header>Operatività: Struttura dell'URL e Verifica del Deploy</header>
+	<header>Operatività: Struttura dell'URL e Deploy</header>
         <p>Una volta completato il primo deployment (richiede solitamente circa 30-60 secondi), la documentazione 
 		sarà pubblicata ed esposta al pubblico al seguente indirizzo:</p>
 
@@ -400,9 +407,26 @@
 		 In particolare: 
          <span class="code-inline">https://anatali.github.io/isss27reference/capitolo8.html</span></p>
     </div>
+
+
+			D'ora in poi, ogni aggiornamento (commit/push) effettuato sul ramo principale rigenera automaticamente 
+			la documentazione online.
+			Dietro le quinte:
+<ol>
+<li> <i>Modifica e Commit Locale:</i> Tu lavori ai tuoi file HTML (ad esempio aggiorni <tt>docs/capitolo8.html</tt> 
+per aggiungere un'analisi o correggere un refuso) ed esegui il commit nel tuo repository locale.
+</li>
+<li> <i>Invio delle modifiche (`push`):</i> Invii le modifiche al server remoto su GitHub eseguendo il comando:
+ <tt>git push origin main</tt>
+</li>
+<li><i>Trigger Automatico:</i> GitHub rileva immediatamente che ci sono nuovi file o modifiche sul ramo principale (`main`).
+</li>
+<li><i>Build & Deploy Silenzioso:</i> In automatico, un server di GitHub prende il contenuto della cartella configurata (es. `/docs`), 
+ricompila la struttura del sito ed esegue il <b>deploy</b> (la pubblicazione).
+<li><i>Aggiornamento Live:</i> Nel giro di 30–60 secondi, la versione online raggiungibile all'indirizzo 
+<tt>`https://<username>.github.io/<repository>/`</tt> mostra la pagina aggiornata a chiunque la stia consultando.
+</ol>
 	</section>
-
-
 
 
 
