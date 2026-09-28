@@ -95,6 +95,9 @@ dependencies {
 	implementation name: 'unibo.qakactor23-5.0'
     implementation name: 'unibo.basicomm23-1.0'
 
+	//ADDED for charts
+	//https://mvnrepository.com/artifact/org.jfree/jfreechart 
+	implementation("org.jfree:jfreechart:1.5.6")
 
     
     

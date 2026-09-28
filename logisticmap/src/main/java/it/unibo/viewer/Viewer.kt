@@ -40,6 +40,21 @@ class Viewer ( name: String, scope: CoroutineScope, isconfined: Boolean=false, i
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition(edgeName="t00",targetState="show",cond=whenDispatch("showgraph"))
+				}	 
+				state("show") { //this:State
+					action { //it:State
+						   if( currentMsg.msgId( )== "showgraph" && checkMsgContent( Term.createTerm("values(SOFPAIRS)"), Term.createTerm("values(S)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val ReceivedString = payloadArg(0)                                       
+								 val chartUrl       = MyCode.ChartUtils.buildMapChartUrl(ReceivedString)  
+								 MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                          
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
 				}	 
 			}
 		}

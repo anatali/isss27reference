@@ -8,7 +8,8 @@ Dispatch showgraph : values(SOFPAIRS) //SOFPAIRS = x1 , x2 ,...xn ### y1, y2, ..
 
 Context ctxlogisticmap ip [ host="localhost" port=8333 ]
 
-QActor mapservice context ctxlogisticmap{
+QActor mapservice context ctxlogisticmap {
+	[# #]
 	State s0 initial{
 		[#  clearlog("./logs/app_logisticmap.log") 	//vedi src/main/resources/logback.xml #]
  		println( "$name STARTS") color blue
@@ -18,14 +19,38 @@ QActor mapservice context ctxlogisticmap{
 	
 	State waitrequest{ 
 		println( "$name - waiting for some request ...") color blue
+		onMsg( evallogistic : args(A,B,C) ){
+			[# val Min = payloadArg(0).toDouble()             #]
+			[# val Max = payloadArg(1).toDouble()             #]
+			[# val Dx  = payloadArg(2).toDouble()             #]
+			println( "$name - evallogistic  Min=$Min Max=$Max Dx=$Dx ") color magenta
+			//Inserisco apici per creare una String usabile come termine Prolog nella reply
+			[# val R = "'" + MyCode.FSinSeries.evalSinPoints( Min,Max,Dx ) + "'" #]		
+  			println( "$name - values: $R  ") color green
+			
+			forward viewer -m showgraph : values(R)
+
+			replyTo evallogistic with replylogistic : result(done)
+		}	
 	}
-}
+}//mapservice
 
 QActor viewer context ctxlogisticmap{
 	State s0 initial{
 		[#  clearlog("./logs/app_logisticmap.log") 	//vedi src/main/resources/logback.xml #]
  		println( "$name STARTS") color green
  		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
+	}
+	Transition t0
+		whenMsg showgraph -> show
+		
+	State show{
+		onMsg( showgraph : values(S) ){
+			[# val ReceivedString = payloadArg(0)                                      #]
+			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl(ReceivedString) #]
+			[# MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                         #]
+		}
+		
 	}
 	 
 }
