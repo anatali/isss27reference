@@ -65,7 +65,7 @@ public class ChartUtils {
        );
         // Encoding dell'URL per gestire correttamente i caratteri speciali del JSON
        String encodedConfig = URLEncoder.encode(jsonConfig, StandardCharsets.UTF_8);
-       CommUtils.outgreen(encodedConfig);
+       //CommUtils.outyellow(encodedConfig);
        return "https://quickchart.io/chart?v=3&c=" + encodedConfig;
    }
 
