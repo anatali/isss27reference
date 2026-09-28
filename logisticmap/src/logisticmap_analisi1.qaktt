@@ -1,14 +1,15 @@
 System logisticmap
 ModelFor Analysis: logisticmap_analisi1
  
-Request  evallogistic  : args(MIN,MAX,DX)
+Request  evallogistic  : args(R,X1,Y)
 Reply    replylogistic : result(R) for evallogistic  //R to be defined
-
+ 
 Dispatch showgraph : values(SOFPAIRS) //SOFPAIRS = x1 , x2 ,...xn ### y1, y2, ... xn
 
 Context ctxlogisticmap ip [ host="localhost" port=8333 ]
 
-QActor mapservice context ctxlogisticmap{
+QActor mapservice context ctxlogisticmap {
+	[# #]
 	State s0 initial{
 		[#  clearlog("./logs/app_logisticmap.log") 	//vedi src/main/resources/logback.xml #]
  		println( "$name STARTS") color blue
@@ -19,13 +20,69 @@ QActor mapservice context ctxlogisticmap{
 	State waitrequest{ 
 		println( "$name - waiting for some request ...") color blue
 	}
-}
+	Transition t0 
+		whenRequest evallogistic -> doeval
+		
+	
+	State doeval{
+		onMsg( evallogistic : args(A,B,C) ){
+			[# val R  = payloadArg(0).toDouble()  #]
+			[# val X1 = payloadArg(1).toDouble()  #]
+			[# val Y  = payloadArg(2).toInt()     #]
+			println( "$name - evallogistic  R=$R X1=$X1 Y=$Y ") color magenta
+			//Inserisco apici per creare una String usabile come termine Prolog nella reply
+			[#  MyCode.LogisticSeries.setParameters( R,X1,Y )   #]
+			//[# val S = "'" + MyCode.LogisticSeries.evalPoints( R,X1,Y ) + "'" #]
+			[# val S = "'" + MyCode.LogisticSeries.evalPoints(  ) + "'" #]		
+  			println( "$name - values S=$S  ") color green  //A pair of sequences
+			
+			forward viewer -m showgraph : values($S)
+
+			replyTo evallogistic with replylogistic : result(done)
+		}	
+	}
+	Goto waitrequest
+}//mapservice
 
 QActor viewer context ctxlogisticmap{
 	State s0 initial{
-		[#  clearlog("./logs/app_logisticmap.log") 	//vedi src/main/resources/logback.xml #]
  		println( "$name STARTS") color green
- 		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
+ 		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )        #]
 	}
-	 
+	Transition t0
+		whenMsg showgraph -> show
+		
+	State show{
+		printCurrentMessage color green
+		onMsg( showgraph : values(S) ){
+			[# val ReceivedString = payloadArg(0)                                      #]
+			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl("Mappa logistica",ReceivedString) #]
+			[# MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                          #]
+		}
+		
+	}
 }
+
+/*
+ * Quick testing for mapservice
+ */
+QActor callerforquicktesting context ctxlogisticmap{
+	State s0 initial{
+  		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
+	}
+	Goto convergenza
+	
+	State convergenza{
+ 			[# val R = "2.0"   #] 
+			[# val X1 = "0.7"  #]
+			[# val Y  = "8"   #]
+ 		println( "$name STARTS - expected: convergence to 0.5") color green
+ 		request mapservice -m evallogistic : args($R, $X1, $Y)		
+	}
+ 	Transition t0 
+		whenReply replylogistic -> showvreply
+	
+	State showvreply{
+		printCurrentMessage color magenta
+	}
+ }
