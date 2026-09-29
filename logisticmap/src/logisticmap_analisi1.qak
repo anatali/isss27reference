@@ -71,7 +71,7 @@ QActor callerforquicktesting context ctxlogisticmap{
   		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
 	}
 	Goto convergenza
-	
+	   
 	State convergenza{
  			[# val R = "2.0"   #] 
 			[# val X1 = "0.7"  #]
