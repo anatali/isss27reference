@@ -16,6 +16,24 @@ public class LogisticSeries {
     	anniTotali = anni_p;
     }
     
+    public double[] computeSeries(double r, double x0, int n) {
+        setParameters(r, x0, n);
+        String raw = evalPoints();
+        return parseYValues(raw);
+    }
+
+    public double[] parseYValues(String sofpairs) {
+        String cleaned = sofpairs.replace("'", "").trim();
+        String[] parts = cleaned.split("###");
+        String[] yTokens = parts[1].split(",");
+
+        double[] ys = new double[yTokens.length];
+        for (int i = 0; i < yTokens.length; i++) {
+            ys[i] = Double.parseDouble(yTokens[i].trim());
+        }
+        return ys;
+    }
+    
     public static String eval( ) {
     	double xold = x1;
     	double x1   = r * xold * (1.0 - xold);
