@@ -16,13 +16,13 @@ public class LogisticSeries {
     	anniTotali = anni_p;
     }
     
-    public double[] computeSeries(double r, double x0, int n) {
+    public static double[] computeSeries(double r, double x0, int n) {
         setParameters(r, x0, n);
         String raw = evalPoints();
         return parseYValues(raw);
     }
 
-    public double[] parseYValues(String sofpairs) {
+    public static double[] parseYValues(String sofpairs) {
         String cleaned = sofpairs.replace("'", "").trim();
         String[] parts = cleaned.split("###");
         String[] yTokens = parts[1].split(",");
