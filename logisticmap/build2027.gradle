@@ -29,154 +29,94 @@ repositories {
     mavenCentral()
     flatDir {   dirs '../unibolibs'	 }
 }
-
-/*
-Se compaiono due versioni diverse di junit:junit (es. 4.12 tirato da una dipendenza transitiva e 4.13.2 dichiarato altrove), 
-quella "vincente" secondo le regole di risoluzione potrebbe non essere quella compatibile con junit-quickcheck.
-junit-quickcheck-core 1.0 è compilato contro JUnit 4.12+ e usa BlockJUnit4ClassRunner(TestClass) — 
-un costruttore introdotto proprio in quella versione.
-
-gradlew dependencies --configuration testRuntimeClasspath | grep junit
-gradlew dependencies --configuration testRuntimeClasspath | findstr "junit"
-gradlew dependencies | findstr /i "junit"
-*/
-configurations.all {
-    resolutionStrategy {
-        // Forza l'uso di JUnit 4.13.2 per OGNI configurazione
-        force 'junit:junit:4.13.2'
-        
-        // Sostituisce qualsiasi richiesta di versioni vecchie di JUnit
-        dependencySubstitution {
-            substitute module('junit:junit') using module('junit:junit:4.13.2')
-        }
-    }
-}
  
 dependencies {
     // Align versions of all Kotlin components
     implementation platform('org.jetbrains.kotlin:kotlin-bom')
+
+    // Use the Kotlin JDK 8 standard library.
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
+    // This dependency is used by the application.
     implementation 'com.google.guava:guava:30.1.1-jre'
 
-    // Kotlin JUnit integration (escludiamo junit di default per evitare sovrapposizioni)
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.22") {
-        exclude group: 'junit', module: 'junit'
-    }
+    // Use the Kotlin test library.
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+
+    // Use the Kotlin JUnit integration.
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.9.22"
 
     /* COROUTINES ******************************************************************************* */
-    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "$kotlinVersion"
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "$kotlinVersion"   //, ext: 'pom'
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm
     implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core-jvm', version: "$kotlinVersion"
 
-    /* HTTP ******************************************************************************** */
+     /* HTTP ******************************************************************************** */
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 
-    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3' 
-    testImplementation(group: 'com.squareup.okhttp3', name: 'mockwebserver', version: '4.9.3') {
-        exclude group: 'junit', module: 'junit'
-    }
+	//OkHttp library for websockets with Kotlin
+	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3' 
+	testImplementation group: 'com.squareup.okhttp3', name: 'mockwebserver', version: '4.9.3'
 
     /*  MQTT *******************************************************************************  */
+    // https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3
     implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
 
     /* JSON ********************************************************************************* */
-    // ESCLUSIONE FONDAMENTALE: blocca il caricamento di JUnit 4.10 nel classpath globale
-    implementation('com.googlecode.json-simple:json-simple:1.1.1') {
-        exclude group: 'junit', module: 'junit'
-    }
+    // https://mvnrepository.com/artifact/org.json/json
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation group: 'org.json', name: 'json', version: '20180130'
 
     /* COAP ********************************************************************************* */
+    // https://mvnrepository.com/artifact/org.eclipse.californium/californium-core
     implementation group: 'org.eclipse.californium', name: 'californium-core', version: '3.5.0'
+    // https://mvnrepository.com/artifact/org.eclipse.californium/californium-proxy2
     implementation group: 'org.eclipse.californium', name: 'californium-proxy2', version: '3.5.0'
 
     /* LOG4J ***************************************************************************** */    
-    implementation 'ch.qos.logback:logback-classic:1.2.11'
+   implementation 'ch.qos.logback:logback-classic:1.2.11'  //vs.1.5.7     1.2.11 (app1.log ok)     1.4.11
 
-    /* MONGODB */
+    //MONGODB
+    // https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver
     implementation group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.14'
 
+    /* AIMA ****************************************** */
+ 	//PLANNER  
+    //implementation name: 'unibo.planner23-1.0'
+    //implementation group: 'com.googlecode.aima-java', name: 'aima-core', version: '3.0.0'
 
-    /* CHARTS & TESTING */
-    implementation("org.jfree:jfreechart:1.5.6")
-    
-    // Unica dichiarazione autorizzata per JUnit
-	// Forziamo la dipendenza di JUnit 4.13.2 con la massima priorità
-	/*
-    testImplementation "junit:junit:4.13.2" {
-        version {
-            strictly '4.13.2'
-        }
-    }	*/
-    testImplementation('junit:junit:4.13.2'){
-        version {
-            strictly '4.13.2'
-        }
-    }
-    testImplementation "com.pholser:junit-quickcheck-core:1.0"
-	testImplementation "com.pholser:junit-quickcheck-generators:1.0"	    
-
-    //VA DOPO per non usare vechhie JUnit
     /* UNIBO *********************************************************************************/
- /*
     implementation name: 'uniboInterfaces'
     implementation name: '2p301'
-    implementation name: 'unibo.qakactor23-5.0'
+	implementation name: 'unibo.qakactor23-5.0'
     implementation name: 'unibo.basicomm23-1.0'
-*/
-implementation name: 'unibo.basicomm23-1.0'
 
+
+    
+    
 }
-
-/*
-Per fare in modo che Gradle forzi Eclipse ad aggiungere junit-quickcheck direttamente nel blocco 
-del classpath di test, aggiorna il blocco eclipse nel file build.gradle aggiungendo l'istruzione plus +=:
-
-Il fatto che gradlew test funzioni ma l'editor di Eclipse continui a mostrare l'errore rosso sull'import 
-com.pholser.junit.quickcheck... significa che il progetto si compila ed esegue correttamente, ma
-l'indice interno del Java Development Tools (JDT) di Eclipse è rimasto "sfalsato" o non aggiornato.
-
-Questo disallineamento accade quando Eclipse applica il nuovo Java Classpath Separation 
-(introdotto nelle ultime versioni di Eclipse Buildship/Gradle integration) dove i file 
-nella cartella src/test/java necessitano di un flag esplicito sull'attributo dell'entry di classpath.
-
-*/
 
 eclipse {
     classpath {
-    	// Garantisce che le dipendenze di test (compreso junit-quickcheck) vengano esposte correttamente a Eclipse
-        plusConfigurations += [ configurations.testRuntimeClasspath ]
-
         file {
             whenMerged { classpath ->
-                // 1. Rimuove qualsiasi JAR di JUnit che non sia la versione 4.13.2 dal .classpath di Eclipse
-  //              classpath.entries.removeAll { entry ->
-  //                  entry.kind == 'lib' && entry.path.contains('junit') && !entry.path.contains('4.13.2')
-  //              }
-                
-                // Marca esplicitamente le librerie di test per l'indexer di Eclipse
-                classpath.entries.findAll { it.kind == 'lib' && it.path.contains('quickcheck') }.each { entry ->
-                    entry.entryAttributes['test'] = 'true'
-                }
-
-                // Marca src/test/java come cartella di test per Eclipse JDT
-                classpath.entries.findAll { it.kind == 'src' && it.path.contains('test') }.each { entry ->
-                    entry.entryAttributes['test'] = 'true'
-                }
-
-                // 2. Aggiunge la cartella delle classi compilate di Kotlin
+                // Aggiunge automaticamente la cartella delle classi compilate di Kotlin al Build Path di Eclipse
                 def kotlinClassesDir = file('build/classes/kotlin/main')
                 if (kotlinClassesDir.exists()) {
                     classpath.entries.add(new org.gradle.plugins.ide.eclipse.model.Library(
                         fileReference(kotlinClassesDir)
                     ))
+                }else{
+                	System.out.println("no build/classes/kotlin/main")
                 }
             }
         }
     }
 }
-
 
 // Garantisce che il codice Kotlin venga compilato PRIMA dei test Java
 tasks.named('compileTestJava') {

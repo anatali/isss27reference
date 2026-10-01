@@ -30,7 +30,19 @@ repositories {
     flatDir {   dirs '../unibolibs'	 }
 }
 
-
+/*
+configurations.all {
+    resolutionStrategy {
+        // Forza l'uso di JUnit 4.13.2 per OGNI configurazione
+        force 'junit:junit:4.13.2'
+        
+        // Sostituisce qualsiasi richiesta di versioni vecchie di JUnit
+        dependencySubstitution {
+            substitute module('junit:junit') using module('junit:junit:4.13.2')
+        }
+    }
+}
+*/
 dependencies {
     // Align versions of all Kotlin components
     implementation platform('org.jetbrains.kotlin:kotlin-bom')
@@ -197,3 +209,49 @@ task run0(type: JavaExec) {
     main = 'it.unibo.ctxlogisticmap.MainCtxlogisticmapKt'
 }
 
+
+task checkJunitDependencies {
+    doLast {
+        def libsDir = file('../unibolibs') // Cartella contenente i tuoi file .jar
+        
+        if (!libsDir.exists()) {
+            println "La cartella 'libs' non esiste. Creala e inserisci i file .jar."
+            return
+        }
+
+        println "=== SCANSIONE DIPENDENZE JUNIT NEI JAR LOCAL =="
+        
+        libsDir.listFiles().findAll { it.name.endsWith('.jar') }.each { jarFile ->
+            def junitFound = []
+            
+            // Ispeziona il contenuto del file JAR
+            zipTree(jarFile).visit { element ->
+                // 1. Cerca nei file pom.properties o pom.xml dentro META-INF/maven
+                if (element.name.endsWith('pom.properties') || element.name.endsWith('pom.xml')) {
+                    def content = element.file.text
+                    if (content.contains('junit') || content.contains('org.junit')) {
+                        junitFound << element.path
+                    }
+                }
+                // 2. Cerca manifest o informazioni sui moduli OSGi/JPMS
+                else if (element.name == 'MANIFEST.MF') {
+                    def content = element.file.text
+                    content.eachLine { line ->
+                        if (line.toLowerCase().contains('junit')) {
+                            junitFound << "MANIFEST: ${line.trim()}"
+                        }
+                    }
+                }
+            }
+
+            if (junitFound) {
+                println "\n📦 File JAR: ${jarFile.name}"
+                junitFound.unique().each { info ->
+                    println "   └── Ritrovamento: ${info}"
+                }
+            }else{
+            	println "\n📦 NO JUnit found}"
+            }
+        }
+    }
+}

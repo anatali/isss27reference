@@ -1,7 +1,7 @@
 %====================================================================================
 % logisticmap description   
 %====================================================================================
-request( evallogistic, args(R,X1,Y) ).
+request( evallogistic, args(R,X0,Y) ).
 reply( replylogistic, result(R) ).  %%for evallogistic
 dispatch( showgraph, values(SOFPAIRS) ).
 %====================================================================================

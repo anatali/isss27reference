@@ -1,16 +1,22 @@
 System logisticmap
 ModelFor Analysis: logisticmap_analisi1
  
-Request  evallogistic  : args(R,X1,Y)
+Request  evallogistic  : args(R,X0,Y)
 Reply    replylogistic : result(R) for evallogistic  //R to be defined
  
-Dispatch showgraph : values(SOFPAIRS) //SOFPAIRS = x1 , x2 ,...xn ### y1, y2, ... xn
+Dispatch showgraph : values(SOFPAIRS) //SOFPAIRS = X0 , x2 ,...xn ### y1, y2, ... xn
 
 Context ctxlogisticmap ip [ host="localhost" port=8333 ]
 
 QActor mapservice context ctxlogisticmap {
-	[# #]
-	State s0 initial{
+	[# var Parameter_r_wrong  = false 
+	   var Parameter_X0_wrong = false 
+	   var Parameter_Y_wrong  = false  
+	   var R  = 0.0  
+	   var X0 = 0.0   
+	   var Y  = 0      
+	#]
+	State s0 initial{ 
 		[#  clearlog("./logs/app_logisticmap.log") 	//vedi src/main/resources/logback.xml #]
  		println( "$name STARTS") color blue
  		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
@@ -18,29 +24,60 @@ QActor mapservice context ctxlogisticmap {
 	Goto waitrequest
 	
 	State waitrequest{ 
+	[# Parameter_r_wrong  = false 
+	   Parameter_X0_wrong = false 
+	   Parameter_Y_wrong  = false  
+ 	#]
 		println( "$name - waiting for some request ...") color blue
 	}
 	Transition t0 
-		whenRequest evallogistic -> doeval
-		
+		whenRequest evallogistic -> checkparams
 	
-	State doeval{
+	
+	State checkparams{
 		onMsg( evallogistic : args(A,B,C) ){
-			[# val R  = payloadArg(0).toDouble()  #]
-			[# val X1 = payloadArg(1).toDouble()  #]
-			[# val Y  = payloadArg(2).toInt()     #]
-			println( "$name - evallogistic  R=$R X1=$X1 Y=$Y ") color magenta
+			[# R  = payloadArg(0).toDouble()  #]
+			[# X0 = payloadArg(1).toDouble()  #]
+			[# Y  = payloadArg(2).toInt()     #]
+			
+			if [# R < 0 || R > 4 #] {
+				[# Parameter_r_wrong = true #]
+				println( "$name -  R=$R wrong ") color red
+			}
+			if [# X0 < 0 || X0 > 1 #] {
+				[# Parameter_X0_wrong = true #]
+				println( "$name -  X0=$X0 wrong ") color red
+			}
+			if [# Y < 0 #] {
+				[# Parameter_Y_wrong = true #]
+				println( "$name -  Y=$Y wrong ") color red
+			}
+			
 			//Inserisco apici per creare una String usabile come termine Prolog nella reply
-			[#  MyCode.LogisticSeries.setParameters( R,X1,Y )   #]
-			//[# val S = "'" + MyCode.LogisticSeries.evalPoints( R,X1,Y ) + "'" #]
+			[#  MyCode.LogisticSeries.setParameters( R,X0,Y )   #]
+			//[# val S = "'" + MyCode.LogisticSeries.evalPoints( R,X0,Y ) + "'" #]
 			[# val S = "'" + MyCode.LogisticSeries.evalPoints(  ) + "'" #]		
   			println( "$name - values S=$S  ") color green  //A pair of sequences
 			
-			forward viewer -m showgraph : values($S)
-
-			replyTo evallogistic with replylogistic : result(done)
-		}	
+ 		}
+		
 	}
+	Goto  doreplywrong if [# Parameter_r_wrong || Parameter_X0_wrong || Parameter_Y_wrong #] else doeval
+	
+	State doreplywrong{
+		replyTo evallogistic with replylogistic : result(parameter_wrong)
+	}
+	Goto waitrequest
+	
+	State doeval{
+ 			println( "$name - evallogistic  R=$R X0=$X0 Y=$Y ") color magenta
+			[#  MyCode.LogisticSeries.setParameters( R,X0,Y )   #]
+			//Inserisco apici per creare una String usabile come termine Prolog nella reply
+ 			[# val S = "'" + MyCode.LogisticSeries.evalPoints(  ) + "'" #]		
+  			println( "$name - values S=$S  ") color green  //A pair of sequences			
+			forward viewer -m showgraph : values($S)
+			replyTo evallogistic with replylogistic : result(done)
+ 	}
 	Goto waitrequest
 }//mapservice
 
@@ -56,7 +93,9 @@ QActor viewer context ctxlogisticmap{
 		printCurrentMessage color green
 		onMsg( showgraph : values(S) ){
 			[# val ReceivedString = payloadArg(0)                                      #]
-			[# val chartUrl       = MyCode.ChartUtils.buildMapChartUrl("Mappa logistica",ReceivedString) #]
+			[# val chartUrl       = 
+				 MyCode.ChartUtils.buildMapChartUrl("Mappa logistica",ReceivedString) 
+			#]
 			[# MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                          #]
 		}
 		
@@ -70,19 +109,36 @@ QActor callerforquicktesting context ctxlogisticmap{
 	State s0 initial{
   		[#   logger.info(  "actor $name in state:${currentState.stateName}"  )            #]
 	}
+	Goto wrongparam
+
+	State wrongparam{
+ 			[# val R = "-2.0"   #] 
+			[# val X0 = "0.7"  #]
+			[# val Y  = "8"    #]
+ 		println( "$name doing wrongparam -   ") color green
+ 		request mapservice -m evallogistic : args($R, $X0, $Y)		
+	}
+ 	Transition t0 
+		whenReply replylogistic -> showvreplywrong
+
+	State showvreplywrong{
+		printCurrentMessage color red
+	}
 	Goto convergenza
-	   
+	    
 	State convergenza{
  			[# val R = "2.0"   #] 
-			[# val X1 = "0.7"  #]
-			[# val Y  = "8"   #]
+			[# val X0 = "0.7"  #]
+			[# val Y  = "8"    #]
  		println( "$name STARTS - expected: convergence to 0.5") color green
- 		request mapservice -m evallogistic : args($R, $X1, $Y)		
+ 		request mapservice -m evallogistic : args($R, $X0, $Y)		
 	}
  	Transition t0 
 		whenReply replylogistic -> showvreply
 	
 	State showvreply{
 		printCurrentMessage color magenta
+		
 	}
+	
  }
