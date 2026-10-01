@@ -34,7 +34,8 @@ public class LogisticSeriesPropertyTestGEmini {
 
     // Definizione dei dati di test (Parametri che coprono vari regimi: 
     // convergenti, periodici, caotici e casi limite)
-    @Parameters(name = "Test {index}: r={0}, x0={1}, n={2}")
+    // SOLO DA JUnit 4.11
+    @Parameters //(name = "Test {index}: r={0}, x0={1}, n={2}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {           
             { 3.5, 0.0, 10 },    // 0 Caso limite: x0 = 0      

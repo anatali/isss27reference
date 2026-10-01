@@ -47,7 +47,8 @@ public class LogisticSeriesInvariantsTest {
 
     // Il nome del test case nel report include i parametri: molto utile
     // per capire a colpo d'occhio quale combinazione ha fatto fallire cosa.
-    @Parameters(name = "{index}: r={0}, x0={1}, n={2}")
+    // SOLO DA JUnit 4.11
+    @Parameters //(name = "{index}: r={0}, x0={1}, n={2}")
     public static List<Object[]> parameters() {
         List<Object[]> cases = new ArrayList<>();
 
