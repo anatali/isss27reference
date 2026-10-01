@@ -71,12 +71,45 @@ public class LogisticSeries {
      return stringaDaInviare;
   }
     
+    
+   
+    public static double computeClosedFormR4(double x0, int n) {
+        if (x0 < 0.0 || x0 > 1.0) {
+            throw new IllegalArgumentException("x0 deve essere compreso tra 0 e 1");
+        }
+        
+        // theta_0 = arcsin(sqrt(x0))
+        double theta0 = Math.asin(Math.sqrt(x0));
+        
+        // theta_n = 2^n * theta_0
+        double factor = Math.pow(2.0, n);
+        double thetaN = factor * theta0;
+        
+        // sin(theta_n)^2
+        double sinVal = Math.sin(thetaN);
+        return sinVal * sinVal;
+    }
     public static void main (String args[] ) {
-    	String s   = LogisticSeries.evalPoints( );
-    	String url = ChartUtils.buildMapChartUrl("Mappa logistica r=" +r, s);
-    	ChartUtils.OpenChartInBrowser(url);
+//    	String s   = LogisticSeries.evalPoints( );
+//    	String url = ChartUtils.buildMapChartUrl("Mappa logistica r=" +r, s);
+//    	ChartUtils.OpenChartInBrowser(url);
+    	System.out.println(""+computeClosedFormR4(0.5,10) );
     }
 
 }
 
- 
+/*
+Nota Critica: Limite per $n$ elevato e Perdita di PrecisioneSebbene la formula 
+analitica sia matematicamente esatta per ogni $n$, nell'aritmetica floating-point (standard IEEE 754) 
+subentra un fenomeno fisico-computazionale legato alla natura della mappa caotica:Crescita Esponenziale 
+dell'Argomento: Il fattore $2^n$ raddoppia l'angolo ad ogni passo. 
+
+Già per $n = 53$, $2^{53}$ supera la mantissa a 53 bit di un double.
+
+Cancellazione Numerica: La funzione Math.sin(x) per $x$ molto grandi perde cifre significative 
+a causa della riduzione dell'argomento modulo $2\pi$.In sintesi per gli Unit Test:Per $n \le 30$: 
+Il metodo in forma chiusa è eccellente per verificare l'accuratezza passo-passo del simulatore 
+tramite assertEquals(expected, actual, 1e-9).Per $n > 50$: 
+La sensibilità alle condizioni iniziali (effetto farfalla) farà divergere l'iterazione numerica 
+dalla formula calcolata in precisione finita.
+*/
