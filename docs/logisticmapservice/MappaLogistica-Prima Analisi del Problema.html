@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mappa Logistica-Prima Analisi del Problema</title>
+     <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background-color: #ffffff;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            border-bottom: 2px solid #2b4c7e;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            color: #2b4c7e;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            color: #1a202c;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 35px;
+        }
+
+        .focus-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #2b4c7e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .concept-annotation {
+            background-color: #f1f5f9;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .concept-title {
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 5px;
+        }
+
+        .code-inline {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #0f172a;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #0284c7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+ 
+        /* --- STILI PER LA STAMPA (Nessun blocco nero) --- */
+        @media print {
+            body {
+                max-width: 100%;
+                padding: 0;
+                color: #000000;
+            }
+            pre, code {
+                background-color: #ffffff !important;
+                border: 1px solid #999999 !important;
+                color: #000000 !important;
+            }
+            .note-box {
+                background-color: #ffffff !important;
+                border-left: 3px solid #000000 !important;
+                border-top: 1px solid #ccc;
+                border-right: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+            }
+            a {
+                text-decoration: none;
+                color: #000000;
+            }
+        }		
+        /* --- NOTE DIDATTICHE / ANNOTAZIONI --- */
+        .note-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0969da;
+            padding: 12px 18px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .note-box header {
+            font-weight: bold;
+            color: #0969da;
+            text-transform: uppercase;
+            font-size: 0.82em;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+    </style>
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Mappa Logistica-Prima Analisi del Problema</h1>
+        <div class="subtitle">Anlisi del servizio mapservice, valutazione delle criticità e  architettura logica </div>
+    </header>
+<!--
+    <section class="focus-box">
+        <p><strong>Goal dell'Analisi:</strong> Definire il comportamento logico dei componenti del sistema destinato al calcolo e alla visualizzazione della Mappa Logistica, formalizzabile mediante l'equazione iterativa $$x_{t+1} = r \cdot x_t \cdot (1 - x_t)$$ Evidenziare i limiti architetturali della prima soluzione per orientare l'evoluzione verso un microservizio Web distribuito e disaccoppiato.</p>
+    </section>
+-->
+    <section>
+        <h2>1. Prima Modellazione dell'Architettura Logica</h2>
+        <p>
+		La 
+		<a href="https://github.com/users/anatali/projects/13/views/1?pane=issue&itemId=254735491&issue=anatali%7Cisss27reference%7C21" target=" git">
+		analisi dei requisiti t</a> è stata formalzzata con un pimo modello qak del sistema:
+		<a href="https://github.com/anatali/isss27reference/blob/f1accfbd5058c77b599b8513658a101d664a7627/logisticmap/src/logisticmap_requisiti0.qaktt#L1" target=" git">
+		logisticmap_requisiti0</a> in cui compaiono due Qactor 
+		<i>(mapservice</i> e <I>viewer</i>) e la specifca del messaggio con cui il mondo esterno
+		comunica con <i>mapservice</i>
+		
+		<pre>
+		Request  evallogistic  : args(R,X0,YEARS)
+		Reply    replylogistic : result(R) for evallogistic  //R to be defined
+		</pre>
+		
+		Notiamo che il payload della risposta al cliente esterno non è ben specificato.
+		<p>
+		Un primo approccio di analisi consiste nel discutere 
+		lo schema di interazione (asincrona) tra questi due attori, che hanno diverse responsabilità operative:</p>
+		</p>
+        <ol>
+		    <li><strong>mapservice controlla i parametri:</strong>
+			        <p>La mappa logistica è modellata dall'equazione alle differenze:</p>
+        <p style="text-align: center; font-style: italic;">x<sub>t+1</sub> = r · x<sub>t</sub> · (1 - x<sub>t</sub>)</p>
+        
+        <p>I valori dei parametri devono essere compresi nei seguenti intervalli:
+		   <ul>
+		   <li><i>r</i> &in; [0, 4]</li>
+		   <li><i>x<sub>0</sub></i> &in; [0, 1]</li>
+		   <li><i>YEARS</i> &ge; 0</li>
+		   </ul>
+		
+		A seconda del valore del parametro <i>r</i>   e delle condizioni iniziali <i>x<sub>0</sub></i> , 
+		il comportamento dinamico (<b>traiettoria</b>) della funzione può variare notevolmente: da punti fissi convergenti, 
+		a cicli periodici, fino ad un regime completamente <strong>caotico</strong>.
+		</p>
+
+			
+			</li>
+            <li>
+                <strong>mapservice calcola il risultato:</strong> Il QActor <span class="code-inline">mapservice</span> 
+				conviene che si avvalga della classe Java
+				<a href="https://github.com/anatali/isss27reference/blob/f9e46ab3beab8218b9a62405c64b23673fa785a8/firstprj27/src/main/java/MyCode/LogisticSeries.java#L1" target="_blank" rel="git">
+				LogisticSeries.java</a> per eseguire i calcoli di dominio:
+                <ul>
+                    <li><span class="code-inline">public static void setParameters(double r, double x1, int anni)</span>: imposta i parametri del modello matematico.</li>
+                    <li><span class="code-inline">public static String eval()</span>: calcola il singolo punto successivo restituendo la coppia in formato <span class="code-inline">x###y</span>.</li>
+                    <li><span class="code-inline">public static String evalAllPoints()</span>: valuta l'intera serie temporale restituendo una stringa serializzata <span class="code-inline">x1 x2 ... ### y1 y2 ...</span>.</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Gestione della Richiesta:</strong> Alla ricezione del messaggio <span class="code-inline">evallogistic</span>, 
+				il QActor <span class="code-inline">mapservice</span> estrae il payload, 
+				controlla i parametri e (se sono nei range appropriati) invoca <span class="code-inline">setParameters</span>; poi
+				genera la stringa di coppie <span class="code-inline">SOFPAIRS</span> 
+				tramite <span class="code-inline">evalAllPoints</span> e infine risponde al mittente 
+				con <span class="code-inline">replylogistic</span> contenente <span class="code-inline">result(done)</span>.
+            </li>
+            <li>
+                <strong>Delegazione della Rendering:</strong> Per visualizzare i dati, <span class="code-inline">mapservice</span> 
+				invia (in modo asincrono) un comando al QActor <span class="code-inline">viewer</span>:
+                <br/>
+                <span class="code-inline">Dispatch showgraph : values(SOFPAIRS)</span>
+            </li>
+            <li>
+                <strong>Componente Visualizzatore:</strong> Il QActor <span class="code-inline">viewer</span> riceve la serie ed effettua la resa grafica.
+            </li>
+        </ol>
+
+        <p><strong>PUNTI FONDAMENTALE:</strong> Questa descrizione a parole di come l'analista vede la struttura e il comportamento del sistema
+		<strong>non è sufficiente</strong>, in quanto inerentemente ambigua.
+		</p><p>
+		Occorre esprimere una <b>versione 'formale'</b> comprensibile sia agli esseri umani sia alla macchina:
+		un modo per farlo consiste nel definire un <b>modello QAK</b> come quello definito in 
+		<a href="https://github.com/anatali/isss27reference/blob/dcf15f749469d95969ee4cea035a6c2c3febd96c/logisticmap/src/logisticmap_analisi1.qaktt#L1" target="git">
+		logisticmap_analisi1.qaktt</a>.
+		</p>
+   
+		<div class="note-box">
+        <header>Operatività: Esecusione del modello di analisi</header>
+		<p>
+		Questo modello può anche essere eseguito:
+		<ul>
+		<li>
+		inserendo in 
+		<a href="https://github.com/anatali/isss27reference/blob/e8ca6c06c540a3880d58bccc222a1e133adc4d07/logisticmap/build.gradle#L98" target="git">
+		build.gradle </a> la dipendenza da QuickChart.
+		</li><li>
+		definendo un attore 	
+		<a href="https://github.com/anatali/isss27reference/blob/dcf15f749469d95969ee4cea035a6c2c3febd96c/logisticmap/src/logisticmap_analisi1.qaktt#L69" target="git">
+		callerforquicktesting</a>. che simula il chiamante, oppure scrivendo un programma (Java, Python, etc.)
+		che interagisce via TCP/CoAP con <i>(mapservice</i>, come fatto in Capitolo5.
+		</li>
+		</ul>
+		</p>
+		</div>
+		<p>
+		Se mostriamo al committente il comportamento del sistema fin da questa fase preliminare di analisi, possiamo
+		ricevere subito rilevanti osservazioni e proposte di modifica.
+		Ad esempio, il committente potrebbe richiedere un sistema che si comporta come quello riportato in
+		
+		<a href="https://anatali.github.io/isss27reference/logisticmapservice/mappa_logistica_desiderata.html" target="git">
+		mappa_logistica_desiderata</a>.
+		</p>
+		Altre osservazioni possono arrivare anche dai colleghi del team di sviluppo, come quelle che seguono.
+		<div class="note-box">
+        <header>Operatività: Issues vs. documenti</header>
+		<p>
+		Le <b>issues</b> sono strumento ideale per tenere traccia delle discussioni nel team di sviluppo, ma è opportuno che, alla fine,
+        il team produca una documento di sintesi (che inseriremo  nella directory Pages <tt>isss27reference/docslogisticmapservice/</tt>) 
+		che 'fissi' in modo sintetico e chiaro i risultati della analisi.
+
+		</p>
+		</div>
+		
+		
+	</section>
+
+    <section>
+        <h2>2. Critica dell'Architettura Iniziale e Limiti Operativi</h2>
+        <p>Ipotizzando che il componente <span class="code-inline">viewer</span> utilizzi direttamente un servizio di terze parti come QuickChart (generando l'immagine tramite chiamata remota), la soluzione presenta due importanti criticità architetturali:</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Criticità 1: Rigidità del Dominio Temporale (Anni Fissi)</div>
+            Il calcolo presuppone la determinazione a priori di un numero prefissato di passaggi temporali 
+			(<span class="code-inline">YEARS</span>). Si potrebbe ipotizzare che il cliente guidi il servizio in modo dinamico 
+			tramite comandi operativi di <span class="code-inline">start/stop</span>. 
+			Tuttavia, l'analisi formale dei requisiti evidenzia che tale funzionalità <strong>non è richiesta dalla committenza</strong>,
+			come specificato nell'issue <a href="https://github.com/anatali/isss27reference/issues/20" target="_blank" rel="noopener">Issue #20: Requisiti Mappa Logistica</a>.
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Criticità 2: Vincolo di Locazione e Dipendenza dal Desktop Locale</div>
+            Se il grafico viene erogato tramite una risorsa web, la soluzione attuale obbliga il client a risiedere sulla 
+			stessa macchina fisica su cui è in esecuzione <span class="code-inline">mapservice</span>. L'apertura della pagina 
+			avviene infatti invocando il metodo nativo:
+            <br/>
+            <span class="code-inline">Desktop.getDesktop().browse(new URI(chartUrl))</span>
+            <br/> 
+			come fa il metodo 
+			<a href="https://github.com/anatali/isss27reference/blob/dcf15f749469d95969ee4cea035a6c2c3febd96c/logisticmap/src/main/java/MyCode/ChartUtils.java#L72" target="git">
+			OpenChartInBrowser</a> di <tt>ChartUtils</tt>.
+			<br/>
+            Questa istruzione forza l'avvio del browser locale dell'ambiente operativo 
+			(Chrome, Firefox, Edge, Safari), rendendo impossibile la fruizione distribuita da parte di client remoti che non condividono l'indirizzo IP del server.
+        </div>
+    </section>
+	
+	<section>
+       <h2>3. Ampliamento delle considerazioni di analisi</h2>
+	   Viste le pecularietà della mappa logistica
+	   <ol>
+	   <li>eval chiamato in modo puntuale/incrementale e grafico solo alla fine. Escluso dal capitolo8 per sin potrebbe 
+	   essere appropriato per la mappa logistica</li>
+	   <li>eval chiamato in modo puntuale/incrementale e grafico aggiornato incrementalmente</li>
+	   <li>LogisticSeries come servizio a sè stante</li>
+	   <li></li>
+	   </ol>
+	   
+	   Cambia la architettura logica del sistema, prima ancora di entrare i dettagli più specifici
+	
+	</section>
+<!--
+    <section>
+        <h2>3. Viewer come Web Service</h2>
+        <p>A fronte delle criticità emerse, è opportuno modificare l'organizzazione dell'architettura logica prima di passare alla fase di progettazione e codifica finale.</p>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Impostazione di 'viewer' come Microservizio Web Dedicato</div>
+            Anziché demandare l'apertura del browser locale all'ambiente di esecuzione di <span class="code-inline">mapservice</span>, l'attore <span class="code-inline">viewer</span> viene strutturato come un vero e proprio <strong>microservizio web autonomo</strong> (es. sviluppato con Spring Boot, Express.js o Ktor).
+        </div>
+
+        <p>Il nuovo flusso operativo distribuito si articola nei seguenti punti:</p>
+        <ul>
+            <li><strong>Esposizione di un Endpoint HTTP/WebSocket:</strong> Il componente <span class="code-inline">viewer</span> espone una porta di rete nota accessibile da qualunque client Web remoto.</li>
+            <li><strong>Disaccoppiamento del Rendering:</strong> Quando il chiamante invia la richiesta <span class="code-inline">evallogistic</span> a <span class="code-inline">mapservice</span>, il servizio non forza più la visualizzazione locale ma restituisce nella reply l'URL dell'endpoint erogato dal <span class="code-inline">viewer</span>:
+                <br><br>
+                <span class="code-inline">Reply replylogistic : done(URL_PAGINA_WEB) for evallogistic</span>
+            </li>
+            <li><strong>Aggiornamento Dinamico del Grafico:</strong> Il <span class="code-inline">viewer</span> riceve i punti da <span class="code-inline">mapservice</span> (via dispatch interno o bus di messaggi) e li rende disponibili alla pagina HTML visualizzata dal client tramite chiamate REST o flussi Push (Server-Sent Events / WebSockets), eliminando qualsiasi dipendenza dalle API grafiche della JVM (<span class="code-inline">java.awt.Desktop</span>).</li>
+        </ul>
+    </section>
+-->
+</body>
+</html>
