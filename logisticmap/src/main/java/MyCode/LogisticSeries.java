@@ -48,6 +48,17 @@ public class LogisticSeries {
     	return evalPoints(r,x1,anniTotali);
     }
     
+    /**
+     * Calcola la simulazione passo-passo: x_{n+1} = r * x_n * (1 - x_n)
+     */
+    public static double stepByStepSimulation(double x0, double r, int n) {
+        double x = x0;
+        for (int i = 0; i < n; i++) {
+            x = r * x * (1.0 - x);
+        }
+        return x;
+    }
+    
     public static String evalPoints(double r, double x, int anni ) {
     	 System.out.println("evalSinPoints r=" + r + " x=" + x + " anni=" + anni);
     	List<String> labels = new ArrayList<>();

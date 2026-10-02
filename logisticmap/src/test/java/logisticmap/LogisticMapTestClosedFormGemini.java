@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Assert;
 import org.junit.Test;
 
+import MyCode.LogisticSeries;
 import unibo.basicomm23.utils.CommUtils;
 
 public class LogisticMapTestClosedFormGemini {
@@ -16,13 +17,13 @@ public class LogisticMapTestClosedFormGemini {
     /**
      * Calcola la simulazione passo-passo: x_{n+1} = r * x_n * (1 - x_n)
      */
-    public double stepByStepSimulation(double x0, double r, int n) {
-        double x = x0;
-        for (int i = 0; i < n; i++) {
-            x = r * x * (1.0 - x);
-        }
-        return x;
-    }
+//    public double stepByStepSimulation(double x0, double r, int n) {
+//        double x = x0;
+//        for (int i = 0; i < n; i++) {
+//            x = r * x * (1.0 - x);
+//        }
+//        return x;
+//    }
 
     /**
      * Calcola la forma chiusa per r = 4.0: x_n = sin^2(2^n * arcsin(sqrt(x0)))
@@ -49,9 +50,9 @@ public class LogisticMapTestClosedFormGemini {
 
         for (double x0 : initialConditions) {
             double expectedClosedForm = closedFormR4(x0, steps);
-            double actualSimulation = stepByStepSimulation(x0, R_CHAOTIC, steps);
+            double actualSimulation = LogisticSeries.stepByStepSimulation(x0, R_CHAOTIC, steps);
 
-            CommUtils.outcyan("expectedClosedForm:" + expectedClosedForm + " actualSimulation" + actualSimulation);
+            CommUtils.outcyan("testSimulationMatchesClosedFormForMultiplePoints | expectedClosedForm:" + expectedClosedForm + " actualSimulation" + actualSimulation);
             
             Assert.assertEquals(
                 "Divergenza trovata per x0 = " + x0 + " dopo " + steps + " passi",
@@ -69,8 +70,10 @@ public class LogisticMapTestClosedFormGemini {
 
         // Per x0 = 0.5, x1 = 1.0 e x_n = 0.0 per n >= 2
         double expected = 0.0;
-        double actualSimulation = stepByStepSimulation(x0, R_CHAOTIC, steps);
+        double actualSimulation = LogisticSeries.stepByStepSimulation(x0, R_CHAOTIC, steps);
         double actualClosedForm = closedFormR4(x0, steps);
+
+        CommUtils.outgreen("testCentralSingularity | actualSimulation:" + actualSimulation + " actualClosedForm" + actualClosedForm);
 
         Assert.assertEquals("La simulazione deve azzerarsi", expected, actualSimulation, EPSILON);
         Assert.assertEquals("La forma chiusa deve azzerarsi", expected, actualClosedForm, EPSILON);
@@ -82,8 +85,10 @@ public class LogisticMapTestClosedFormGemini {
         int steps = 20;
 
         double expected = 0.75;
-        double actualSimulation = stepByStepSimulation(x0, R_CHAOTIC, steps);
+        double actualSimulation = LogisticSeries.stepByStepSimulation(x0, R_CHAOTIC, steps);
         double actualClosedForm = closedFormR4(x0, steps);
+
+        CommUtils.outblue("testFixedPointR4 | actualSimulation:" + actualSimulation + " actualClosedForm" + actualClosedForm);
 
         Assert.assertEquals("Il punto fisso deve rimanere 0.75 nella simulazione", expected, actualSimulation, EPSILON);
         Assert.assertEquals("Il punto fisso deve rimanere 0.75 nella forma chiusa", expected, actualClosedForm, EPSILON);
@@ -91,11 +96,13 @@ public class LogisticMapTestClosedFormGemini {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidInitialConditionNegative() {
+        CommUtils.outmagenta("testInvalidInitialConditionNegative |  ");
         closedFormR4(-0.1, 5);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidInitialConditionGreaterThanOne() {
-        closedFormR4(1.2, 5);
+        CommUtils.outmagenta("testInvalidInitialConditionGreaterThanOne |  ");
+       closedFormR4(1.2, 5);
     }
 }
