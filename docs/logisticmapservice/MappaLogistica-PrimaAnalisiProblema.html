@@ -246,6 +246,8 @@
 		</ul>
 		</p>
 		</div>
+		
+		<h2>2. Interazione con il committente e con il team</h2>
 		<p>
 		Se mostriamo al committente il comportamento del sistema fin da questa fase preliminare di analisi, possiamo
 		ricevere subito rilevanti osservazioni e proposte di modifica.
@@ -254,7 +256,9 @@
 		<a href="https://anatali.github.io/isss27reference/logisticmapservice/mappa_logistica_desiderata.html" target="git">
 		mappa_logistica_desiderata</a>.
 		</p>
-		Altre osservazioni possono arrivare anche dai colleghi del team di sviluppo, come quelle che seguono.
+		Altre osservazioni possono arrivare anche dai colleghi del team di sviluppo, come quelle riportate nella sezione 
+		<a href="">todo</a>.
+		
 		<div class="note-box">
         <header>Operatività: Issues vs. documenti</header>
 		<p>
@@ -265,7 +269,35 @@
 		</p>
 		</div>
 		
+		<h2>3. Pianificazione del testing</h2>
 		
+	 
+		Per quanto riguarda la pianificazione dei Test che dovranno essere eeguiti una volta sviluppato 
+		il codice, osserviamo che conviene <b>separare nettamente due livelli di test</b>, 
+		perché devono entrare in campo strategie diverse: un livello sarà relativo al testing del servizio e un altro livello 
+		riguarderà il testing del codice che esprime la funzione 'mappa logistica' o, meglio dei metodi definiti nella classe
+		<a href="https://github.com/anatali/isss27reference/blob/f9e46ab3beab8218b9a62405c64b23673fa785a8/firstprj27/src/main/java/MyCode/LogisticSeries.java#L1" target="_blank" rel="git">
+				LogisticSeries.java</a>.
+		
+		<h4>Il Testing della correttezza matematica di LogisticSeries</h4>
+			<p>
+			Visto che la funzione può entrare in un regime caotico, non si può asserire "il valore finale deve essere X" 
+			per certi valori di <code>r</code>  , 
+			perché la sensibilità alle condizioni iniziali (effetto farfalla) amplifica anche una piccola differenza 
+			in pochissime iterazioni. Ma ci sono più strategie complementari che possono essere testate rigorosamente:
+			per questa parte si veda 
+			<a href="https://anatali.github.io/isss27reference/logisticmapservice/LogisticmapCasiGolden.html" target="git">
+			LogisticmapCasiGolden</a>.
+		</p>
+		<h4>Il Testing del servizio</h4>
+		<p>
+			Per questa parte, una strategia consiste nel sostituire `MyCode.LogisticSeries.evalPoints()` 
+			con un'implementazione fittizia che restituisce una sequenza canonica e nota (es. <tt>"0.1,0.2,0.3###0.1,0.2,0.3"</tt>).
+			In questo modo	si può sottoporre a test tutta l'orchestrazione degli attori 
+			(`mapservice` → `viewer`, reply a `callerforquicktesting`) <b>senza toccare il problema del caos</b>. 
+			</p>
+ 			
+	
 	</section>
 
     <section>
