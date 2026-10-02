@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capitolo 9: Analisi del Problema Mappa Logistica e Gestione Cooperativa con GitHub Project</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background-color: #ffffff;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            border-bottom: 2px solid #2b4c7e;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            color: #2b4c7e;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            color: #1a202c;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 35px;
+        }
+		
+        h3 {
+            font-size: 1.1em;
+            color: #cc0099;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 35px;
+        }
+
+        .focus-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #2b4c7e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .concept-annotation {
+            background-color: #f1f5f9;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .concept-title {
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 5px;
+        }
+
+        .code-inline {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #0f172a;
+            font-size: 0.9em;
+            border: 1px solid #e2e8f0;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: #0284c7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+	    pre code {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+        }
+        /* --- NOTE DIDATTICHE / ANNOTAZIONI --- */
+        .note-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0969da;
+            padding: 12px 18px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .note-box header {
+            font-weight: bold;
+            color: #0969da;
+            text-transform: uppercase;
+            font-size: 0.82em;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        /* --- STILI PER LA STAMPA (Nessun blocco nero) --- */
+        @media print {
+            body {
+                max-width: 100%;
+                padding: 0;
+                color: #000000;
+            }
+            pre, code {
+                background-color: #ffffff !important;
+                border: 1px solid #999999 !important;
+                color: #000000 !important;
+            }
+            .note-box {
+                background-color: #ffffff !important;
+                border-left: 3px solid #000000 !important;
+                border-top: 1px solid #ccc;
+                border-right: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+            }
+            a {
+                text-decoration: none;
+                color: #000000;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Capitolo 9: La Mappa Logistica  </h1>
+<!--
+        <div class="subtitle">Esempio pratico di tracciamento requisiti e workflows di automazione per il servizio mapservice</div>
+-->
+        <div class="subtitle">Dai requisiti alla analisi del problema: i modelli come 
+		punto di riferimento perlo svulippo cooperativo</div>
+   </header>
+     <section class="focus-box">
+        <p><strong>Goal del Capitolo:</strong> Fornire un esempio concreto di utilizzo degli strumenti cooperativi di GitHub 
+		(Project e Issues) nella costruzione di un 
+		servizio di nome <span class="code-inline">mapservice</span> destinato al calcolo e alla visualizzazione 
+		grafica della funzione nota come 
+		<a href="https://it.wikipedia.org/wiki/Mappa_logistica" target="git">mappa logistica</a>.</p>
+    </section>
+  
+   	   <h2>1. Il progetto e il relativo Project</h2>
+	   <p>
+	   Nel capitolo precedente abbiamo impostato (nel nostro repository 
+	   <a href="https://github.com/anatali/isss27reference/tree/main" target="git">isss27reference</a>)
+	   un nuovo progetto di nome <a href="https://github.com/anatali/isss27reference/tree/main/logisticmap" target="git">logisticmap</a>
+	   e un Project  GitHib denominato
+	   <a href="https://github.com/anatali/isss27reference/tree/54af593f6c4dbdb22ac34e8105551a816995c21d/logisticmap" target="git">
+	   LogisticmapPrj</a>.
+	   </p>
+
+
+<!--
+	
+	<p>Nello sviluppo agile e cooperativo del software, la tracciabilità delle attività e la trasparenza 
+	dello stato di avanzamento sono requisiti fondamentali. 
+	GitHub fornisce un ecosistema integrato per coniugare l'avanzamento del codice sorgente con la gestione analitica del progetto.</p>
+
+    <div class="note-box">
+        <header>Concetto: Sviluppo Cooperativo del Software</header>
+        <p>Metodologia di lavoro strutturata in cui più sviluppatori collaborano sul medesimo repository. 
+		Richiede strumenti per sincronizzare le modifiche al codice (Git) e coordinare la pianificazione 
+		delle funzionalità (GitHub Projects/Issues), garantendo tracciabilità, riduzione dei conflitti 
+		e qualità del software attraverso la revisione tra pari.</p>
+    </div>
+
+    <div class="note-box">
+        <header>Concetto: Sezione Project e Viste di Pianificazione</header>
+        <p><strong>Project</strong> è lo strumento di gestione di GitHub che consente di organizzare le attività mediante <strong>board Kanban</strong> (vista a colonne per rappresentare il flusso di lavoro) o <strong>tabelle e roadmap</strong> (viste analitiche e temporali). Permette di tracciare l'evoluzione di <strong>Issues</strong> (task da svolgere), <strong>Pull Requests</strong> (proposte di modifica al codice) e note operative.</p>
+        <p><em>Principio architetturale:</em> Un Project rappresenta un livello di astrazione gestionale. Non contiene codice sorgente ed è del tutto opzionale rispetto al ciclo di vita del repository Git.</p>
+    </div>
+
+
+	
+	<section>
+    <h2>Flusso Operativo: dall'Issue al Merge della PR</h2>
+	
+	<p>Richiamando i principi metodologici introdotti per lo sviluppo distribuito, 
+	      l'organizzazione delle attività di esempio viene formalizzata all'interno della dashboard di progetto denominata
+</p>
+    <p>Il ciclo di vita completo di una funzionalità all'interno del flusso cooperativo si articola secondo le seguenti fasi automatizzate:</p>
+
+    <pre>
++-----------------+  gh pr create +--------------+  gh pr merge   +---------------+
+| Todo / Backlog  |  &minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&gt; | In Review /  |  &minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&minus;&gt; |   Done        |
+| Issue registrata| (Fixes #Issue)| In Progress  | (PR integrata) |(Issue chiusa  |
++-----------------+               +--------------+                +---------------+
+    </pre>
+
+
+        <div class="concept-annotation">
+            <div class="concept-title">Comandi e configurazione della Board 'LogisticmapPrj'</div>
+            
+			La creazione della Board permette di associare automaticamente le <i>Issues</i> aperte nel repository 
+			e di farle avanzare tra le colonne dello stato operativo.
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Workflows attivi e flussi principali nel Project</div>
+            Accedendo alla sezione <i>Workflows</i> di <span class="code-inline">LogisticmapPrj</span> è possibile configurare regole di automazione. Tra i flussi principali vi sono:
+            <ul>
+                <li>Spostamento automatico di una scheda in <i>In Progress</i> quando la relativa Issue viene assegnata o legata a una Pull Request.</li>
+                <li>Chiusura automatica e transizione in <i>Done</i> al completamento del merge del codice.</li>
+            </ul>
+        </div>
+
+        <div class="concept-annotation">
+            <div class="concept-title">Risoluzione operativa: Sblocco del menu 'Set Value' nei Workflows</div>
+            Se durante la configurazione delle regole automatiche del progetto il menu a tendina <i>Set value</i> risulta disabilitato, significa che l'interfaccia si trova in modalità di sola lettura (<i>Viewing mode</i>). Per procedere occorre cliccare sul pulsante <i>Edit</i> in alto a destra. È inoltre indispensabile assicurarsi che la colonna di destinazione selezionata sia associata al campo standard di sistema denominato <strong>Status</strong>.
+        </div>
+    </section>
+-->
+    <section>
+        <h2>2. I requisiti</h2>
+        <p>Lo sviluppo  del sistema software (in questo caso un servizio) parte dalla formalizzazione dei 
+		requisiti espressi sotto forma di una <b>Issue </b>  
+<a href="https://github.com/anatali/isss27reference/issues/20" target="git">RequisitiLogisticMap</a>
+		all'interno della <b>board</b> di 
+		<a href="https://github.com/anatali/isss27reference/tree/54af593f6c4dbdb22ac34e8105551a816995c21d/logisticmap" target="git">
+	   LogisticmapPrj</a>.
+ 	   </p>
+         <h3>Issue: RequisitiLogisticMap</h3>
+		
+		Inseriamo le seguenti indicazioni nella issue 
+		<a href="https://github.com/anatali/isss27reference/issues/20" target="git">RequisitiLogisticMap</a>
+		 nel Project
+		in modo da rendere visibili i requisiti a tutti i compomenti del team di sviluppo:
+ 
+   <div class="note-box">
+        <header>Issue: RequisitiLogisticMap</header>
+       <ul>
+            <li><div class="concept-title">Goal</div> Realizzare un microservizio denominato 
+			    <span class="code-inline">mapservice</span> che calcoli e renda visualizzabile il grafico della funzione 
+				iterativa nota come <i>mappa logistica</i>:
+                <br><br>
+                <span class="code-inline">x<sub>t+1</sub> = r &middot; x<sub>t</sub> &middot; (1 - x<sub>t</sub>)</span>
+                <br><br>
+                Il servizio deve rendere il grafico preferibilmente fruibile all'interno di una pagina HTML accessibile via Web.
+            </li>
+			<li> <div class="concept-title">User Story del Servizio</div> 
+			Dal punto di vista dell'utilizzatore del sistema: come fruitore del servizio, invio a 
+			<span class="code-inline">mapservice</span> una richiesta (<span class="code-inline">Request</span>) 
+			fornendo come parametri il valore iniziale <span class="code-inline">x<sub>0</sub></span>, 
+			il parametro di crescita <span class="code-inline">r</span> e il numero totale di 
+			iterazioni <span class="code-inline">N</span>, attendendomi di ricevere in risposta 
+			la rappresentazione grafica della funzione.
+			</li>
+			
+        </ul>
+		
+		</p>
+    </div>
+
+ 
+ <h2 id="AnalisiRequisiti">3. Analisi dei requisiti</h2>
+
+        <h3>Issue: AnalisiRequisitiLogisticMap</h3>
+		<p>In questa issue, conviene inserire il riferimento a un documento 
+		<a href="https://anatali.github.io/isss27reference/logisticmapservice/MappaLogistica-AnalisiRequisiti.html" target="prjdocs">
+		MappaLogistica-AnalisiRequisiti.html</a>		
+		che riporta le considerazioni finali dell'analista o del gruppo degli analisti.</p>
+
+ <h2 id="AnalisiProblema">4. Analisi del problema</h2>
+
+        <h3>Issue: AnalisiProblemaLogisticMap</h3>
+		
+		
+		
+		<p>In questa issue, conviene inserire il
+		riferimento a un documento 
+		
+<a href="https://anatali.github.io/isss27reference/logisticmapservice/MappaLogistica-PrimaAnalisiProblema.html" target="prjdocs">
+		MappaLogistica-Prima Analisi del Problema</a>		
+		
+		che riporta le considerazioni dell'analista
+		o del gruppo degli analisti.</p>
+		
+		<p>Il documento relativo alla analisi del problema deve concludersi con la specifica del modello 
+		dalla <b>Architettura logica</b> del sistema, come 'condensato formale finale' della analisi stessa.</p>
+
+ <h2 id="PianificazioneTest">5. Pianificazione dei test</h2>
+ 
+		<p>
+		Il documento della analisi include anche importanti considerazioni sulla
+		<a href="https://anatali.github.io/isss27reference/logisticmapservice/MappaLogistica-PrimaAnalisiProblema.html#PianficazioneTesting" 
+		target="prjdocs">Pianificazione del testing</a>
+		</p>
+		<!--
+		<p>Per un esempio di un tale documento, si veda:  
+		<a href="https://anatali.github.io/isss27reference/logisticmapservice/MappaLogistica-PrimaAnalisiProblema.html" target="prjdocs">
+		MappaLogistica-Prima Analisi del Problema</a>, che include anche importanti considerazioni sulla
+		<a href="https://anatali.github.io/isss27reference/logisticmapservice/MappaLogistica-PrimaAnalisiProblema.html#LogisticmapPianficazioneTesting" 
+		target="prjdocs">Pianificazione del testing</a>
+		
+		-->
+		</p>
+		 
+		<!--
+        <p>L'analisi del problema prende in considerazione la natura iterativa del calcolo della mappa logistica e valuta le strategie di comunicazione tra client e servizio. A differenza di funzioni semplici calcolabili in modalità batch, l'evoluzione della mappa logistica su un numero elevato di passi <span class="code-inline">N</span> richiede di valutare la trasmissione e la visualizzazione dinamica o incrementale dei dati calcolati.</p>
+        <p>I dettagli di implementazione e la struttura del modello QAK corrispondente sono documentati all'interno della specifica di progetto presente nella directory dei sorgenti del repository <a href="https://github.com/anatali/isss27reference/tree/main/firstprj27/src" target="_blank" rel="noopener">firstprj27/src</a> e nella classe <a href="https://github.com/anatali/isss27reference/blob/f9e46ab3beab8218b9a62405c64b23673fa785a8/firstprj27/src/main/java/MyCode/LogisticSeries.java#L1" target="_blank" rel="noopener">LogisticSeries.java</a>.</p>
+        -->
+	</section>
+
+<!--
+    <section>
+        <h2>5. Pianficazione del testing</h2>
+        
+        <p>La mappa logistica è modellata dall'equazione alle differenze:</p>
+        <p style="text-align: center; font-style: italic;">x<sub>t+1</sub> = r · x<sub>t</sub> · (1 - x<sub>t</sub>)</p>
+        
+        <p>A seconda del valore del parametro <i>r</i> &in; [0, 4] e delle condizioni iniziali <i>x<sub>0</sub></i> &in; [0, 1], 
+		il comportamento dinamico (traiettoria) della funzione può variare notevolmente: da punti fissi convergenti, a cicli periodici, 
+		fino ad un regime completamente <strong>caotico</strong>.
+		Sorge dunque un problema: come impostare un test che faccia sserzioni su valori impredicibili?
+		</p>
+        
+        <p>Un approccio basato sul <strong>Property-Based Testing</strong> permette di verificare proprietà invarianti 
+		  che <strong>DEVONO valere per qualunque combinazione di parametri</strong> nel dominio ammesso, 
+		  indipendentemente dalla natura convergente, periodica o caotica della serie generata. Ad esempio:</p>
+
+        <ul class="property-list">
+            <li><strong>Lunghezza Corretta:</strong> La chiamata a <code>computeSeries(r, x0, n)</code> deve restituire un array di dimensione esatta <i>n + 1</i> (includendo il valore iniziale <i>x<sub>0</sub></i> e gli <i>n</i> passi successivi).</li>
+            <li><strong>Limitatezza dei Valori (Invarianza del Dominio):</strong> Se <i>x<sub>0</sub></i> &in; [0, 1] e <i>r</i> &in; [0, 4], ogni valore <i>x<sub>t</sub></i> generato nella sequenza deve rimanere nell'intervallo [0, 1].</li>
+            <li><strong>Casi Limite (Punti Fissi Invarianti):</strong> Se <i>x<sub>0</sub></i> = 0, la sequenza deve rimanere identicamente 0 per tutti gli step. Se <i>r</i> = 0, tutti i valori dopo <i>x<sub>0</sub></i> devono azzerarsi.</li>
+            <li><strong>Ricorrenza Puntuale:</strong> Ogni elemento <i>x<sub>i+1</sub></i> dell'array risultante deve soddisfare la relazione <i>x<sub>i+1</sub> &approx; r · x<sub>i</sub> · (1 - x<sub>i</sub>)</i> nei limiti di approssimazione della formattazione o di calcolo della classe.</li>
+            <li><strong>Determinismo:</strong> Chiamate successive del metodo con gli stessi parametri devono produrre esattamente la stessa sequenza di output.</li>
+        </ul>
+		</p>
+		
+		<p>
+		Si possono poi individuare casi "oracolo" — valori analiticamente esatti anche in regimi difficili.
+		<pre>
+			r = 0 , x_i = 0 | per ogni i≥1, qualunque x0 | esatto, banale
+			r = 2.0, x0 = 0.7 | converge a x* = 0.5 (già nel tuo `.qak`!) | `\|x_n - 0.5\| < ε` per n grande |
+			r &in; (1,3) generico | punto fisso x* = (r-1)/r 
+			r &in; [3, 1+√6≈3.449)` | ciclo di periodo 2, punti noti in forma chiusa | verifica `x_n ≈ x_{n+2}` per n grande |
+			r = 4, x0 = sin²(θπ) | soluzione chiusa esatta anche in pieno caos: x_n = sin²(2ⁿ θ π) | 
+		</pre>
+		La mappa a r=4 è coniugata alla mappa "raddoppio d'angolo" e ha soluzione analitica esatta. 
+		Puoi testare punti precisi **anche in regime caotico**, scegliendo θ razionale (es. θ=1/3 dà un ciclo periodico esatto). |
+		Il caso r=4 : è "caotico" ma non "impredicibile in senso matematico" — esiste una formula chiusa che permette di generare 
+		vettori di test esatti indipendentemente dall'implementazione sotto test.
+
+		</p>
+		
+    </section>
+
+-->
+
+
+
+
+
+</body>
+</html>
