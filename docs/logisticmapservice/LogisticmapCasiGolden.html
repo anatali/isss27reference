@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mappa Logistica: Analisi Teorica, Soluzioni in Forma Chiusa e Casi Golden</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 25px;
+            background-color: #f6f8fa;
+        }
+        h1 {
+            color: #0366d6;
+            border-bottom: 2px solid #0366d6;
+            padding-bottom: 0.3em;
+            margin-top: 0;
+        }
+        h2 {
+            color: #005cc5;
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3em;
+            margin-top: 1.5em;
+        }
+        h3 {
+            color: #24292e;
+            margin-top: 1.2em;
+        }
+        p, li {
+            text-align: justify;
+        }
+        code {
+            background-color: rgba(27,31,35,0.05);
+            border-radius: 3px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 85%;
+            padding: 0.2em 0.4em;
+        }
+        .formula {
+            background-color: #ffffff;
+            border-left: 4px solid #0366d6;
+            padding: 12px 18px;
+            margin: 18px 0;
+            font-family: "Georgia", "Times New Roman", serif;
+            font-size: 1.05em;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        th, td {
+            border: 1px solid #dfe2e5;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f8ff;
+            color: #0366d6;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .note {
+            background-color: #fffbe6;
+            border: 1px solid #ffe58f;
+            border-left: 4px solid #faad14;
+            padding: 14px 18px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Mappa Logistica: Soluzioni in Forma Chiusa e Casi Golden</h1>
+    
+    <p>La mappa logistica è definita dall'equazione alle differenze di primo ordine:</p>
+    <div class="formula">
+        x<sub>n+1</sub> = r &middot; x<sub>n</sub> &middot; (1 - x<sub>n</sub>)
+    </div>
+    <p>con dominio <b>x<sub>n</sub> &in; [0, 1]</b> e parametro di controllo <b>r &in; [0, 4]</b>.</p>
+
+    <p>Sebbene per <code>r = 4.0</code> la mappa esibisca un comportamento altamente caotico ed ergodico su quasi tutto l'intervallo, esistono **valori del parametro <code>r</code>** e **punti iniziali <code>x<sub>0</sub></code> particolari** per i quali la traiettoria ammette una <b>soluzione esplicita in forma chiusa</b>. Questi casi analitici rappresentano i <i>test golden</i> ideali per verificare la correttezza dei simulatori numerici senza accumulare gli errori di arrotondamento dell'aritmetica in virgola mobile.</p>
+
+    <!-- SECTION 1 -->
+    <h2>1. Punti Fissi Banali e Cicli d'Attrattore (r &le; 3.0)</h2>
+    <p>I punti fissi si ottengono risolvendo l'equazione stazionaria <code>x* = f(x*)</code>, ovvero <code>x* = r &middot; x* &middot; (1 - x*)</code>.</p>
+    
+    <h3>A. L'Estinzione (x* = 0)</h3>
+    <p>Per qualsiasi <code>r &le; 1.0</code> e per qualunque valore iniziale <code>x<sub>0</sub> &in; [0, 1]</code>:</p>
+    <div class="formula">
+        lim <sub>n &rarr; &infty;</sub> x<sub>n</sub> = 0
+    </div>
+    <p><b>Caso Golden:</b> Se <code>x<sub>0</sub> = 0</code> oppure <code>x<sub>0</sub> = 1</code>, allora <code>x<sub>n</sub> = 0</code> per tutti gli <code>n &ge; 1</code>.</p>
+
+    <h3>B. Il Punto Fisso Stabile (x* = 1 - 1/r)</h3>
+    <p>Per <code>1.0 &lt; r &le; 3.0</code>, il sistema converge verso il punto fisso stazionario <code>x* = 1 - 1/r</code>.</p>
+    <p><b>Caso Golden:</b> Se si imposta <code>x<sub>0</sub> = 1 - 1/r</code>, la successione risulta perfettamente costante:</p>
+    <div class="formula">
+        x<sub>n</sub> = 1 - 1/r &nbsp;&nbsp;&forall; n &ge; 0
+    </div>
+    <p><i>Esempio (r = 3.0):</i> Per <code>r = 3.0</code>, impostando <code>x<sub>0</sub> = 2/3 &approx; 0.6666667</code>, si ha <code>x<sub>n</sub> = 2/3</code> per qualsiasi passo <code>n</code>.</p>
+
+    <!-- SECTION 2 -->
+    <h2>2. Il Regime Caotico Massimo (r = 4.0) in Forma Chiusa</h2>
+    <p>Quando <code>r = 4.0</code>, il sistema è pienamente caotico, ma ammette soluzioni esatte attraverso l'applicazione di opportune trasformazioni analitiche.</p>
+
+    <h3>A. Soluzione Analitica Generale tramite Cambio di Variabile Trigonometrico</h3>
+    <p>Applicando il cambio di variabile <b>x<sub>n</sub> = sin<sup>2</sup>(&theta;<sub>n</sub>)</b>, l'equazione della mappa si riduce all'identità trigonometrica per l'angolo doppio:</p>
+    <div class="formula">
+        x<sub>n+1</sub> = 4 &middot; sin<sup>2</sup>(&theta;<sub>n</sub>) &middot; (1 - sin<sup>2</sup>(&theta;<sub>n</sub>)) 
+        = 4 &middot; sin<sup>2</sup>(&theta;<sub>n</sub>) &middot; cos<sup>2</sup>(&theta;<sub>n</sub>) 
+        = sin<sup>2</sup>(2&theta;<sub>n</sub>)
+    </div>
+    <p>Poiché ad ogni passo l'angolo raddoppia (<code>&theta;<sub>n</sub> = 2<sup>n</sup> &middot; &theta;<sub>0</sub></code>), si ricava la <b>soluzione esplicita in forma chiusa per r = 4.0</b>:</p>
+    <div class="formula">
+        x<sub>n</sub> = sin<sup>2</sup>(2<sup>n</sup> &middot; arcsin(&radic;x<sub>0</sub>))
+    </div>
+
+    <h3>B. Punti Fissi Involutivi e Pre-Immagini dello Zero</h3>
+    <ul>
+        <li><b>Punto fisso in 3/4:</b> Scegliendo <code>x<sub>0</sub> = 3/4 = 0.75</code> (corrispondente a <code>&theta;<sub>0</sub> = &pi;/3</code>), la successione rimane costante: <code>x<sub>n</sub> = 0.75</code> per tutti gli <code>n &ge; 0</code>. Infatti <code>4 &middot; (3/4) &middot; (1/4) = 3/4</code>.</li>
+        <li><b>Singolarità centrale e crollo allo zero:</b> Se <code>x<sub>0</sub> = 1/2 = 0.5</code> (corrispondente a <code>&theta;<sub>0</sub> = &pi;/4</code>), si ottiene <code>x<sub>1</sub> = 1.0</code> e, da <code>x<sub>2</sub></code> in poi, <code>x<sub>n</sub> = 0.0</code> per ogni <code>n &ge; 2</code>.</li>
+    </ul>
+
+    <h3>C. Orbite Periodiche Esatte (Angoli Razionali)</h3>
+    <p>Se si sceglie <code>x<sub>0</sub> = sin<sup>2</sup>(&theta;<sub>0</sub>)</code> con <code>&theta;<sub>0</sub> = &pi; &middot; p / q</code> (con <i>p, q</i> interi), la traiettoria non degenera nel caos ma genera cicli periodici o eventualmente periodici analiticamente prevedibili:</p>
+    <ul>
+        <li><b>Ciclo di Periodo 2 (q = 5):</b> Scegliendo <code>x<sub>0</sub> = sin<sup>2</sup>(&pi;/5) = (5 - &radic;5) / 8 &approx; 0.3454915</code>, la successione oscilla indefinitamente tra due valori:
+            <div class="formula">0.3454915 &rarr; 0.9045085 &rarr; 0.3454915 &rarr; 0.9045085 &dots;</div>
+        </li>
+        <li><b>Ciclo di Periodo 3 (q = 7):</b> Scegliendo <code>x<sub>0</sub> = sin<sup>2</sup>(&pi;/7) &approx; 0.188255</code>, la successione genera un ciclo esatto di periodo 3:
+            <div class="formula">0.188255 &rarr; 0.611260 &rarr; 0.950484 &rarr; 0.188255 &dots;</div>
+        </li>
+    </ul>
+
+    <!-- SECTION 3 -->
+    <h2>3. Soluzione Analitica Esatta per r = 2.0</h2>
+    <p>Quando <code>r = 2.0</code>, si applica la trasformazione algebrica <b>x<sub>n</sub> = (1 - y<sub>n</sub>) / 2</b>:</p>
+    <div class="formula">
+        y<sub>n+1</sub> = 1 - 2x<sub>n+1</sub> = 1 - 4x<sub>n</sub>(1 - x<sub>n</sub>) = (1 - 2x<sub>n</sub>)<sup>2</sup> = y<sub>n</sub><sup>2</sup>
+    </div>
+    <p>Ricavando la relazione di ricorrenza per elevamento a potenza <code>y<sub>n</sub> = y<sub>0</sub><sup>(2<sup>n</sup>)</sup></code>, si ottiene la <b>soluzione in forma chiusa per r = 2.0</b> valida per qualsiasi punto iniziale <code>x<sub>0</sub></code>:</p>
+    <div class="formula">
+        x<sub>n</sub> = [1 - (1 - 2x<sub>0</sub>)<sup>2<sup>n</sup></sup>] / 2
+    </div>
+    <p><b>Caso Golden (r = 2.0, x<sub>0</sub> = 0.1):</b></p>
+    <div class="formula">
+        x<sub>n</sub> = [1 - (0.8)<sup>2<sup>n</sup></sup>] / 2
+    </div>
+    <p>Poiché <code>(0.8)<sup>2<sup>n</sup></sup></code> tende a zero a velocità super-esponenziale, la formula permette di calcolare la posizione esatta al passo <i>n</i> con precisione arbitraria senza iterare la funzione.</p>
+
+    <div class="note">
+        <b>Nota per l'implementazione nei test:</b> I test per i cicli periodici o per le formule trigonometriche/esponenziali devono prevedere una tolleranza numerica (es. <code>delta = 1e-12</code>) a causa dell'approssimazione dei calcoli in floating-point (<code>double</code>).
+    </div>
+
+    <!-- SECTION 4 -->
+    <h2>4. Tabella Riassuntiva dei Casi Golden per Unit Test</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Parametro (r)</th>
+                <th>Condizione Iniziale (x<sub>0</sub>)</th>
+                <th>Traiettoria Esatta (x<sub>n</sub>)</th>
+                <th>Scopo e Utilità del Test</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Qualsiasi r</b></td>
+                <td>x<sub>0</sub> = 0.0 oppure 1.0</td>
+                <td>x<sub>n</sub> = 0.0 (per n &ge; 1)</td>
+                <td>Test di stabilità sui punti limite del dominio.</td>
+            </tr>
+            <tr>
+                <td><b>r = 2.0</b></td>
+                <td>Generico (es. x<sub>0</sub> = 0.1)</td>
+                <td>x<sub>n</sub> = [1 - (1 - 2x<sub>0</sub>)<sup>2<sup>n</sup></sup>] / 2</td>
+                <td>Verifica dell'evoluzione analitica con formula esponenziale esatta.</td>
+            </tr>
+            <tr>
+                <td><b>r = 3.0</b></td>
+                <td>x<sub>0</sub> = 2/3 &approx; 0.6666667</td>
+                <td>x<sub>n</sub> = 2/3 (costante per n &ge; 0)</td>
+                <td>Verifica della stabilità del punto fisso al limite di biforcazione.</td>
+            </tr>
+            <tr>
+                <td><b>r = 4.0</b></td>
+                <td>x<sub>0</sub> = 0.75</td>
+                <td>x<sub>n</sub> = 0.75 (costante per n &ge; 0)</td>
+                <td>Test del punto fisso analitico all'interno del regime caotico.</td>
+            </tr>
+            <tr>
+                <td><b>r = 4.0</b></td>
+                <td>x<sub>0</sub> = 0.5</td>
+                <td>x<sub>1</sub> = 1.0, poi x<sub>n</sub> = 0.0 (n &ge; 2)</td>
+                <td>Test della singolarità al centro del dominio.</td>
+            </tr>
+            <tr>
+                <td><b>r = 4.0</b></td>
+                <td>x<sub>0</sub> = (5 - &radic;5) / 8 &approx; 0.3454915</td>
+                <td>Alterna: 0.3454915 &harr; 0.9045085</td>
+                <td>Test per cicli d'onda/periodo 2 in regime caotico.</td>
+            </tr>
+            <tr>
+                <td><b>r = 4.0</b></td>
+                <td>Generico (es. x<sub>0</sub> = 0.3)</td>
+                <td>x<sub>n</sub> = sin<sup>2</sup>(2<sup>n</sup> &middot; arcsin(&radic;x<sub>0</sub>))</td>
+                <td>Confronto diretto tra iterazione passo-passo e formula trigonometrica chiusa.</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
