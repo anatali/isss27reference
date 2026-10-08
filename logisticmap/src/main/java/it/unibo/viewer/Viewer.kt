@@ -48,8 +48,7 @@ class Viewer ( name: String, scope: CoroutineScope, isconfined: Boolean=false, i
 						   if( currentMsg.msgId( )== "showgraph" && checkMsgContent( Term.createTerm("values(SOFPAIRS)"), Term.createTerm("values(S)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val ReceivedString = payloadArg(0)                                       
-								 val chartUrl       = 
-												 MyCode.ChartUtils.buildMapChartUrl("Mappa logistica",ReceivedString) 
+								 val chartUrl       = MyCode.ChartUtils.buildMapChartUrl("Mappa logistica",ReceivedString)  
 								 MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                           
 						}
 						//genTimer( actor, state )

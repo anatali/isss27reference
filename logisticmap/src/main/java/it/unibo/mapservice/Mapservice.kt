@@ -29,12 +29,6 @@ class Mapservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
-		 var Parameter_r_wrong  = false 
-			   var Parameter_X0_wrong = false 
-			   var Parameter_Y_wrong  = false  
-			   var R  = 0.0  
-			   var X0 = 0.0   
-			   var Y  = 0      
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -50,68 +44,28 @@ class Mapservice ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				}	 
 				state("waitrequest") { //this:State
 					action { //it:State
-						 Parameter_r_wrong  = false 
-							   Parameter_X0_wrong = false 
-							   Parameter_Y_wrong  = false  
 						CommUtils.outblue("$name - waiting for some request ...")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="checkparams",cond=whenRequest("evallogistic"))
-				}	 
-				state("checkparams") { //this:State
-					action { //it:State
-						   if( currentMsg.msgId( )== "evallogistic" && checkMsgContent( Term.createTerm("args(R,X0,Y)"), Term.createTerm("args(A,B,C)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								 R  = payloadArg(0).toDouble()   
-								 X0 = payloadArg(1).toDouble()   
-								 Y  = payloadArg(2).toInt()      
-								if(  R < 0 || R > 4  
-								 ){ Parameter_r_wrong = true  
-								CommUtils.outred("$name -  R=$R wrong ")
-								}
-								if(  X0 < 0 || X0 > 1  
-								 ){ Parameter_X0_wrong = true  
-								CommUtils.outred("$name -  X0=$X0 wrong ")
-								}
-								if(  Y < 0  
-								 ){ Parameter_Y_wrong = true  
-								CommUtils.outred("$name -  Y=$Y wrong ")
-								}
-								  MyCode.LogisticSeries.setParameters( R,X0,Y )    
-								 val S = "'" + MyCode.LogisticSeries.evalPoints(  ) + "'"  
-								CommUtils.outgreen("$name - values S=$S  ")
-						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition( edgeName="goto",targetState="doreplywrong", cond=doswitchGuarded({ Parameter_r_wrong || Parameter_X0_wrong || Parameter_Y_wrong  
-					}) )
-					transition( edgeName="goto",targetState="doeval", cond=doswitchGuarded({! ( Parameter_r_wrong || Parameter_X0_wrong || Parameter_Y_wrong  
-					) }) )
-				}	 
-				state("doreplywrong") { //this:State
-					action { //it:State
-						answer("evallogistic", "replylogistic", "result(parameter_wrong)"   )  
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition( edgeName="goto",targetState="waitrequest", cond=doswitch() )
+					 transition(edgeName="t00",targetState="doeval",cond=whenRequest("evallogistic"))
 				}	 
 				state("doeval") { //this:State
 					action { //it:State
-						CommUtils.outmagenta("$name - evallogistic  R=$R X0=$X0 Y=$Y ")
-						  MyCode.LogisticSeries.setParameters( R,X0,Y )    
-						 val S = "'" + MyCode.LogisticSeries.evalPoints(  ) + "'"  
-						CommUtils.outgreen("$name - values S=$S  ")
-						forward("showgraph", "values($S)" ,"viewer" ) 
-						answer("evallogistic", "replylogistic", "result(done)"   )  
+						   if( currentMsg.msgId( )== "evallogistic" && checkMsgContent( Term.createTerm("args(R,X1,Y)"), Term.createTerm("args(A,B,C)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 val R  = payloadArg(0).toDouble()   
+								 val X1 = payloadArg(1).toDouble()   
+								 val Y  = payloadArg(2).toInt()      
+								CommUtils.outmagenta("$name - evallogistic  R=$R X1=$X1 Y=$Y ")
+								  MyCode.LogisticSeries.setParameters( R,X1,Y )    
+								 val S = "'" + MyCode.LogisticSeries.evalPoints(  ) + "'"  
+								CommUtils.outgreen("$name - values S=$S  ")
+								forward("showgraph", "values($S)" ,"viewer" ) 
+								answer("evallogistic", "replylogistic", "result(done)"   )  
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
