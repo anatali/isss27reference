@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Il linguaggio qak &#8212; iss2026 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=34905f61" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script src="_static/documentation_options.js?v=29a6c3e3"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/custom.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">iss2026 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Il linguaggio qak</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="il-linguaggio-qak">
+<h1>Il linguaggio qak<a class="headerlink" href="#il-linguaggio-qak" title="Link to this heading">¶</a></h1>
+<p>Nei capitoli precedenti abbiamo introdotto l’idea
+che gran parte del software contemporaneo possa essere descritto come un ecosistema
+di servizi e attori, considerando gli <strong>attori</strong>
+come  un (nuovo) <span class="xref std std-ref">paradigma computazionale</span>
+più adeguato ad affrontare le problematiche architetturali e computazionali
+di questa nuova generazione di sistemi.</p>
+<p>Su questa base, abbiamo definito alcune librerie e classi per cercare di colmare
+<span class="xref std std-ref">L’Abstraction gap</span> che si manifesta rispetto a Java, la nostra tecnologia-base di riferimento.
+Ricordiamo in particolare:</p>
+<ul class="simple">
+<li><p><span class="xref std std-ref">unibo.basicomm23-1.0</span>.jar: un insieme di classi per superare le differenze tecnologiche relative
+ai diversi protocolli di comunnicazione di rete, attraverso la introduzione del
+concetto (astratto) di <span class="xref std std-ref">Interconnessione</span></p></li>
+<li><p><span class="xref std std-ref">AbstractProtoactor</span>:  una classe come un <em>MicroFramework</em> per la costruzione di componenti
+ispirati al modello ad attori.</p></li>
+</ul>
+<p>Nella sezione <span class="xref std std-ref">Oltre comportamenti message-driven</span>, abbiamo ipotizzato una <strong>evoluzione</strong>
+del <em>MicroFramework</em> basata sulla idea che sia un attore a <strong>decidere quando elaborare</strong>
+un messaggio, in modo da conciliare meglio il suo comportamento reattivo (di risposta ai messaggi)
+con il suo comportamento proattivo.</p>
+<p>Questo obiettivo può ancora essere raggiunto introducendo una libreria. Infatti:</p>
+<ul class="simple">
+<li><p>la libreria <strong>unibo.qakactor23-5.0.jar</strong>  fornisce il supporto che realizza il concetto
+di attore come un <strong>Automa  Stati Finiti</strong>
+(precisamente come una <a href="#id16"><span class="problematic" id="id17">`Macchina di Moore`_</span></a>), le cui transizioni di stato possono essere
+dovute a decisioni interne ed autonome e/o alla volontà dell’attore di elaborare un messaggio.</p></li>
+</ul>
+<section id="attori-qak">
+<span id="id1"></span><h2>Attori qak<a class="headerlink" href="#attori-qak" title="Link to this heading">¶</a></h2>
+<p>Il concetto di attore che ‘emerge’ dalla libreria <em>unibo.qakactor23-5.0.jar</em> viene denominato <a class="reference internal" href="#qactor"><span class="std std-ref">QActor</span></a>.
+La libreria implementa i componenti <em>QActor</em> come
+specializzazione classe astratta <span class="xref std std-ref">it.unibo.kactor.ActorBasicFsm.kt</span>
+che a sua volta specializza la classe astratta <strong>it.unibo.kactor.ActorBasic.kt</strong>.</p>
+<p>La ragione del prefisso <strong>Q</strong> (che significa <strong>quasi</strong>) nasce percheè
+vi sono molteplici modi di concepire il concetto di <em>QActor</em>,
+che è <strong>interpretabile</strong> in modi diversi:</p>
+<ol class="arabic simple">
+<li><p>un <strong>macro-componente</strong> del sistema che opera seguendo il
+<span class="xref std std-ref">paradigma computazionale degli attori</span></p></li>
+<li><p>un <strong>nano-servizio</strong>  che interagsice con altri nano-servizi del suo ambiente locale (una JVM)
+mediante canali Kotlin</p></li>
+<li><p>un <strong>(micro)servizio</strong> che interagisce con il mondo esterno via TCP o MQTT</p></li>
+<li><p>una <strong>risorsa CoAP</strong> che interagisce con il mondo esterno mediante il paradigma REST</p></li>
+<li><p>un <strong>componente cognitivo</strong> dotato di una base di conoscenza interna e di capacità inferenziali
+fornite da un interprete Prolog.</p></li>
+</ol>
+<p>Un QActor <strong>non è</strong> un <span class="xref std std-ref">Agente</span> vero e proprio, ma possiede proprietà e meccanismi che
+facilitiano la costruzione di agenti capaci di interagire tra loro e con l’ambiente.</p>
+<p>Un <strong>QActor cognitivo</strong>  integra le sue azioni
+con una base di conoscenza logica interna (<code class="docutils literal notranslate"><span class="pre">KB</span> <span class="pre">=</span> <span class="pre">fatti</span> <span class="pre">+</span> <span class="pre">regole</span></code>), che abilita ragionamento simbolico,
+inferenza e decisione basata sul contesto.</p>
+</section>
+<section id="non-solo-libreria-il-liguaggio-qak">
+<h2>Non solo libreria: il liguaggio qak<a class="headerlink" href="#non-solo-libreria-il-liguaggio-qak" title="Link to this heading">¶</a></h2>
+<p>Ma ora, la novità importante è che i concetti e i meccanismi realizzati dalla libreiria
+sono formalmente esprimibili medianate un linguggio, dotato di una precisa
+<span class="xref std std-ref">sintassi</span> e di una semantica operazionale definita proprio dalla libreria.</p>
+<ul class="simple">
+<li><p>la libreria smette di essere solo una collezione di strumenti e diventa
+il <strong>runtime</strong> (sommerso) di un linguaggio denminato <strong>qak</strong>.</p></li>
+<li><p>la sintassi astratta di <strong>qak</strong> viene mappate direttamente sulle chiamate alla libreria
+(<strong>proiezione semantica</strong>).</p></li>
+</ul>
+<section id="il-q-e-il-k-in-qak">
+<h3>Il q e il k in qak<a class="headerlink" href="#il-q-e-il-k-in-qak" title="Link to this heading">¶</a></h3>
+<p>Il
+prefisso <strong>q</strong>, che significa <strong>“quasi”</strong> (<strong>a</strong> sta per <strong>actor</strong>)
+ha le stesse motivazioni del prefisso <strong>Q</strong> introdotte in precedenza.</p>
+<p>Il suffisso <strong>k</strong>  significa <strong>Kotlin</strong> e richiama il fatto che ogni QActor è realizzato come
+<span class="xref std std-ref">coroutine</span> kotlin.
+Ciò permette la attivazione in una stessa JVM di migliaia di QActor, agevolando
+la sperimentazione di fenomeni emergenti in sistemi formati da molti attori.
+(<span class="xref std std-ref">More is different</span>).</p>
+</section>
+<section id="la-proiezione-linguistica-della-libreria">
+<h3>La Proiezione Linguistica della Libreria.<a class="headerlink" href="#la-proiezione-linguistica-della-libreria" title="Link to this heading">¶</a></h3>
+<p>Proiettare la libreria in un linguaggio, implica operare una trasformazione dei livelli di astrazione:</p>
+<ul class="simple">
+<li><p><strong>Livello Operativo</strong> (libreria): Si concentra sui dettagli implementativi, sulla gestione dello stato
+e sull’esecuzione (il “Come”). È complicato perché deve realizzare in modo opportuno
+diversi meccanismi e poictiche di interazione.</p></li>
+<li><p><strong>Livello Espressivo</strong> (linguaggio): Si concentra sull’intento del dominio. Eliminando il “rumore”
+sintattico di Java (punti e virgola, tipi verbosi, boilerplate), si permette all’utente di
+manipolare i concetti della libreria come se fossero <strong>primitive del pensiero</strong>.</p></li>
+</ul>
+<p>Inoltre, si può difre che:</p>
+<ul class="simple">
+<li><p>La libreria  definisce lo <strong>spazio delle possibilità</strong>, mentre il linguaggio <strong>qak</strong>
+definisce il <strong>modo di navigare questo spazio</strong>.</p></li>
+<li><p>Invece di forzare l’utente a scrivere codice Java, si offre una “lente” (il linguaggio)
+che restringe il campo d’azione esattamente a ciò che la libreria sa fare
+(si veda <span class="xref std std-ref">ali e catene</span>),
+potenziandone però la leggibilità e la verifica formale.</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="dalla-libreria-al-linguaggio">
+<span id="come-e-stato-realizzato-qak"></span><h2>Dalla libreria al linguaggio<a class="headerlink" href="#dalla-libreria-al-linguaggio" title="Link to this heading">¶</a></h2>
+<p>L’implementazione del Linguaggio Qak si basa du due parti principali:</p>
+<ul class="simple">
+<li><p>Il <strong>Metamodello Qak</strong>: definisce la <span class="xref std std-ref">sintassi</span> e la semantica del linguanisceggio Qak,
+basandosi sul framework <strong>Xtext</strong>. L’ecosistema <strong>Eclipse</strong> viene ampliato con appositi plugin
+così da realizzare la <a class="reference internal" href="#qak-software-factory"><span class="std std-ref">Qak software factory</span></a>, che include
+un <strong>editor guidato dalla sintassi</strong>, e
+un generatore di codice Kotlin che realizza la semantica del linguaggio.</p></li>
+<li><p>La <strong>Qak infrastructure</strong>: fornisce l’infrastruttura di runtime per eseguire i QActors
+generati dal codice Qak.</p></li>
+</ul>
+<a class="reference internal image-reference" href="_static/img/qakSoftwareFactory.png"><img alt="_static/img/qakSoftwareFactory.png" class="align-center" src="_static/img/qakSoftwareFactory.png" style="width: 60%;" />
+</a>
+<section id="qak-infrastructure">
+<span id="id2"></span><h3>Qak infrastructure<a class="headerlink" href="#qak-infrastructure" title="Link to this heading">¶</a></h3>
+<p>E’ defnita dalla libreria <strong>unibo.qakactor23-5.0.jar</strong> che
+implementa i QActor applicativi come specializzazione classe astratta <span class="xref std std-ref">it.unibo.kactor.ActorBasicFsm.kt</span>
+che a sua volta specializza la classe astratta <strong>it.unibo.kactor.ActorBasic.kt</strong>.</p>
+<p>Si avvale delle librerie:</p>
+<ul class="simple">
+<li><p>uniboInterfaces.jar: definisce le interfacce necessarie</p></li>
+<li><dl class="simple">
+<dt><span class="xref std std-ref">unibo.basicomm23-1.0</span>.jar: per il supporto alle comunicazioni e per alcune importanti utilities (ad es.</dt><dd><p>la classe <strong>CommUtils</strong>)</p>
+</dd>
+</dl>
+</li>
+<li><p>2p301.jar: interprete Prolog (si veda <a href="#id18"><span class="problematic" id="id19">`tuProlog`_</span></a>) costruito in Java dal DISI-Unibo</p></li>
+</ul>
+</section>
+<section id="qak-software-factory">
+<span id="id3"></span><h3>Qak software factory<a class="headerlink" href="#qak-software-factory" title="Link to this heading">¶</a></h3>
+<p>La factory (<strong>Qak software factory</strong>) genera il codice necessario
+per ‘mappare’ i concetti di alto livello (espressi nel modello definito dall’utente)
+in strutture di più basso livello, che possono essere eseguite avvelendosi di appositi supporti
+e librerie di utilità  application-independent.</p>
+<p>La <em>Qak software factory</em> è legata alla definizione del linguaggio <a class="reference internal" href="#qak-come-dsl"><span class="std std-ref">qak come DSL</span></a>.</p>
+</section>
+<section id="qak-come-dsl">
+<span id="id4"></span><h3>qak come DSL<a class="headerlink" href="#qak-come-dsl" title="Link to this heading">¶</a></h3>
+<p>Il <em>Linguaggio qak</em> è definito come un <span class="xref std std-ref">DSL Esterno</span> con lo scopo di:</p>
+<ul class="simple">
+<li><p>fornire agli ingegneri gli strumenti formali per definire e gestire
+alcuni fondamentali ‘meccanismi semantici’ di comunicazione tra componenti software distribuiti</p></li>
+<li><p>proseguire nel solco della <a href="#id20"><span class="problematic" id="id21">`Model-Driven engineering`_</span></a>, con lo scopo di agevolare
+la rapida costruzione/prototipazione  di  <strong>modelli eseguibili</strong> di un sistema software,
+utili (se non indispensabili) nelle fasi preliminari la progettazione, quali la analisi e la formalizzazione/
+dei requisiti e l’analisi del problema applicativo da risolvere</p></li>
+<li><p>assumere l’<span class="xref std std-ref">Actor Model</span> come modello computazionale di base</p>
+</li>
+</ul>
+<p>L’idea alla base del <em>Linguaggio qak</em> è che un sistema software è composto da un insieme di
+<span class="xref std std-ref">attori</span> (detti <strong>QActor</strong>)
+che interagsicono mediante messaggi scambiati in modo <strong>asincrono</strong>.</p>
+<table class="docutils align-default" style="width: 100%">
+<colgroup>
+<col style="width: 47.4%" />
+<col style="width: 52.6%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Un sistema qak è composto da una collezioni di <a class="reference internal" href="#qactor"><span class="std std-ref">QActor</span></a>, attivati in uno o più <a class="reference internal" href="#context"><span class="std std-ref">Context</span></a>,
+allocati in uno o piò nodi di elaborazione.</p></td>
+<td><p>.</p>
+<a class="reference internal image-reference" href="_static/img/Actor24sysqak.PNG"><img alt="_static/img/Actor24sysqak.PNG" class="align-center" src="_static/img/Actor24sysqak.PNG" style="width: 100%;" />
+</a>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="qactor">
+<span id="id5"></span><h2>QActor<a class="headerlink" href="#qactor" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default" style="width: 100%">
+<colgroup>
+<col style="width: 60.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Un attore qak è un componente attivo che:</p>
+<ul class="simple">
+<li><p>nasce, vive e muore in un <span class="xref std std-ref">contesto</span> che può essere comune a (molti) altri attori;</p></li>
+<li><p>ha un <strong>nome univoco</strong> nell’ambito di tutto il sistema;</p></li>
+<li><p>è logicamente attivo, cioè dotato di flusso di controllo autonomo;</p></li>
+<li><p>è capace di inviare messaggi ad un altro attore, di cui conosce il <strong>nome</strong>, incluso sè stesso;</p></li>
+<li><p>è capace di eseguire elaborazioni autonome e/o elaborazioni di messaggi;</p></li>
+<li><p>è dotato di una sua <cite>coda locale</cite> (<strong>msgQueue</strong>) in cui sono depositati i messaggi
+a lui inviati da altri attori (dello stesso contesto o di contesti remoti)
+oppure da componenti esterni al sistema.</p></li>
+</ul>
+</td>
+<td><p>.</p>
+<a class="reference internal image-reference" href="_static/img/actor24.png"><img alt="_static/img/actor24.png" class="align-center" src="_static/img/actor24.png" style="width: 90%;" />
+</a>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="context">
+<span id="id6"></span><h2>Context<a class="headerlink" href="#context" title="Link to this heading">¶</a></h2>
+<p>Un QActor fa sempre parte di un componente detto <strong>Context</strong> che assume
+diversi, importanti ruoli. Un <strong>Context</strong>:</p>
+<ol class="arabic simple">
+<li><p>rappresenta un nodo di elaborazione, csstituito da una JVM che opera su un computer
+fisico denotato da un indirizzo IP e una port</p></li>
+<li><p>include una base di conoscenza Prolog (<code class="docutils literal notranslate"><span class="pre">SYSKB</span></code>) che descrive tutto il sistema come collezione di Context
+e di QActor all’interno dei Context</p></li>
+<li><p>funge da gestore dell’insiene di QActor locali al Context</p></li>
+<li><p><strong>abilita le comunicazioni</strong> remote tra QActor, sfruttando la <code class="docutils literal notranslate"><span class="pre">SYSKB</span></code> per:</p>
+<ul class="simple">
+<li><p>conoscere il <em>Context</em> (e quindi il nodo computazionale) del destinario di un messaggio</p></li>
+<li><p>recapitare un messaggio ricevuto con il <strong>protocollo di default TCP</strong>,
+che abbia un suo QActor locale come destinatario</p></li>
+</ul>
+</li>
+</ol>
+<p>Il <em>Context</em> permette a un numero <code class="docutils literal notranslate"><span class="pre">N&gt;0</span></code> di QActor di <strong>condividere</strong> i supporti necessari
+a rendere gli attori capaci di ricevere e trasmettere messaggi, sia attraverso la rete,
+sia usando la memoria dalla JVM su cui operano.</p>
+<p>In altre parole, rispetto alla architettura introdotta in <span class="xref std std-ref">Protoattori</span> i server
+del tipo javalin o i supporti MQTT <strong>non sono incapsulati</strong> in ogni QActor, ma sono
+definiti una volta sola nel <em>Context</em>.</p>
+<table class="docutils align-default" style="width: 100%">
+<colgroup>
+<col style="width: 70.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Un contesto rappresenta un nodo logico di elaborazione dotato di server e di un porta di ingresso,
+su cui altri contesti possono stabilire una <span class="xref std std-ref">Interconnessione</span>, di solito basata su <code class="docutils literal notranslate"><span class="pre">TCP</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CoAP</span></code> e <code class="docutils literal notranslate"><span class="pre">MQTT</span></code>.</p>
+<p>Un contesto deve essere allocato su un computer fisico o su un  virtual machine / container.</p>
+</td>
+<td><p>.</p>
+<a class="reference internal image-reference" href="_static/img/actor24Ctx.png"><img alt="_static/img/actor24Ctx.png" class="align-center" src="_static/img/actor24Ctx.png" style="width: 100%;" />
+</a>
+</td>
+</tr>
+<tr class="row-even"><td><p>Un contesto mantiene una tabella  (<strong>actorMap</strong>)  con i riferimento agli attori locali e una tabella
+(<strong>proxyMap</strong>) con i riferimenti ai Proxy che mantengono una <span class="xref std std-ref">Interconnessione</span> con gli altri Context
+del sistema.</p>
+</td>
+<td><p>.</p>
+<a class="reference internal image-reference" href="_static/img/actor24CtxMaps.png"><img alt="_static/img/actor24CtxMaps.png" class="align-center" src="_static/img/actor24CtxMaps.png" style="width: 100%;" />
+</a>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="uno-sguardo-alla-sintassi-di-qak">
+<h2>Uno sguardo alla sintassi di qak<a class="headerlink" href="#uno-sguardo-alla-sintassi-di-qak" title="Link to this heading">¶</a></h2>
+<p>La descrizione della sintassi del linguaggio qak è riporata in <span class="xref std std-ref">sintassi</span>.</p>
+<p>In Xtext, la grammatica è scritta in un dialetto della Notazione d:ref:<cite>Backus-Naur Estesa (EBNF)&lt;La analisi sintattica&gt;</cite>,
+dove ogni regola non solo descrive cosa il parser deve leggere, ma anche <strong>come trasformarlo</strong>
+in un oggetto Java (di classe-base <strong>EObject</strong>).</p>
+<p>Riportare qui tutte le regole sintattiche non è opportuno; tuttavia può essere utile dare uno sguardo ad alcune regole,
+utili per la specifica dei messaggi e per la gestione dei payload dei messaggi.</p>
+<section id="messaggi-qak">
+<span id="id7"></span><h3>Messaggi qak<a class="headerlink" href="#messaggi-qak" title="Link to this heading">¶</a></h3>
+<p>I messaggi che i <strong>QActor</strong> possono scambiarsi
+sono di tre tipi: <strong>Dispatch</strong>, <strong>Request</strong> (con <strong>Reply</strong>), ed <strong>Event</strong>,
+caratterzzati dai seguenti <em>Pattern</em>:</p>
+<table class="docutils align-default" style="width: 100%">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 35.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Tipo msg</strong></p></td>
+<td><p><strong>Destinatario</strong></p></td>
+<td><p><strong>Risposta</strong></p></td>
+<td><p><strong>Uso</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Dispatch</strong></p></td>
+<td><p>Esplicito</p></td>
+<td><p>No</p></td>
+<td><p>Comandi, notifiche</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Request</strong></p></td>
+<td><p>Esplicito</p></td>
+<td><p>si (<strong>Reply</strong>)</p></td>
+<td><p>Query (asincrone)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Event</strong></p></td>
+<td><p>Implicito</p></td>
+<td><p>No</p></td>
+<td><p>Notifiche</p></td>
+</tr>
+</tbody>
+</table>
+<p>I messagi con destinatrio esplicito devono designare il nome (<code class="docutils literal notranslate"><span class="pre">ID</span></code>) del QActor destinatario.</p>
+<p>La sintassi dei messaggi è definita dal seguente frammento della grammatica qak:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Message : BasicMessage | Event | OtherMsg;
+BasicMessage: Dispatch | Request;
+OtherMsg : Reply | ... ;
+
+Event:    &quot;Event&quot;    name=ID &quot;:&quot; msg = PHead (cmt=STRING)?;
+Dispatch: &quot;Dispatch&quot; name=ID &quot;:&quot; msg = PHead (cmt=STRING)?;
+Request:  &quot;Request&quot;  name=ID &quot;:&quot; msg = PHead (cmt=STRING)?;
+Reply:    &quot;Reply&quot;    name=ID &quot;:&quot; msg = PHead (&quot;for&quot; reqqq=[Request])?(cmt=STRING)?;
+</pre></div>
+</div>
+<p>Il non-terminale <span class="xref std std-ref">PHead</span> descrive <span class="xref std std-ref">Notazioni ispirate ai termini Prolog</span>.
+Rimandando ulteriori dettagli alle sezioni relative, anticipamo qui che
+sono espressi cone <strong>Atomi Prolog</strong>:</p>
+<ul class="simple">
+<li><p>i nomi dei <a class="reference internal" href="#qactor">QActor</a> (tutte minuscole, come ulteriore vincolo)</p></li>
+<li><p>i nomi dei <a class="reference internal" href="#context">Context</a>  (tutte minuscole, come ulteriore vincolo)</p></li>
+<li><p>i nomi dei messaggi e i nomi dei loro <strong>payload</strong></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Gli <strong>Atomi</strong> sono in  Prolog i <strong>Termini</strong> più semplici, quali ad esempio:</p>
+<ul class="simple">
+<li><p>un nome che inizia con una lettera minuscola
+e può essere seguito da lettere (maiuscole o minuscole), cifre (<code class="docutils literal notranslate"><span class="pre">0-9</span></code>) e il carattere underscore (<code class="docutils literal notranslate"><span class="pre">_</span></code>).</p></li>
+<li><p>qualsiasi sequenza di caratteri racchiusa tra virgolette singole</p></li>
+<li><p>i simboli <code class="docutils literal notranslate"><span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">fail</span></code>, <code class="docutils literal notranslate"><span class="pre">[]</span></code> (lista vuota) .</p></li>
+</ul>
+</div>
+</section>
+</section>
+<section id="descrivere-un-sistema-in-qak">
+<h2>Descrivere un sistema in qak<a class="headerlink" href="#descrivere-un-sistema-in-qak" title="Link to this heading">¶</a></h2>
+<p>Ricordando la <span class="xref std std-ref">Visione WhiteBox</span> di un sistema, possiamo sintetizzare le capacità espressive del <em>Linguaggio qak</em>
+nella tabella che segue:</p>
+<table class="docutils align-default" style="width: 100%">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Struttura</strong></p></td>
+<td><p>Un sistema qak è composto da enti computazionalmente completi detti <a class="reference internal" href="#qactor"><span class="std std-ref">QActor</span></a>,
+contenuti in uno o più <a class="reference internal" href="#context"><span class="std std-ref">Context</span></a>.</p>
+<p>Un <a class="reference internal" href="#qactor"><span class="std std-ref">QActor</span></a> può contenere ed usare uno o più oggetti espressi in <code class="docutils literal notranslate"><span class="pre">Java</span></code> e/o <code class="docutils literal notranslate"><span class="pre">Kotlin</span></code>,
+con l’avvertenza che questi <strong>non devono introdurre accessi concorrenti</strong> a memoria comune</p>
+</td>
+</tr>
+<tr class="row-even"><td><p><strong>Comportamento</strong></p></td>
+<td><p>Un QActor si comporta (ed è strutturalmente organizzato) come un <strong>Automa  Stati Finiti</strong>
+(precisamente come una <a href="#id22"><span class="problematic" id="id23">`Macchina di Moore`_</span></a>) e
+può eseguire azioni (<a class="reference internal" href="#azioni-di-un-qactor"><span class="std std-ref">Azioni di un QActor</span></a>) sia  di alto livello (<em>azioni qak</em>) sia di basso livello
+(qualunque <em>azione kotlin</em>)</p>
+<p>Il comportamento di QActor è:</p>
+<ul class="simple">
+<li><p><strong>proattivo</strong>, in quanto può eseguire azioni in autonomia, comportandosi di fatto come un <span class="xref std std-ref">Agente</span></p></li>
+<li><p><strong>reattivo</strong>, in quanto capace di reagire a messaggi che provengono da altri QActor o da
+componenti software esterni al sistema.</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p><strong>Interazione</strong></p></td>
+<td><p>I QActor interagiscono scambiandosi <a class="reference internal" href="#messaggi-qak"><span class="std std-ref">messaggi</span></a>, secondo il motto:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Non</span> <span class="n">comunicare</span> <span class="n">condividendo</span> <span class="n">la</span> <span class="n">memoria</span><span class="o">.</span>
+<span class="n">Piuttosto</span><span class="p">,</span> <span class="n">condividi</span> <span class="n">memoria</span> <span class="n">comunicando</span><span class="o">.</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>La descrizione di un sistema software nel linguaggio qak esprime:</p>
+<ol class="arabic simple">
+<li><p>una <span class="xref std std-ref">Vista esterna</span> del sistema, costituita dall’insieme dei <a class="reference internal" href="#messaggi-qak"><span class="std std-ref">Messaggi qak</span></a> usati dai <a class="reference internal" href="#qactor"><span class="std std-ref">QActor</span></a>
+e dall’insieme dai <a class="reference internal" href="#context"><span class="std std-ref">Context</span></a> che compongono il sistema</p></li>
+<li><p>una <span class="xref std std-ref">Vista interna</span> di ogni QActor, che ne rappresenta il comportamento come un
+<a class="reference internal" href="#qactor-come-fsm"><span class="std std-ref">automa a stati finiti</span></a>
+(<a href="#id24"><span class="problematic" id="id25">`Macchina di Moore`_</span></a>)</p></li>
+</ol>
+<section id="azioni-di-un-qactor">
+<span id="id8"></span><h3>Azioni di un QActor<a class="headerlink" href="#azioni-di-un-qactor" title="Link to this heading">¶</a></h3>
+<p>Un QActor può eseguire <em>azioni qak</em> e <em>azioni Kotlin</em>.</p>
+<ul class="simple">
+<li><p>Le <strong>azioni qak</strong> che consideriamo al momento, sono principalmente connesse
+alla trasmissione e ricezione di messaggi, trasparenti rispetto ai meccanismi implementativi
+e alla dislocazione fisica dei QActor. <a class="reference internal" href="#altre-azioni-qak"><span class="std std-ref">Altre azioni qak</span></a> verranno introdotte in seguito.</p></li>
+<li><p>Le <strong>azioni kotlin</strong> sono espresse da codice Kotlin racchiuso tra i simboli <strong>[#</strong> e <strong>#]</strong>.
+La possibilità di esprimere queste azioni rende il linguaggio
+<span class="xref std std-ref">Computazionalmente completo</span></p></li>
+</ul>
+</section>
+<section id="azioni-per-la-trasmissione-dei-messaggi">
+<span id="id9"></span><h3>Azioni per la trasmissione dei messaggi<a class="headerlink" href="#azioni-per-la-trasmissione-dei-messaggi" title="Link to this heading">¶</a></h3>
+<p>A ciascun tipo di messaggio corrisponde, nel linguaggio qak, una specifica azione (sempre asincrona)
+per la sua trasmissione.</p>
+<table class="docutils align-default" style="width: 100%">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>forward</strong></p></td>
+<td><p>azione connessa all’invio di un <strong>dispatch</strong> a un destinatario, di cui si conosce il nome</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>request</strong></p></td>
+<td><p>azione connessa all’invio di una <strong>request</strong> a un destinatario, di cui si conosce il nome</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>replyTo</strong></p></td>
+<td><p>azione connessa all’invio di una <strong>reply</strong> relativa a una specifica richiesta</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>emit</strong></p></td>
+<td><p>azione connessa alla emissione di un <strong>event</strong>  verso tutti i QActor del sistema</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>emitlocal</strong></p></td>
+<td><p>azione connessa alla emissione di un <strong>event</strong>  verso i QActor dello <strong>stesso Context</strong> dell’emettitore</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>emitlocalstream</strong></p></td>
+<td><p>azione connessa alla emissione di un <strong>event</strong>  verso i QActor dello stesso Context dell’emettitore
+che si sono <strong>eplicitamente dichiarati interessati</strong>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="azioni-per-la-ricezione-dei-messaggi">
+<span id="id10"></span><h3>Azioni per la ricezione dei messaggi<a class="headerlink" href="#azioni-per-la-ricezione-dei-messaggi" title="Link to this heading">¶</a></h3>
+<p>Non esiste una azione esplicita (una <em>receive</em>) per la ricezione dei messaggi.
+La ricezione dei messaggi è connessa alla specifica della <strong>transizione tra stati</strong>
+dell’automa a stati finiti che modella il comportamento di un QActor.
+Per un primo esempio, si veda <a class="reference internal" href="#un-esempio-di-sistema-qak-con-claude"><span class="std std-ref">Un esempio di sistema qak con Claude</span></a>.</p>
+</section>
+<section id="come-un-qactor-gestisce-i-messaggi-ricevuti">
+<span id="id11"></span><h3>Come un QActor gestisce i messaggi ricevuti<a class="headerlink" href="#come-un-qactor-gestisce-i-messaggi-ricevuti" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default" style="width: 100%">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Un Server di contesto del <a class="reference internal" href="#context"><span class="std std-ref">Context</span></a> depone i messaggi <span class="xref std std-ref">IApplMessage</span>
+ricevuti su una <span class="xref std std-ref">Interconnessione</span> sulla  <code class="docutils literal notranslate"><span class="pre">msgQueue</span></code>
+dell’attore destinatario.</p>
+<p>—</p>
+<p>La figura mostra il caso di attori locali ad un nodo di elaborazione che possono
+inviare/ricevere messaggi tra loro oppure elaborare messaggi inviati
+da componenti remoti.</p>
+</td>
+<td><p>.</p>
+<a class="reference internal image-reference" href="_static/img/Actors24SingleNodeAndCtx.png"><img alt="_static/img/Actors24SingleNodeAndCtx.png" class="align-center" src="_static/img/Actors24SingleNodeAndCtx.png" style="width: 100%;" />
+</a>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Il funzionamento di un QActor può essere descritto come segue:</p>
+<ol class="arabic simple">
+<li><p>Un QActor è dotato di una sua coda locale (<strong>msgQueue</strong>) in cui sono depositati i messaggi a lui inviati.</p></li>
+<li><p>Un QActor possied una seconda coda (<strong>msgQueueStore</strong>),
+in cui memorizza messaggi (di tipo <em>request</em> e <em>dispatch</em>) non ancora elaborati.</p></li>
+<li><p>Ogni stato di un QActor può specificare una <strong>Transition</strong> in cui si specifica lo stato futuro da raggiungere
+in corrispondenza alla ricezione di un messaggio con uno specifico identificatore <em>msgId</em>.</p></li>
+<li><p>Al termine delle sue azioni, lo stato corrente del QActor consulta, nell’ordine,
+le sue code <em>msgQueueStore</em> e <em>msgQueue</em>, ciascuna in modo FIFO.</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>Se l’identificatore del messaggio prelevato da una coda è uguale a un <em>msgId</em> della <em>Transition</em> dello stato corrente,
+si attiva il passaggio allo stato futuro corrispondente.
+Se no, un messaggio in  <em>msgQueueStore</em> viene lasciato dove è; oppure,
+se è una <em>request</em> o un <em>dispatch</em> in <em>msgQueue</em>, viene trasferito in fondo alla coda <em>msgQueueStore</em>.</p></li>
+<li><p>Un messaggio di tipo <strong>event</strong> in <em>msgQueue</em> il cui identificatore non compare nella <em>Transition</em> dello stato corrente,
+viene scartato (e quindi <strong>ignorato e dimenticato</strong>).</p></li>
+<li><p>Se nessuna transizione è attivabile in base ai messaggi nelle code, il QActor  rimane nello stato corrente;
+all’arrivo di un nuovo messaggio, si riprende ad eseguire il punto 3.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="altre-azioni-qak">
+<span id="id12"></span><h3>Altre azioni qak<a class="headerlink" href="#altre-azioni-qak" title="Link to this heading">¶</a></h3>
+<p>Oltre alla possibilità di specificare azioni di alto livello per la trasmissione di messaggi,
+il linguaggio qak offre azioni ‘primitive’ che risultano importanti in molte applicazioni.</p>
+<p>Approfondiremo queste ulteiori azioni nella sezione <span class="xref std std-ref">Cosa può fare un QActor</span>;
+nell’attesa, ne riportiamo qui un elenco:</p>
+<ul class="simple">
+<li><p>azioni di accesso al contenuto (payload) dei messaggi (si veda <a class="reference internal" href="#onmsg"><span class="std std-ref">onMsg</span></a>)</p></li>
+<li><p>azioni condizionali (scelte)</p></li>
+<li><p>operazioni per l’uso della base di conoscenza Prolog</p></li>
+<li><p>azioni relative alla osservabilità dello stato interno di un QActor</p></li>
+<li><p>azioni di delegazione di un messaggio ad un altro QActor dello stesso Context</p></li>
+<li><p>azioni per la creazione deinamica di attori locali allo stesso Context</p></li>
+<li><p>operazioni per l’uso di intereazioni mediante MQTT</p></li>
+<li><p>operazione di ritorno da uno stato di gestione di un messaggio visto come interruzione</p></li>
+</ul>
+</section>
+<section id="qactor-come-fsm">
+<span id="id13"></span><h3>QActor come FSM<a class="headerlink" href="#qactor-come-fsm" title="Link to this heading">¶</a></h3>
+<p>Il linguaggio qak forza la descrizione del comportamento di un QActor  come una <a href="#id26"><span class="problematic" id="id27">`Macchina di Moore`_</span></a>
+a stati finiti.</p>
+<p>In altre parole, non sono i messaggi ricevuti a determinare il comportamento di un QActor,
+ma è un QActor che <strong>decide</strong> quali azioni compiere e quali messaggi ricevere ed elaborare
+in un dato momento (stato) della sua vita.</p>
+<p>Ogni QActor:</p>
+<ul class="simple">
+<li><p>possiede uno  <strong>unico stato iniziale</strong></p></li>
+<li><p>possiede uno <strong>stato corrente</strong> di esecuzione</p></li>
+<li><p>può eseguire <strong>azioni</strong> in ogni stato</p></li>
+<li><p>può eseguire <strong>transizioni</strong> tra stati, come conseguenza della ricezione di messaggi
+o come decisione autonoma (<strong>Goto</strong>)</p></li>
+</ul>
+<p>Notiamo che</p>
+<ul class="simple">
+<li><p>la struttura a stati finiti (FSM) di un QActor non limita la sua capacità computazionale,
+in quanto ogni stato può eseguire azioni di calcolo di complessità arbitraria;</p></li>
+<li><p>la struttura FSM di un QActor facilita la comprensione del suo comportamento,
+in quanto ogni stato può essere visto come una modalità operativa ben definita.</p></li>
+<li><p>inoltre, la struttura FSM di un QActor facilita:</p>
+<ul>
+<li><p>la <strong>analisi</strong> e la <strong>verifica</strong> del suo comportamento,
+in quanto è possibile esaminare tutte le transizioni tra stati e le azioni associate a ciascuno stato.</p></li>
+<li><p>la <strong>progettazione</strong> e la <strong>implementazione</strong> del suo comportamento,
+in quanto è possibile suddividere il comportamento complessivo in sotto-comportamenti associati a ciascuno stato.</p></li>
+<li><p>la <strong>manutenzione e l’evoluzione</strong> del suo comportamento,
+in quanto è possibile modificare o aggiungere stati e transizioni senza alterare l’intero comportamento.</p></li>
+<li><p>il <strong>testing</strong> del suo comportamento,
+in quanto è possibile isolare e testare singoli stati e transizioni.</p></li>
+<li><p>la <strong>documentazione</strong> e la comunicazione del suo comportamento,
+in quanto è anche possibile rappresentare graficamente il comportamento mediante diagrammi di stati.</p></li>
+<li><p>l’<strong>ottimizzazione</strong> delle prestazioni,
+in quanto è possibile identificare e migliorare gli stati e le transizioni critiche.</p></li>
+</ul>
+</li>
+</ul>
+<p>Osserviamo anche che:</p>
+<ul class="simple">
+<li><p>un QActor <strong>solo proattivo</strong> non esprime
+transizioni basate sulla ricezione di messaggi, ma solo transizioni autonome (<strong>Goto</strong>).</p></li>
+<li><p>un QActor che entra in un loop computazionale infinito in uno stato,
+non è in grado di gestire messaggi ricevuti.</p></li>
+</ul>
+</section>
+</section>
+<section id="un-esempio-di-sistema-qak-con-claude">
+<span id="id14"></span><h2>Un esempio di sistema qak con Claude<a class="headerlink" href="#un-esempio-di-sistema-qak-con-claude" title="Link to this heading">¶</a></h2>
+<p>Da neofiti del linguaggio qk, proviamo a chidere a <em>Claude</em> (una AI versate nel coding) di costruire
+per noi un primo sistema.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Prompt per Cluade: Vorrei il codice di un sistema espresso nel linguaggio qak in cui un attore  di nome ‘worker’
+riceve la richiesta del valore dell’ora corrente nella forma HH::MM::SEC
+da parte di un altro attore di nome ‘caller’.</p>
+</div>
+<p>Claude risponde fornendo il codice che segue:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>System timesystem
+
+  // Messaggio di richiesta dell&#39;ora corrente
+  Request gettime : gettime(X)
+  // Messaggio di risposta con l&#39;ora corrente
+  Reply currenttime : currenttime(TIME) for gettime
+                          //(1) for clause (optional) Added
+
+Context ctx ip [host=&quot;localhost&quot; port=8050]
+
+  QActor caller context ctx {
+    State s0 initial {
+       delay 1000
+        println(&quot;Caller: richiedo l&#39;ora corrente al worker&quot;)
+        request worker -m gettime : gettime(now)
+    }
+    Transition t0 whenReply currenttime -&gt; handleResponse
+
+    State handleResponse {
+        onMsg(currenttime : currenttime(TIME)) {
+          println(&quot;Caller: ho ricevuto l&#39;ora corrente: ${payloadArg(0)}&quot;)
+        }
+        [# System.exit(0) #] //(2) Added to terminate
+        }
+        //Goto s0  //(3) Removed to avoid loop
+    }
+
+  QActor worker context ctx {
+    State s0 initial {
+      println(&quot;Worker: in attesa di richieste...&quot;)
+    }
+    Transition t0 whenRequest gettime -&gt; sendTime
+
+    State sendTime {
+  /*4*/onMsg(gettime : gettime(X)) {
+        println(&quot;Worker: ricevuta richiesta, invio l&#39;ora corrente&quot;)
+        [# val now        = java.time.LocalTime.now().toString()
+           val formatter  =
+            java.time.format.DateTimeFormatter.ofPattern(&quot;HH:mm:ss&quot;)
+          val CurrentTime = &quot;&#39;&quot;+now.format(formatter)+&quot;&#39;&quot;
+                              //(5) Apici Added since Prolog term
+        #]
+        replyTo gettime with currenttime : currenttime($CurrentTime)
+                              //(6) CurrentTime e non currentTime
+        }
+      }
+      Goto s0
+    }
+</pre></div>
+</div>
+<p>Il codice è corretto tranne al punto <strong>(6)</strong>, in cui il nome della variabile deve
+<strong>iniziare con una maiuscola</strong>, per vincoli sintattici sull’uso dell’operatore di referenziamento <code class="docutils literal notranslate"><span class="pre">$</span></code>
+entro la specifica del payload della reply.</p>
+<p>Le modifiche al codice negli altri punti sono migliorie opzionali:</p>
+<ol class="arabic simple">
+<li><p>La clausola for correla la <strong>reply</strong> a un precisa <strong>request</strong></p></li>
+<li><p>Induce la terminazione del sistema, che rimerrebbe attivo per via dei server di contesto</p></li>
+<li><p>Viene eliminato il ritorno allo stato  <code class="docutils literal notranslate"><span class="pre">s0</span></code> del <em>caller</em>, per evitare un ciclo infinito di richieste</p></li>
+<li><p>La frase è corretta e permette di estrarre il valore del payload di un messaggio,
+come spiegato in <a class="reference internal" href="#onmsg"><span class="std std-ref">onMsg</span></a> (si veda anche <a class="reference internal" href="#azioni-per-la-ricezione-dei-messaggi"><span class="std std-ref">Azioni per la ricezione dei messaggi</span></a>)</p></li>
+<li><p>Il valore <em>CurrentTime</em> viene incluso tra apici, in quanto il payload della <em>reply</em>
+deve essere espresso da un atomo Prolog.</p></li>
+</ol>
+<section id="onmsg">
+<span id="id15"></span><h3>onMsg<a class="headerlink" href="#onmsg" title="Link to this heading">¶</a></h3>
+<p>La frase qak:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onMsg</span><span class="p">(</span> <span class="n">gettime</span> <span class="p">:</span> <span class="n">gettime</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="p">){</span> <span class="o">...</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>ubbidisce alla seguente <em>regola sintattica</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>MsgCond: &quot;onMsg&quot; &quot;(&quot; message=[Message] &quot;:&quot; msg = PHead &quot;)&quot;
+   &quot;{&quot; ( condactions += StateAction )*  &quot;}&quot;
+   (&quot;else&quot; ifnot = NoMsgCond )? ;
+
+NoMsgCond: &quot;{&quot; (  notcondactions += StateAction )*  &quot;}&quot;;
+</pre></div>
+</div>
+<p>La sua <strong>semantica</strong> è la seguente:</p>
+<ul class="simple">
+<li><p>esegue il body <em>condactions</em> solo se il messaggio corrente (variabile <strong>currentMsg</strong>)
+ha msgId <code class="docutils literal notranslate"><span class="pre">gettime</span></code> (in questo caso)
+e può essere <strong>unificato</strong> in Prolog con il <em>template</em> di messaggio definito nella dichiarazione
+(<code class="docutils literal notranslate"><span class="pre">gettime(X)</span></code> nella Dichiarazione dei messagg)
+e con il template specificato <cite>gettime(X)`</cite> (in questo caso).</p></li>
+</ul>
+</section>
+<section id="dal-concentrato-al-distribuito">
+<h3>Dal concentrato al distribuito<a class="headerlink" href="#dal-concentrato-al-distribuito" title="Link to this heading">¶</a></h3>
+<p>L’esempio prodotto da Claude introduce due attori nello stesso contesto.
+Lo scambio di messaggi tra questi attori avviene usando la memoria della JVM
+in cui gli attori operano e non implicano l’uso della rete.</p>
+<p>Volendo trasformare il sistema da concentrato a distribuito,
+occorre introdurre un secondo Contesto (ad ese. <strong>ctx1</strong>) ed includere uno
+dei due attori in questo nuovo contesto.</p>
+<p>In questo modo si divide il sistema in due sottosistemi, che vengono concettualmente
+‘legati’ dalla specifica dello stesso insieme di messaggi e dalla specifica
+die contesti.
+Ad esempio:</p>
+<p><strong>Sottositema caller</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">System</span> <span class="n">timesystem</span>
+  <span class="n">Request</span> <span class="n">gettime</span>   <span class="p">:</span> <span class="n">gettime</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+  <span class="n">Reply</span> <span class="n">currenttime</span> <span class="p">:</span> <span class="n">currenttime</span><span class="p">(</span><span class="n">TIME</span><span class="p">)</span> <span class="k">for</span> <span class="n">gettime</span>
+
+<span class="n">Context</span> <span class="n">ctx</span>  <span class="n">ip</span> <span class="p">[</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span>    <span class="n">port</span><span class="o">=</span><span class="mi">8050</span><span class="p">]</span>
+<span class="n">Context</span> <span class="n">ctx1</span> <span class="n">ip</span> <span class="p">[</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;192.168.22.2&quot;</span> <span class="n">port</span><span class="o">=</span><span class="mi">8060</span><span class="p">]</span>
+
+  <span class="n">QActor</span> <span class="n">caller</span> <span class="n">context</span> <span class="n">ctx</span> <span class="p">{</span>
+    <span class="n">State</span> <span class="n">s0</span> <span class="n">initial</span> <span class="p">{</span>
+       <span class="n">delay</span> <span class="mi">1000</span>
+        <span class="n">println</span><span class="p">(</span><span class="s2">&quot;Caller: richiedo l&#39;ora corrente al worker&quot;</span><span class="p">)</span>
+        <span class="n">request</span> <span class="n">worker</span> <span class="o">-</span><span class="n">m</span> <span class="n">gettime</span> <span class="p">:</span> <span class="n">gettime</span><span class="p">(</span><span class="n">now</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">Transition</span> <span class="n">t0</span> <span class="n">whenReply</span> <span class="n">currenttime</span> <span class="o">-&gt;</span> <span class="n">handleResponse</span>
+
+    <span class="n">State</span> <span class="n">handleResponse</span> <span class="p">{</span>
+        <span class="n">onMsg</span><span class="p">(</span><span class="n">currenttime</span> <span class="p">:</span> <span class="n">currenttime</span><span class="p">(</span><span class="n">TIME</span><span class="p">))</span> <span class="p">{</span>
+          <span class="n">println</span><span class="p">(</span><span class="s2">&quot;Caller: ho ricevuto l&#39;ora corrente: ${payloadArg(0)}&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="p">[</span><span class="c1"># System.exit(0) #]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">ExternalQActor</span> <span class="n">worker</span> <span class="n">context</span> <span class="n">ctx1</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Il contesto <strong>ctx</strong>  opera ora sul nodo di indirizzo <code class="docutils literal notranslate"><span class="pre">IP=localhost</span></code> con porta di accesso <code class="docutils literal notranslate"><span class="pre">8050</span></code>.</p></li>
+<li><p>Il contesto <strong>ctx1</strong> opera ora sul nodo di indirizzo <code class="docutils literal notranslate"><span class="pre">IP=192.168.22.2</span></code> con porta di accesso <code class="docutils literal notranslate"><span class="pre">8060</span></code>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Ciascun componente sarà ora sviluppato in un progetto Java specifico,
+all’interno di un workspace specifico, in uno stesso computer o in due computer diversi.</p>
+<p>La <a class="reference internal" href="#qak-software-factory"><span class="std std-ref">Qak software factory</span></a> genera codice solo per gli attori definiti in
+un contesto che come IP il valore <strong>localhost</strong>.</p>
+</div>
+<p>La frase <code class="docutils literal notranslate"><span class="pre">ExternalQActor</span> <span class="pre">...</span></code> specifica che l’attore <strong>worker</strong> si trova su un  nodo
+diverso da <em>caller</em> e può essere considerato come un altro componente del sistema,
+di cui non si conosce la struttura interna.</p>
+<p>Il codice di <strong>caller</strong> non cambia, anche se ora i messaggi dovranno essere scambiati via
+rete (con protocollo di deafault <strong>TCP</strong>). A questo penserà la <a class="reference internal" href="#qak-infrastructure"><span class="std std-ref">Qak infrastructure</span></a>
+sulla base delle <strong>conoscenze</strong> racchise nel <a class="reference internal" href="#context"><span class="std std-ref">Context</span></a>.</p>
+<p>Il sottosistema che rappresenta il <em>worker</em> viene specificato in modo simile,
+ma <strong>senza inrodurre</strong>:</p>
+<ul class="simple">
+<li><p>la specifica di <code class="docutils literal notranslate"><span class="pre">Context</span> <span class="pre">ctx</span></code></p></li>
+<li><p>la frase <code class="docutils literal notranslate"><span class="pre">ExternalQActor</span> <span class="pre">...</span></code></p></li>
+</ul>
+<p>Infatti il <em>Sottositema worker</em> opera come un <strong>servizio</strong> a sè stante,
+che può operare senza conoscere quali saranno i possibili ‘caller’ e dove
+essi si potranno trovare.</p>
+<p>L’unica <strong>conoscenza necessaria è l’insieme dei messaggi</strong> che garantiscono la
+possibilità di comunicazione (comprensione) tra le diverse parti.</p>
+<p><strong>Sottositema worker</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>System timesystem
+  Request gettime   : gettime(X)
+  Reply currenttime : currenttime(TIME) for gettime
+
+Context ctx1 ip [host=&quot;192.168.22.2&quot; port=8060]
+
+  QActor worker context ctx {
+    State s0 initial {
+      println(&quot;Worker: in attesa di richieste...&quot;)
+    }
+    Transition t0 whenRequest gettime -&gt; sendTime
+
+    State sendTime {
+      onMsg(gettime : gettime(X)) {
+        println(&quot;Worker: ricevuta richiesta, invio l&#39;ora corrente&quot;)
+        [# val now        = java.time.LocalTime.now().toString()
+           val formatter  =
+            java.time.format.DateTimeFormatter.ofPattern(&quot;HH:mm:ss&quot;)
+          val CurrentTime = &quot;&#39;&quot;+now.format(formatter)+&quot;&#39;&quot;
+        #]
+        replyTo gettime with currenttime : currenttime($CurrentTime)
+        }
+      }
+      Goto s0
+    }
+</pre></div>
+</div>
+<p>Notiamo che, dal punto di vista del <em>worker</em>, non si ha una chiara visione di quali
+parti compongono il ‘sistema’ di cui fa parte.</p>
+<p>Tuttavia il  <em>worker</em> ‘sa’ (o assume) che potranno ‘fare sistema’ con lui tutti i
+componenti che <strong>‘parlano’ il suo stesso linguaggio</strong>,
+come detto in <span class="xref std std-ref">Conoscere per comunicare</span>.</p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Il linguaggio qak</a><ul>
+<li><a class="reference internal" href="#attori-qak">Attori qak</a></li>
+<li><a class="reference internal" href="#non-solo-libreria-il-liguaggio-qak">Non solo libreria: il liguaggio qak</a><ul>
+<li><a class="reference internal" href="#il-q-e-il-k-in-qak">Il q e il k in qak</a></li>
+<li><a class="reference internal" href="#la-proiezione-linguistica-della-libreria">La Proiezione Linguistica della Libreria.</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dalla-libreria-al-linguaggio">Dalla libreria al linguaggio</a><ul>
+<li><a class="reference internal" href="#qak-infrastructure">Qak infrastructure</a></li>
+<li><a class="reference internal" href="#qak-software-factory">Qak software factory</a></li>
+<li><a class="reference internal" href="#qak-come-dsl">qak come DSL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qactor">QActor</a></li>
+<li><a class="reference internal" href="#context">Context</a></li>
+<li><a class="reference internal" href="#uno-sguardo-alla-sintassi-di-qak">Uno sguardo alla sintassi di qak</a><ul>
+<li><a class="reference internal" href="#messaggi-qak">Messaggi qak</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#descrivere-un-sistema-in-qak">Descrivere un sistema in qak</a><ul>
+<li><a class="reference internal" href="#azioni-di-un-qactor">Azioni di un QActor</a></li>
+<li><a class="reference internal" href="#azioni-per-la-trasmissione-dei-messaggi">Azioni per la trasmissione dei messaggi</a></li>
+<li><a class="reference internal" href="#azioni-per-la-ricezione-dei-messaggi">Azioni per la ricezione dei messaggi</a></li>
+<li><a class="reference internal" href="#come-un-qactor-gestisce-i-messaggi-ricevuti">Come un QActor gestisce i messaggi ricevuti</a></li>
+<li><a class="reference internal" href="#altre-azioni-qak">Altre azioni qak</a></li>
+<li><a class="reference internal" href="#qactor-come-fsm">QActor come FSM</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#un-esempio-di-sistema-qak-con-claude">Un esempio di sistema qak con Claude</a><ul>
+<li><a class="reference internal" href="#onmsg">onMsg</a></li>
+<li><a class="reference internal" href="#dal-concentrato-al-distribuito">Dal concentrato al distribuito</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Linguaggioqak.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">iss2026 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Il linguaggio qak</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2026, Antonio Natali.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>
