@@ -1,0 +1,75 @@
+
+#firstqak27.yml
+
+name: Build firstqak27
+
+on:
+  push:
+    branches: [ "main" ]
+    # Il workflow parte SOLO se modifichi file in queste cartelle:
+    paths:
+      - 'firstqak27/**'
+      - 'unibolibs/**'               # Importante: compila se aggiorni le librerie condivise!
+      - '.github/workflows/firstqak27.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:    
+      contents: read
+      checks: write  #
+      
+    # Definisce la cartella di lavoro per tutti i comandi di questo job
+    defaults:
+      run:
+        working-directory: firstqak27
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        dependency-graph: disabled
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build
+
+    # 1. Esegue i test con Gradle
+    - name: Run tests with Gradle
+      run: ./gradlew test
+
+    # 2. Pubblica il report dettagliato JUnit su GitHub
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v4
+      if: always() # Esegue lo step anche se alcuni test falliscono
+      with:
+        report_paths: '**/build/test-results/test/TEST-*.xml'
+        annotate_only: false
+        detailed_summary: true
+        include_passed: true # FORZA LA MOSTRA DEI TEST SUPERATI
+
+    - name: Upload HTML Test Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: gradle-test-report
+        path: build/reports/tests/test/          
+
+    # --- STEP PER SALVARE GLI ARTEFATTI ---
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gradle-build-output # Nome con cui verrà identificato lo zip dell'artefatto
+        # Il percorso dell'artefatto parte dalla sottocartella
+        path: firstqak27/build/
+        if-no-files-found: warn

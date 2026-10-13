@@ -84,7 +84,10 @@ public class Robotsmart26Cmds {
     
     /** Set robot direction to down */
     public static IApplMessage setDirectionDown  = CommUtils.buildDispatch(callerName, "setdirection", "dir(down)", "robotsmart");
-    
+
+    /** Set robot direction to left */
+    public static IApplMessage setDirectionLeft  = CommUtils.buildRequest(callerName, "setdirection", "dir(left)", "robotmnemo");
+
     /** Request current robot state information */
     public static IApplMessage robotstate = CommUtils.buildRequest(callerName, "getrobotstate", "getrobotstate(now)", "robotsmart");
      

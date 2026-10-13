@@ -1,7 +1,7 @@
-package gui;
+package utils.gui;
 
 import it.unibo.kactor.GuiColors;
-import planning.Node;
+import utils.planning.Node;
 import unibo.basicomm23.utils.CommUtils;
  
 /**

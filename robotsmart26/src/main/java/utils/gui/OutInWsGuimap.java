@@ -1,4 +1,4 @@
-package gui;
+package utils.gui;
 
 import java.util.Observable;
 import unibo.basicomm23.interfaces.IObserver;

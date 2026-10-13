@@ -87,7 +87,7 @@ public class Robotsmart26CallerCoap {
   	 * Detects sonar alarms and provides audio feedback for obstacles.
   	 */
 	protected void observerobotsmart(Interaction conn) {
-  		//Interaction conn = ConnectionFactory.createClientSupport23(ProtocolType.coap,"localhost:8020", "ctxrobotsmart/robotsmart");
+  		//Interaction conn = ConnectionFactory.createClientSupport23(ProtocolType.coap,"192.168.1.132:8020", "ctxrobotsmart/robotsmart");
 		CoapClient client = ((CoapConnection)conn).getClient();
 	    CommUtils.outblue("callerCoap Interaction conn");
 		relationObsRobotsmart = client.observe(
@@ -113,7 +113,7 @@ public class Robotsmart26CallerCoap {
 	 * Provides real-time updates on robot position and direction.
 	 */
 	protected void observeRobotmnemo( ) {
-  			Interaction conn = ConnectionFactory.createClientSupport23(ProtocolType.coap,"localhost:8020", "ctxrobotsmart/robotmnemo");
+  			Interaction conn = ConnectionFactory.createClientSupport23(ProtocolType.coap,"192.168.1.132:8020", "ctxrobotsmart/robotmnemo");
   			if( conn == null ) return;
 			CoapClient client = ((CoapConnection)conn).getClient();
 		    CommUtils.outgreen("observeRobotmnemo");
@@ -130,7 +130,7 @@ public class Robotsmart26CallerCoap {
 	}
 	
 	public void observePlanexec() {
-		connToPlanexec = ConnectionFactory.createClientSupport23(ProtocolType.coap,"localhost:8020", "ctxrobotsmart/planexec");
+		connToPlanexec = ConnectionFactory.createClientSupport23(ProtocolType.coap,"192.168.1.132:8020", "ctxrobotsmart/planexec");
 		if( connToPlanexec == null ) return;
 //		CoapClient client = ((CoapConnection)connToPlanexec).getClient();
 	    CommUtils.outmagenta("observePlanexecccccc");
@@ -149,20 +149,22 @@ public class Robotsmart26CallerCoap {
  
 	
 	public void doSomeCmd() throws Exception   {
- 		observePlanexec();
+// 		observePlanexec();
 //		observeRobotmnemo(); 
 		
-		Interaction conn = connectToService("localhost:8020", "ctxrobotsmart/robotsmart");
+		Interaction conn = connectToService("192.168.1.132:8020", "ctxrobotsmart/robotsmart");
 		if( conn != null ) {	
 			CommUtils.outcyan("doSomeCmd");
 			
 			conn.forward(Robotsmart26Cmds.setHome.toString());
 			conn.forward(Robotsmart26Cmds.setHome.toString());
 			// Send basic movement commands
+			CommUtils.outcyan("do " + Robotsmart26Cmds.cmdl);
 			conn.forward(Robotsmart26Cmds.cmdl.toString());  // Turn left
 			CommUtils.delay(1000);
-//			conn.forward(Robotsmart26Cmds.cmdr.toString());  // Turn right
-//			CommUtils.delay(1000); 
+			CommUtils.outcyan("do " + Robotsmart26Cmds.cmdr);
+			conn.forward(Robotsmart26Cmds.cmdr.toString());  // Turn right
+			CommUtils.delay(1000); 
 			
 			String answer = conn.request(Robotsmart26Cmds.doplan.toString().replace("PLAN", "wwwwww"));  // 
 			CommUtils.outcyan("doSomeCmd doplan answer=" + answer);
@@ -178,7 +180,7 @@ public class Robotsmart26CallerCoap {
 			if( answer.contains("doplanfailed")) {
 				CommUtils.outred("some move todo at the and ...");
 			}
-//			CommUtils.delay(1000);
+			CommUtils.delay(1000);
 
 			terminateObservations();
 		}
@@ -227,8 +229,8 @@ public class Robotsmart26CallerCoap {
 	 */
 	public static void main(String[] args) throws Exception{
 		Robotsmart26CallerCoap caller = new Robotsmart26CallerCoap();
-		//caller.doSomeCmd();
-		caller.observePlanexec();
+		caller.doSomeCmd();
+		//caller.observePlanexec();
 		CommUtils.delay(60000); //Dai tempo alla rete di smaltire l'invio.
 		caller.terminateObservations();
 		CommUtils.outmagenta("main BYE ");

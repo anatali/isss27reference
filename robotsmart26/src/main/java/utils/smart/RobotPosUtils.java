@@ -1,10 +1,10 @@
-package smart;
+package utils.smart;
 import java.util.List;
-import gui.AdapterGuiForMindrep;
+import utils.gui.AdapterGuiForMindrep;
 import it.unibo.kactor.GuiColors;
-import location.RoomMap;
-import location.RoomMap.Direction;
-import planning.Node;
+import utils.location.RoomMap;
+import utils.location.RoomMap.Direction;
+import utils.planning.Node;
 import unibo.basicomm23.utils.CommUtils;
 
  

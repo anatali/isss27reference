@@ -1,4 +1,4 @@
-package location;
+package utils.location;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

@@ -1,5 +1,10 @@
 package callers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import alice.tuprolog.Struct;
+import unibo.basicomm23.interfaces.IApplMessage;
 import unibo.basicomm23.interfaces.Interaction;
 import unibo.basicomm23.msg.ProtocolType;
 import unibo.basicomm23.utils.CommUtils;
@@ -38,6 +43,40 @@ public class Robotsmart26CallerTcp  {
 			return null;
 		}
 	}
+    
+    public void doSetDir() throws Exception   {
+		conn = connectToService("localhost", "8020");
+		if( conn != null ) {
+			
+			CommUtils.outcyan("connectService doSetDir");
+			conn.forward(Robotsmart26Cmds.setHome.toString());
+ 
+			 
+			String robotstate = getRobotState();
+			CommUtils.outmagenta("connectService robotstate before=" + robotstate);
+			
+ 
+			CommUtils.outcyan("cmdl:" + Robotsmart26Cmds.cmdl);
+			conn.forward(Robotsmart26Cmds.cmdl.toString());  // Turn left
+ 			
+//			CommUtils.outcyan("setDirectionLeft:" + Robotsmart26Cmds.setDirectionLeft);
+//			String reply = conn.request(Robotsmart26Cmds.setDirectionLeft.toString());  // Mind
+//			CommUtils.outcyan("setDirectionLeft ANSWER:" + reply);
+
+			robotstate = getRobotState();
+			CommUtils.outmagenta("connectService robotstate after=" + robotstate);
+		}
+    	
+    }
+    
+    /** Request getrobotstate; restituisce {X, Y, DIR} da robotstate(pos(X,Y),DIR). 
+     * @throws Exception */
+    private  String getRobotState() throws Exception   {
+        IApplMessage req = CommUtils.buildRequest("callertcp", "getrobotstate", "getrobotstate(test)", "robotmnemo");
+        String reply = conn.request(req.toString());
+        //CommUtils.outblack("getRobotState reply:" + reply);
+        return reply;
+    }
 	
 	/**
      * Sends a sequence of basic movement commands to the robot.
@@ -47,6 +86,7 @@ public class Robotsmart26CallerTcp  {
      * @throws Exception if communication fails
      */
 	public void doSomeCmd() throws Exception   {
+		String answer= "";
 		conn = connectToService("localhost", "8020");
 		if( conn != null ) {
 			CommUtils.outcyan("connectService doSomeCmd");
@@ -54,19 +94,35 @@ public class Robotsmart26CallerTcp  {
 			//conn.forward(Robotsmart26Cmds.resesetplanbuildelay.toString()); 
 			//conn.forward(Robotsmart26Cmds.restoreplanbuildelay.toString());
 			// Send basic movement commands
+/*
+			CommUtils.outcyan("cmdl:" + Robotsmart26Cmds.cmdl);
 			conn.forward(Robotsmart26Cmds.cmdl.toString());  // Turn left
 			CommUtils.delay(1000);
 			conn.forward(Robotsmart26Cmds.cmdr.toString());  // Turn right
 			CommUtils.delay(1000); 
 			 
 			CommUtils.outcyan("connectService doSomePlan");
-			String answer = conn.request(Robotsmart26Cmds.doplan.toString().replace("PLAN", "lwwwwww"));  // 
+			answer = conn.request(Robotsmart26Cmds.doplan.toString().replace("PLAN", "lwwwwww"));  // 
 			CommUtils.outcyan("doSomeCmd doplan answer=" + answer);
+			CommUtils.delay(1000);
+*/
+			
+			CommUtils.outcyan("connectService goto cell 1/y,4/x ");
+		 
+			answer = conn.request(Robotsmart26Cmds.move14.toString());  // 
+			CommUtils.outcyan("doSomeCmd doplan answer=" + answer);
+
+			String reply = conn.request(Robotsmart26Cmds.setDirectionLeft.toString());  // Mind
+			CommUtils.outcyan("setDirectionLeft ANSWER:" + reply);
+
+			String robotstate = getRobotState();
+			CommUtils.outmagenta("connectService robotstate after=" + robotstate);
+
 			CommUtils.delay(1000);
 
-			answer = conn.request(Robotsmart26Cmds.doplan.toString().replace("PLAN", "llwwwwwwl"));  // 
-			CommUtils.outcyan("doSomeCmd doplan answer=" + answer);
-			CommUtils.delay(1000);
+//			answer = conn.request(Robotsmart26Cmds.doplan.toString().replace("PLAN", "llwwwwwwl"));  // 
+//			CommUtils.outcyan("doSomeCmd doplan answer=" + answer);
+//			CommUtils.delay(1000);
 
 			CommUtils.outcyan("doSomeCmd BYE");
 		}
@@ -96,5 +152,6 @@ public class Robotsmart26CallerTcp  {
 	public static void main(String[] args) throws Exception  {
  		Robotsmart26CallerTcp caller = new Robotsmart26CallerTcp();
 		caller.doSomeCmd();  // basic movement demo
+ 		//caller.doSetDir();  // set direction demo
 	}
 }

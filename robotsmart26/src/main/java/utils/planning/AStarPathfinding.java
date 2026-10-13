@@ -1,12 +1,12 @@
-package planning;
+package utils.planning;
 import java.io.FileReader;
 import java.util.*;
 import unibo.basicomm23.utils.CommUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import gui.AdapterGuiForMindrep;
-import smart.RobotPosUtils;
+import utils.gui.AdapterGuiForMindrep;
+import utils.smart.RobotPosUtils;
 
 /**
  * AStarPathfinding - A* Algorithm Implementation for Robot Pathfinding

@@ -1,6 +1,7 @@
 System /*-trace*/ robotsmart26
+ModelFor Deployment:robotsmart26
 	mqttBroker "localhost" : 1883 eventTopic "robotsmart26in"  //SE definita MQTTBROKER, usa quell'addr
-	
+	 
 /*
  * WARNING: gl eventi emessi 
  */	
@@ -104,12 +105,12 @@ Context ctxrobotsmart ip [host="localhost" port=8020]
 QActor robotsmart context ctxrobotsmart {
 	//	withobj planner using "planning.AStarPathfinding( )"{
  
-	[# lateinit var planner : planning.AStarPathfinding   //Note lateinit		
+	[# lateinit var planner : utils.planning.AStarPathfinding   //Note lateinit		
 		var Plan      = ""	
 		var Caller    = ""
 		var TargetX   = "" 
-		var TargetY   = ""		 
-		var X         = ""
+		var TargetY   = ""		  
+		var X         = ""  
 		var Y         = "" 		
 		var StepTime = "335"
 	#]  
@@ -134,7 +135,7 @@ QActor robotsmart context ctxrobotsmart {
         delegate setrobotstate to robotmnemo
         delegate doplan        to planexec
         
-        [#  planner = planning.AStarPathfinding(  ) #]   //inizaliza planner
+        [#  planner = utils.planning.AStarPathfinding(  ) #]   //inizaliza planner
  	}
     Goto waitinputmsg
  	
@@ -251,8 +252,8 @@ QActor robotsmart context ctxrobotsmart {
  * ------------------------------
  */  
 QActor robotmnemo context ctxrobotsmart 
-        withobj rpos  using "smart.RobotPosUtils.getInstance(\"localhost\")"   //\"192.168.1.214\"
-		withobj robot using "robots.VRObjForQak(myself,\"logs/robotsmart26.log\")"{  
+        withobj rpos  using "utils.smart.RobotPosUtils.getInstance(\"192.168.1.132\")"   //\"192.168.1.214\"
+		withobj robot using "utils.robots.VRObjForQak(myself,\"logs/robotsmart26.log\")"{  
 		
  	[# var doingAsynchStep = false   
   	   var CurTime         = 0L	   

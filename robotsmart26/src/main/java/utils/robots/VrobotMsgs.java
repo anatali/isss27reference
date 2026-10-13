@@ -1,4 +1,4 @@
-package robots;
+package utils.robots;
 
 public class VrobotMsgs {
     public final static String turnrightcmd  = "{\"robotmove\":\"turnRight\",\"time\":\"300\"}";

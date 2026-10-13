@@ -1,4 +1,4 @@
-package gui;
+package utils.gui;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

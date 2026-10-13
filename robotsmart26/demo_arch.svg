@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 762 1158" width="762" height="1158" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="m444444" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#444444"/></marker><marker id="dm444444" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#444444"/></marker><marker id="mb00020" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b00020"/></marker><marker id="dmb00020" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#b00020"/></marker><marker id="m222222" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#222222"/></marker><marker id="dm222222" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#222222"/></marker><marker id="m1f4e8c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f4e8c"/></marker><marker id="dm1f4e8c" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#1f4e8c"/></marker><marker id="m2e7d32" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e7d32"/></marker><marker id="dm2e7d32" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#2e7d32"/></marker><marker id="mb35900" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b35900"/></marker><marker id="dmb35900" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#b35900"/></marker><marker id="m333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker><marker id="dm333333" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#333333"/></marker></defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="20" y="34" font-size="19" font-weight="bold" fill="#111">System demows</text>
+<rect x="40.0" y="200.0" width="682.3" height="345.0" rx="12" fill="#fafafa" stroke="#222" stroke-width="1.6"/>
+<text x="54.0" y="222.0" font-size="13" text-anchor="start" font-weight="bold" fill="#111">Context ctxmain</text>
+<text x="54.0" y="238.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#333">localhost : 8050</text>
+<rect x="40.0" y="675.0" width="246.0" height="155.0" rx="12" fill="#ffffff" stroke="#555" stroke-width="1.2" stroke-dasharray="7 4"/>
+<text x="54.0" y="697.0" font-size="12" text-anchor="start" font-weight="bold" fill="#111">Context ctxprod</text>
+<text x="54.0" y="713.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#333">127.0.0.1 : 8111</text>
+<rect x="60.0" y="487.0" width="642.3" height="34.0" rx="6" fill="#ececec" stroke="#222"/>
+<text x="381.1" y="508.0" font-size="11" text-anchor="middle" font-weight="bold" fill="#111">canale degli eventi del contesto ctxmain</text>
+<polyline points="656.3,349.0 670.3,349.0 670.3,487.0" fill="none" stroke="#444444" stroke-width="1.2" marker-end="url(#m444444)"/>
+<polyline points="702.3,504.0 704.3,504.0 704.3,95.0 501.1,95.0" fill="none" stroke="#b00020" stroke-width="1.4" stroke-dasharray="4 2" marker-start="url(#mb00020)" marker-end="url(#mb00020)"/>
+<line x1="556.1" y1="363.0" x2="556.1" y2="403.0" stroke="#222222" stroke-width="1.3" marker-start="url(#dm222222)"/>
+<line x1="520.9" y1="363.0" x2="198.2" y2="725.0" stroke="#1f4e8c" stroke-width="1.4" marker-end="url(#m1f4e8c)"/>
+<line x1="456.0" y1="323.5" x2="266.0" y2="323.5" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="7 4" marker-end="url(#m2e7d32)"/>
+<line x1="550.9" y1="363.0" x2="506.8" y2="695.0" stroke="#b35900" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#mb35900)"/>
+<rect x="261.1" y="60.0" width="240.0" height="70.0" rx="8" fill="#f2f2f2" stroke="#222" stroke-width="1.4"/>
+<line x1="285.1" y1="95.0" x2="296.1" y2="95.0" stroke="#333"/>
+<circle cx="296.1" cy="95.0" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="285.1" y1="95.0" x2="290.6" y2="104.5" stroke="#333"/>
+<circle cx="290.6" cy="104.5" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="285.1" y1="95.0" x2="279.6" y2="104.5" stroke="#333"/>
+<circle cx="279.6" cy="104.5" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="285.1" y1="95.0" x2="274.1" y2="95.0" stroke="#333"/>
+<circle cx="274.1" cy="95.0" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="285.1" y1="95.0" x2="279.6" y2="85.5" stroke="#333"/>
+<circle cx="279.6" cy="85.5" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="285.1" y1="95.0" x2="290.6" y2="85.5" stroke="#333"/>
+<circle cx="290.6" cy="85.5" r="2.4" fill="#fff" stroke="#333"/>
+<circle cx="285.1" cy="95.0" r="4" fill="#333"/>
+<text x="395.1" y="82.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«MQTT broker»</text>
+<text x="395.1" y="100.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#111">localhost : 1883</text>
+<text x="395.1" y="117.0" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#111" font-style="italic">eventTopic &quot;demo&quot;</text>
+<rect x="76.0" y="284.0" width="190.0" height="79.0" rx="9" fill="#ffffff" stroke="#222" stroke-width="1.6"/>
+<rect x="84.0" y="298.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="84.0" y="306.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="84.0" y="315.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="84.0" y="323.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<path d="M90.0,334.0 l0,6 m-3,-3 l3,3 l3,-3" fill="none" stroke="#444" stroke-width="0.9"/>
+<text x="245.0" y="309.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#333" font-family="Courier New, monospace">{ }</text>
+<text x="177.0" y="306.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«CodedQActor»</text>
+<text x="177.0" y="325.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#111">sensor</text>
+<text x="177.0" y="342.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#333">class it.unibo.SensorActor</text>
+<rect x="456.0" y="284.0" width="200.3" height="79.0" rx="9" fill="#ffffff" stroke="#222" stroke-width="1.6"/>
+<rect x="464.0" y="298.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="464.0" y="306.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="464.0" y="315.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="464.0" y="323.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<path d="M470.0,334.0 l0,6 m-3,-3 l3,3 l3,-3" fill="none" stroke="#444" stroke-width="0.9"/>
+<circle cx="627.3" cy="305.0" r="5" fill="#fff" stroke="#333"/>
+<circle cx="646.3" cy="305.0" r="5" fill="#fff" stroke="#333"/>
+<circle cx="646.3" cy="305.0" r="2.4" fill="#333"/>
+<path d="M632.3,305.0 L640.8,305.0" stroke="#333" marker-end="url(#m333333)"/>
+<text x="562.1" y="306.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«QActor»</text>
+<text x="562.1" y="325.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#111">client</text>
+<text x="562.1" y="342.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#333">risorsa CoAP (updateResource)</text>
+<rect x="481.1" y="403.0" width="150.0" height="54.0" fill="#fffdf2" stroke="#222" stroke-width="1.2"/>
+<line x1="481.1" y1="433.0" x2="631.1" y2="433.0" stroke="#222"/>
+<text x="556.1" y="415.0" font-size="8.5" text-anchor="middle" font-weight="normal" fill="#555">«POJO»</text>
+<text x="556.1" y="428.0" font-size="11" text-anchor="middle" font-weight="bold" fill="#111">store : Store</text>
+<text x="556.1" y="447.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#333" font-family="Courier New, monospace">domain.Store.create()</text>
+<rect x="68.0" y="725.0" width="190.0" height="79.0" rx="9" fill="#f3f3f3" stroke="#222" stroke-width="1.6" stroke-dasharray="6 4"/>
+<circle cx="90.0" cy="751.0" r="11" fill="#fff" stroke="#222" stroke-width="1.2"/>
+<ellipse cx="90.0" cy="751.0" rx="5.0" ry="11" fill="none" stroke="#222" stroke-width="0.9"/>
+<line x1="79.0" y1="751.0" x2="101.0" y2="751.0" stroke="#222" stroke-width="0.9"/>
+<line x1="80.8" y1="745.0" x2="99.2" y2="745.0" stroke="#222" stroke-width="0.7"/>
+<line x1="80.8" y1="757.0" x2="99.2" y2="757.0" stroke="#222" stroke-width="0.7"/>
+<text x="169.0" y="747.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«WebService» (ExternalQActor)</text>
+<text x="169.0" y="766.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#111">productservice</text>
+<text x="169.0" y="783.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#333">http://localhost:8111/api</text>
+<rect x="356.0" y="695.0" width="291.8" height="74.0" rx="16" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<circle cx="382.0" cy="732.0" r="14" fill="#fff" stroke="#222" stroke-width="1.2"/>
+<ellipse cx="382.0" cy="732.0" rx="6.3" ry="14" fill="none" stroke="#222" stroke-width="0.9"/>
+<line x1="368.0" y1="732.0" x2="396.0" y2="732.0" stroke="#222" stroke-width="0.9"/>
+<line x1="370.3" y1="724.3" x2="393.7" y2="724.3" stroke="#222" stroke-width="0.7"/>
+<line x1="370.3" y1="739.7" x2="393.7" y2="739.7" stroke="#222" stroke-width="0.7"/>
+<text x="519.9" y="717.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«WebService»</text>
+<text x="519.9" y="736.0" font-size="13" text-anchor="middle" font-weight="bold" fill="#111">api.openweather.org</text>
+<text x="519.9" y="754.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#333" font-family="Courier New, monospace">https://api.openweather.org/data/2.5?q=…</text>
+<rect x="20" y="880.0" width="722.3" height="166.0" rx="6" fill="#fff" stroke="#999"/>
+<text x="34.0" y="902.0" font-size="12" text-anchor="start" font-weight="bold" fill="#111">Legenda</text>
+<rect x="36" y="907.0" width="46" height="20" rx="4" fill="#fff" stroke="#222"/>
+<rect x="40" y="910.0" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<rect x="40" y="916.5" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<circle cx="62" cy="917.0" r="3" fill="#fff" stroke="#333"/><circle cx="74" cy="917.0" r="3" fill="#333"/>
+<text x="94.0" y="921.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">«QActor»: mailbox + automa a stati</text>
+<rect x="36" y="933.0" width="46" height="20" fill="#fffdf2" stroke="#222"/><line x1="36" y1="943.0" x2="82" y2="943.0" stroke="#222"/>
+<text x="94.0" y="947.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">«POJO» (withobj), composizione</text>
+<rect x="36" y="959.0" width="46" height="20" rx="4" fill="#fff" stroke="#222"/>
+<rect x="40" y="962.0" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<rect x="40" y="968.5" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<text x="68.0" y="973.0" font-size="10" text-anchor="middle" font-weight="bold" fill="#111" font-family="Courier New, monospace">{}</text>
+<text x="94.0" y="973.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">«CodedQActor»</text>
+<rect x="36" y="985.0" width="46" height="20" rx="4" fill="#f3f3f3" stroke="#222" stroke-dasharray="4 3"/>
+<rect x="40" y="988.0" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<rect x="40" y="994.5" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<circle cx="62" cy="995.0" r="3" fill="#fff" stroke="#333"/><circle cx="74" cy="995.0" r="3" fill="#333"/>
+<text x="94.0" y="999.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">«ExternalQActor»</text>
+<rect x="36" y="1011.0" width="46" height="20" rx="9" fill="#fff" stroke="#222"/>
+<circle cx="48.0" cy="1021.0" r="7" fill="#fff" stroke="#222" stroke-width="1.2"/>
+<ellipse cx="48.0" cy="1021.0" rx="3.1" ry="7" fill="none" stroke="#222" stroke-width="0.9"/>
+<line x1="41.0" y1="1021.0" x2="55.0" y2="1021.0" stroke="#222" stroke-width="0.9"/>
+<line x1="42.2" y1="1017.1" x2="53.8" y2="1017.1" stroke="#222" stroke-width="0.7"/>
+<line x1="42.2" y1="1024.8" x2="53.8" y2="1024.8" stroke="#222" stroke-width="0.7"/>
+<text x="94.0" y="1025.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">«WebService»</text>
+<line x1="420" y1="916.0" x2="480" y2="916.0" stroke="#1f4e8c" stroke-width="1.4" marker-end="url(#m1f4e8c)"/>
+<text x="492.0" y="920.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">request  (etichetta: richiesta → reply previste)</text>
+<line x1="420" y1="942.0" x2="480" y2="942.0" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="7 4" marker-end="url(#m2e7d32)"/>
+<text x="492.0" y="946.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">dispatch (forward)</text>
+<line x1="420" y1="968.0" x2="480" y2="968.0" stroke="#b35900" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#mb35900)"/>
+<text x="492.0" y="972.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">interazione HTTP / WS / CoAP (dal codice)</text>
+<line x1="420" y1="994.0" x2="480" y2="994.0" stroke="#b00020" stroke-width="1.4" stroke-dasharray="4 2" marker-end="url(#mb00020)"/>
+<text x="492.0" y="998.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">eventi via MQTT (eventTopic / publish)</text>
+<line x1="420" y1="1020.0" x2="480" y2="1020.0" stroke="#444444" stroke-width="1.4" marker-end="url(#m444444)"/>
+<text x="492.0" y="1024.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">emette (→ canale) / percepisce (canale →)</text>
+<text x="20.0" y="1076.0" font-size="13" text-anchor="start" font-weight="bold" fill="#111">Eventi: chi li emette e chi li percepisce</text>
+<rect x="20" y="1086.0" width="722.3" height="20" fill="#ececec" stroke="#999"/>
+<text x="28.0" y="1100.0" font-size="10.5" text-anchor="start" font-weight="bold" fill="#111">#</text>
+<text x="50.0" y="1100.0" font-size="10.5" text-anchor="start" font-weight="bold" fill="#111">Evento</text>
+<text x="236.7" y="1100.0" font-size="10.5" text-anchor="start" font-weight="bold" fill="#111">Emesso da (modalità)</text>
+<text x="438.9" y="1100.0" font-size="10.5" text-anchor="start" font-weight="bold" fill="#111">Percepito da</text>
+<text x="28.0" y="1119.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">1</text>
+<text x="50.0" y="1119.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">weather : weather(T)</text>
+<text x="236.7" y="1119.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">client (emit)</text>
+<text x="438.9" y="1119.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#8a1c1c">— nessun attore del modello</text>
+<rect x="20" y="1086.0" width="722.3" height="42.0" fill="none" stroke="#999"/>
+<rect x="273.3" y="535.8" width="172.6" height="16.5" rx="3" fill="#fff" fill-opacity="0.92" stroke="#1f4e8c" stroke-width="0.5"/>
+<text x="359.6" y="548.8" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#1f4e8c">getProduct  → getProductAnswer</text>
+<rect x="348.8" y="315.2" width="24.5" height="16.5" rx="3" fill="#fff" fill-opacity="0.92" stroke="#2e7d32" stroke-width="0.5"/>
+<text x="361.0" y="328.2" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#2e7d32">cmd</text>
+<rect x="513.9" y="520.8" width="30.0" height="16.5" rx="3" fill="#fff" fill-opacity="0.92" stroke="#b35900" stroke-width="0.5"/>
+<text x="528.9" y="533.8" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#b35900">HTTP</text>
+</svg>

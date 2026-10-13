@@ -1,4 +1,4 @@
-package robots;
+package utils.robots;
 
 interface IRobotBasicMoves {
 	//void domove(String move) throws Exception; //move=w | s | l | a | r | d| h | p 

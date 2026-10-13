@@ -1,4 +1,4 @@
-package planning;
+package utils.planning;
 
 import java.util.Objects;
 
