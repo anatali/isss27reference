@@ -39,5 +39,7 @@ context(ctxrobotsmart, "localhost",  "TCP", "8020").
  static(robotsmart).
   qactor( robotmnemo, ctxrobotsmart, "it.unibo.robotmnemo.Robotmnemo").
  static(robotmnemo).
+hidden(robotmnemo).
   qactor( planexec, ctxrobotsmart, "it.unibo.planexec.Planexec").
  static(planexec).
+hidden(planexec).

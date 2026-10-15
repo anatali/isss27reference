@@ -55,6 +55,8 @@ public class Robotsmart26CallerTcp  {
 			String robotstate = getRobotState();
 			CommUtils.outmagenta("connectService robotstate before=" + robotstate);
 			
+			
+			
  
 //			CommUtils.outcyan("cmdl:" + Robotsmart26Cmds.cmdl);
 //			conn.forward(Robotsmart26Cmds.cmdl.toString());  // Turn left
@@ -73,8 +75,11 @@ public class Robotsmart26CallerTcp  {
      * @throws Exception */
     private  String getRobotState() throws Exception   {
         IApplMessage req = CommUtils.buildRequest("callertcp", "getrobotstate", "getrobotstate(test)", "robotmnemo");
-        String reply = conn.request(req.toString());
-        //CommUtils.outblack("getRobotState reply:" + reply);
+        IApplMessage a = requestOrFail(conn, req, 6000);
+        //String reply = conn.request(req.toString());
+        
+        String reply = a.toString();
+        CommUtils.outblack("getRobotState reply:" + reply);
         return reply;
     }
 	

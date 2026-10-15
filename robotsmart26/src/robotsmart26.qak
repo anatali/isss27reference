@@ -133,7 +133,7 @@ QActor robotsmart context ctxrobotsmart {
         delegate getrobotstate to robotmnemo
         delegate getenvmap     to robotmnemo
         delegate setrobotstate to robotmnemo
-        delegate setdirection  to robotmnemo
+        delegate setdirection  to robotmnemo 
         delegate doplan        to planexec
         
         
@@ -254,9 +254,9 @@ QActor robotsmart context ctxrobotsmart {
  * robotmnemo
  * ------------------------------
  */  
-QActor robotmnemo context ctxrobotsmart 
+QActor robotmnemo context ctxrobotsmart hidden
         withobj rpos  using "utils.smart.RobotPosUtils.getInstance(\"192.168.1.132\")"   //\"192.168.1.214\"
-		withobj robot using "utils.robots.VRObjForQak(myself,\"logs/robotsmart26.log\")"{  
+		withobj robot using "utils.robots.VRObjForQak(myself,\"logs/robotsmart26.log\")" {  
 		
  	[# var doingAsynchStep = false   
   	   var CurTime         = 0L	   
@@ -544,7 +544,7 @@ QActor robotmnemo context ctxrobotsmart
  * planexec
  * ------------------------------
  */
-QActor planexec context ctxrobotsmart {  //withobj robot using "uniborobots.robotSupport"
+QActor planexec context ctxrobotsmart hidden {  //withobj robot using "uniborobots.robotSupport"
 	[#  var Plan          = ""
 		var PlanOrig      = ""
 		var Plantodo      = ""
