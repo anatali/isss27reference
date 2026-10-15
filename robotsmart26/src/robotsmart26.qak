@@ -15,7 +15,7 @@ Request  buildPlan   : buildPlan( PX,PY,TX,TY  )		"create plan from (PX,PY) to (
 Reply buildPlanDone  : buildPlanDone( PLAN ) for buildPlan
 
 Request moverobot    :  moverobot(TARGETX, TARGETY,STEPTIME)  	"move from current pos to (TARGETX,TARGETY)"
-Reply moverobotdone  :  moverobotok(ARG)                    for moverobot
+Reply moverobotdone  :  moverobotdone(ARG)                    for moverobot
 Reply moverobotfailed:  moverobotfailed(PLANDONE, PLANTODO) for moverobot
 
 Dispatch noplan           : noplan(X)       //autodispatch  
@@ -133,7 +133,9 @@ QActor robotsmart context ctxrobotsmart {
         delegate getrobotstate to robotmnemo
         delegate getenvmap     to robotmnemo
         delegate setrobotstate to robotmnemo
+        delegate setdirection  to robotmnemo
         delegate doplan        to planexec
+        
         
         [#  planner = utils.planning.AStarPathfinding(  ) #]   //inizaliza planner
  	}
@@ -196,6 +198,7 @@ QActor robotsmart context ctxrobotsmart {
 	 
 	State noplanfound{
 		printCurrentMessage color red
+		replyTo moverobot with moverobotdone : moverobotdone(ko)
 	}
 	Goto waitinputmsg
 	

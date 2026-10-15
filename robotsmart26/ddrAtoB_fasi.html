@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DDR da A a B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --bg:#fbfcfd; --fg:#1b2329; --muted:#56636d; --rule:#d5dde3; --soft:#eef3f6;
+  --accent:#1d5b78; --req:#1d5b78; --disp:#6b4b16; --ev:#a3341f; --del:#6a3d8f; --ok:#2f6b3a;
+  --phys:#eef4ee; --physb:#5b8a5f; --tool:#eef2f8; --toolb:#4f6f9e; --obs:#fbf3e8; --obsb:#b07a2a;
+  --ai:#f4eff8; --aib:#6a3d8f; --code:#f3f6f8;
+  --f-body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-head:"IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14191d; --fg:#dde4e9; --muted:#9aa8b2; --rule:#2e3a42; --soft:#1c2429;
+  --accent:#7fb7d4; --req:#7fb7d4; --disp:#d9b26a; --ev:#ef8a72; --del:#c09be0; --ok:#8cc596;
+  --phys:#18231a; --physb:#7fb184; --tool:#18202b; --toolb:#8aa6d1; --obs:#272014; --obsb:#d9a65a;
+  --ai:#211a28; --aib:#c09be0; --code:#1b2227; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#14191d; --fg:#dde4e9; --muted:#9aa8b2; --rule:#2e3a42; --soft:#1c2429;
+  --accent:#7fb7d4; --req:#7fb7d4; --disp:#d9b26a; --ev:#ef8a72; --del:#c09be0; --ok:#8cc596;
+  --phys:#18231a; --physb:#7fb184; --tool:#18202b; --toolb:#8aa6d1; --obs:#272014; --obsb:#d9a65a;
+  --ai:#211a28; --aib:#c09be0; --code:#1b2227; color-scheme:dark }
+@media print{:root,:root[data-theme="dark"],:root:not([data-theme="light"]){
+  --bg:#fff; --fg:#111; --muted:#444; --rule:#bbb; --soft:#f4f4f4;
+  --accent:#1d5b78; --req:#1d5b78; --disp:#6b4b16; --ev:#a3341f; --del:#6a3d8f; --ok:#2f6b3a;
+  --phys:#fff; --physb:#5b8a5f; --tool:#fff; --toolb:#4f6f9e; --obs:#fff; --obsb:#b07a2a;
+  --ai:#fff; --aib:#6a3d8f; --code:#f6f6f6; color-scheme:light }
+  a{color:var(--fg)} .toc{display:none} pre{white-space:pre-wrap} figure,.note,table{break-inside:avoid}}
+
+body{background:var(--bg);color:var(--fg);font:400 1.06rem/1.62 var(--f-body);margin:0}
+.wrap{max-width:52rem;margin:0 auto;padding-inline:1.25rem;padding-block:2.5rem 4rem}
+h1,h2,h3,h4{font-family:var(--f-head);font-weight:600;line-height:1.2;text-wrap:balance;color:var(--fg)}
+h1{font-size:2.1rem;margin:0 0 .4rem}
+h2{font-size:1.5rem;margin:3rem 0 .8rem;padding-top:.6rem;border-top:1px solid var(--rule)}
+h3{font-size:1.18rem;margin:2rem 0 .5rem}
+h4{font-size:1rem;margin:1.3rem 0 .3rem;letter-spacing:.01em}
+h2 .n,h3 .n{color:var(--accent);margin-right:.45em;font-variant-numeric:tabular-nums}
+p{margin:.6rem 0}
+.lead{color:var(--muted);font-size:1.05rem;max-width:44rem}
+.meta{font-family:var(--f-head);font-size:.85rem;color:var(--muted);letter-spacing:.02em}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--code);padding:.05em .3em;border-radius:3px}
+pre{font-family:var(--f-mono);font-size:.82rem;line-height:1.5;background:var(--code);border:1px solid var(--rule);padding:.8rem 1rem;overflow-x:auto;margin:.8rem 0;border-radius:3px}
+pre code{background:none;padding:0;font-size:inherit}
+pre .src{display:block;font-family:var(--f-head);font-size:.75rem;color:var(--muted);margin-bottom:.4rem;letter-spacing:.03em}
+.kw{color:var(--req);font-weight:500}.kc{color:var(--muted);font-style:italic}.kt{color:var(--ev)}.km{color:var(--del)}
+ul,ol{padding-left:1.4rem;margin:.5rem 0} li{margin:.25rem 0}
+.tbl{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;vertical-align:top;padding:.45rem .6rem;border-bottom:1px solid var(--rule)}
+th{font-family:var(--f-head);font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:1.5px solid var(--fg)}
+td code{white-space:nowrap}
+.note{margin:1.1rem 0;padding:.7rem 1rem .75rem;border-left:3px solid var(--toolb);background:var(--tool)}
+.note.phys{border-color:var(--physb);background:var(--phys)}
+.note.obs{border-color:var(--obsb);background:var(--obs)}
+.note.ai{border-color:var(--aib);background:var(--ai)}
+.note h4{margin:0 0 .3rem;font-size:.92rem;color:var(--fg)}
+.note p{margin:.35rem 0}
+.note.phys h4::before{content:"Fisica · ";color:var(--physb)}
+.note.tool h4::before{content:"Strumenti · ";color:var(--toolb)}
+.note.obs h4::before{content:"Osservazione · ";color:var(--obsb)}
+.note.ai h4::before{content:"AI · ";color:var(--aib)}
+figure{margin:1.5rem 0}
+figcaption{font-size:.9rem;color:var(--muted);margin-top:.5rem}
+.fig{overflow-x:auto;border:1px solid var(--rule);background:var(--bg)}
+.fig svg{display:block;min-width:820px;width:100%;height:auto}
+.toc{font-family:var(--f-head);font-size:.95rem;columns:2 16rem;column-gap:2rem;margin:1.2rem 0;padding:0;list-style:none}
+.toc li{margin:.15rem 0;break-inside:avoid}
+.toc a{text-decoration:none}
+.tag{display:inline-block;font:600 .7rem/1 var(--f-head);letter-spacing:.05em;text-transform:uppercase;padding:.2rem .35rem;border:1px solid currentColor;border-radius:2px;white-space:nowrap}
+.t-txt{color:var(--muted)}.t-mod{color:var(--req)}.t-exe{color:var(--ok)}.t-test{color:var(--ev)}
+.pid{font-family:var(--f-mono);font-size:.82rem;color:var(--accent);white-space:nowrap}
+.thesis{border:1px solid var(--rule);padding:.8rem 1rem;margin:1.2rem 0}
+.thesis p{margin:.3rem 0}
+/* svg */
+.sv-box{fill:var(--bg);stroke:var(--fg);stroke-width:1.2}
+.sv-band{fill:var(--soft);stroke:none}
+.sv-t{fill:var(--fg);font-family:var(--f-head);font-size:14px;font-weight:600}
+.sv-s{fill:var(--muted);font-family:var(--f-head);font-size:11.5px}
+.sv-l{font-family:var(--f-mono);font-size:11px}
+.e-gap{stroke:var(--ev);stroke-width:1.6;fill:none;stroke-dasharray:6 5}
+.e-step{stroke:var(--req);stroke-width:2;fill:none}
+.e-test{stroke:var(--ok);stroke-width:1.4;fill:none;stroke-dasharray:3 3}
+.e-ax{stroke:var(--muted);stroke-width:1;fill:none}
+.l-ev{fill:var(--ev)}.l-req{fill:var(--req)}.l-ok{fill:var(--ok)}.l-mu{fill:var(--muted)}
+.m-ev{fill:var(--ev)}.m-req{fill:var(--req)}.m-ok{fill:var(--ok)}.m-mu{fill:var(--muted)}
+@media (max-width:560px){h1{font-size:1.7rem}h2{font-size:1.3rem}body{font-size:1rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<p class="meta">Ingegneria dei sistemi software · iss27 · processo di sviluppo</p>
+<h1>Un DDR da A a B: fasi, azioni e prodotti</h1>
+<p class="lead">Che cosa farebbe, oggi, un ingegnere del software (con l'ausilio dell'AI) per costruire un servizio che porta un Differential Drive Robot da una posizione A a una posizione B in una stanza con ostacoli fissi. Per ogni fase (analisi dei requisiti, analisi del problema, progettazione, testing) il documento indica le azioni e i prodotti da consegnare, con un criterio esplicito: ridurre l'ambiguità del linguaggio naturale e la distanza fra i concetti dei documenti e quelli esprimibili in Java o Python.</p>
+<p class="meta">Riferimenti di lavoro: <a href="https://github.com/anatali/isss27reference/tree/main">isss27reference</a> (corrente) · <a href="https://github.com/anatali/issLab2026">issLab2026</a> (anno precedente) · progetto di riferimento <a href="https://github.com/anatali/isss27reference/tree/main/robotsmart26">robotsmart26</a>.</p>
+</header>
+
+<nav aria-label="Indice">
+<ul class="toc">
+<li><a href="#s0">0 · Il requisito</a></li>
+<li><a href="#s1">1 · Il problema dei documenti testuali</a></li>
+<li><a href="#s2">2 · Analisi dei requisiti</a></li>
+<li><a href="#s3">3 · Analisi del problema</a></li>
+<li><a href="#s4">4 · Progettazione</a></li>
+<li><a href="#s5">5 · Testing</a></li>
+<li><a href="#s6">6 · Il processo: incrementi e repository</a></li>
+<li><a href="#s7">7 · Il ruolo dell'AI</a></li>
+<li><a href="#s8">8 · Quadro riassuntivo dei prodotti</a></li>
+<li><a href="#s9">9 · Riferimenti</a></li>
+</ul>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="s0"><span class="n">0</span>Il requisito</h2>
+<blockquote class="thesis">
+<p>Costruire un servizio in grado di pilotare un DDR (Differential Drive Robot) che opera in una stanza (di una normale abitazione) da una posizione A a una posizione B date e fissate. Nella stanza sono presenti, in diversi punti, ostacoli fissi ma non ci sono ostacoli mobili.</p>
+</blockquote>
+<p>Il testo ha tre frasi e almeno una decina di punti in cui due persone ragionevoli potrebbero capire cose diverse. Il resto del documento mostra come trasformarlo, fase dopo fase, in qualcosa che un calcolatore possa eseguire e verificare.</p>
+
+<!-- ============================================================ -->
+<h2 id="s1"><span class="n">1</span>Il problema dei documenti testuali</h2>
+
+<p>Un documento in linguaggio naturale presenta due difetti distinti.</p>
+<ol>
+<li><strong>Ambiguità.</strong> La stessa frase ammette più interpretazioni. «Posizione A» può indicare un punto (x,y) in metri, una cella di una griglia, oppure una coppia (punto, orientamento). Chi scrive ha in mente una di queste; chi legge può sceglierne un'altra senza accorgersene.</li>
+<li><strong>Abstraction gap.</strong> Anche quando il significato è chiaro, i concetti del documento («il robot va in B evitando gli ostacoli») sono lontani da quelli di un linguaggio di programmazione (thread, socket, classi, cicli). Il passaggio dall'uno all'altro richiede molte decisioni non scritte da nessuna parte, prese da chi programma, spesso in modo implicito.</li>
+</ol>
+<p>Il primo difetto si combatte rendendo i concetti <em>formali</em>; il secondo inserendo <em>livelli intermedi</em> di descrizione, ciascuno abbastanza vicino al precedente da rendere il salto piccolo e controllabile.</p>
+
+<div class="thesis">
+<p><strong>Criterio adottato in tutto il documento.</strong> Ogni fase si chiude con tre tipi di prodotto, non con un solo documento:</p>
+<ul>
+<li><span class="tag t-txt">testo</span> breve, che spiega <em>perché</em> (domande poste, decisioni prese, alternative scartate);</li>
+<li><span class="tag t-mod">modello</span> formale ed <span class="tag t-exe">eseguibile</span>, che dice <em>che cosa</em> e, dalla fase di analisi in poi, <em>come</em>: tipi Java, modelli qak, prototipi;</li>
+<li><span class="tag t-test">test</span> eseguibili, che dicono <em>come si stabilisce</em> se quanto affermato è vero.</li>
+</ul>
+<p>Un'affermazione presente solo nel testo è un'ipotesi; diventa un fatto del progetto quando compare in un modello che compila o in un test che passa (o che fallisce in modo atteso).</p>
+</div>
+
+<figure>
+<div class="fig">
+<svg viewBox="0 0 900 430" role="img" aria-labelledby="f1t">
+<title id="f1t">Salto unico di astrazione con solo testo, a confronto con la scala di modelli eseguibili attraverso le fasi</title>
+<defs>
+<marker id="a-ev" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-ev"/></marker>
+<marker id="a-req" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-req"/></marker>
+<marker id="a-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-ok"/></marker>
+</defs>
+<!-- axes -->
+<line x1="70" y1="30" x2="70" y2="350" class="e-ax"/>
+<line x1="70" y1="350" x2="880" y2="350" class="e-ax"/>
+<text x="6" y="40" class="sv-s">linguaggio</text>
+<text x="6" y="54" class="sv-s">naturale</text>
+<text x="6" y="335" class="sv-s">Java,</text>
+<text x="6" y="349" class="sv-s">Python</text>
+<text x="74" y="372" class="sv-s">Requisiti</text>
+<text x="270" y="372" class="sv-s">Analisi del problema</text>
+<text x="480" y="372" class="sv-s">Progettazione</text>
+<text x="690" y="372" class="sv-s">Codice e sistema</text>
+
+<!-- gap path -->
+<path d="M90 50 C 420 50, 640 160, 800 268" class="e-gap" marker-end="url(#a-ev)"/>
+<text x="560" y="120" class="sv-l l-ev">solo documenti testuali:</text>
+<text x="560" y="135" class="sv-l l-ev">un salto unico, decisioni implicite</text>
+
+<!-- steps -->
+<rect x="80" y="70" width="182" height="70" class="sv-box"/>
+<text x="90" y="90" class="sv-t">R · modello dei requisiti</text>
+<text x="90" y="106" class="sv-s">glossario → tipi di dominio</text>
+<text x="90" y="120" class="sv-s">Gherkin · qak a scatola nera</text>
+<text x="90" y="134" class="sv-s">test di accettazione (rossi)</text>
+
+<rect x="270" y="145" width="180" height="70" class="sv-box"/>
+<text x="280" y="165" class="sv-t">A · architettura logica</text>
+<text x="280" y="181" class="sv-s">responsabilità e messaggi in qak</text>
+<text x="280" y="195" class="sv-s">esperimenti (calibrazione, A*)</text>
+<text x="280" y="209" class="sv-s">test di componente</text>
+
+<rect x="470" y="215" width="190" height="70" class="sv-box"/>
+<text x="480" y="235" class="sv-t">P · modello di progetto</text>
+<text x="480" y="251" class="sv-s">qak completo · contratti POJO</text>
+<text x="480" y="265" class="sv-s">ADR · deployment (Docker)</text>
+<text x="480" y="279" class="sv-s">test di integrazione</text>
+
+<rect x="680" y="280" width="190" height="60" class="sv-box"/>
+<text x="690" y="300" class="sv-t">C · codice e sistema</text>
+<text x="690" y="316" class="sv-s">codice generato + POJO</text>
+<text x="690" y="330" class="sv-s">test di sistema · CI</text>
+
+<path d="M262 105 H266 V180 H268" class="e-step" marker-end="url(#a-req)"/>
+<path d="M450 180 H460 V250 H468" class="e-step" marker-end="url(#a-req)"/>
+<path d="M660 250 H670 V310 H678" class="e-step" marker-end="url(#a-req)"/>
+
+<!-- test band -->
+<rect x="80" y="390" width="790" height="28" class="sv-band"/>
+<text x="90" y="408" class="sv-l l-ok">test eseguibili: scritti in R, raffinati in A e P, eseguiti in C e a ogni commit</text>
+<path d="M165 140 V388" class="e-test" marker-end="url(#a-ok)"/>
+<path d="M360 215 V388" class="e-test" marker-end="url(#a-ok)"/>
+<path d="M565 285 V388" class="e-test" marker-end="url(#a-ok)"/>
+<path d="M775 340 V388" class="e-test" marker-end="url(#a-ok)"/>
+</svg>
+</div>
+<figcaption>Figura 1. In verticale il livello di astrazione, in orizzontale le fasi. La curva tratteggiata è il percorso di chi passa dal testo al codice in un colpo solo. La scala è il percorso proposto: ogni gradino è un modello eseguibile, e da ogni gradino discendono test che restano validi fino al sistema finale.</figcaption>
+</figure>
+
+<div class="note phys">
+<h4>adattamento d'impedenza</h4>
+<p>Quando la luce passa dall'aria al vetro, una parte viene riflessa: tanto più quanto più diversi sono i due mezzi (in termini tecnici, il loro indice di rifrazione). Le lenti degli occhiali e delle fotocamere sono coperte da uno strato sottile con indice intermedio: la luce attraversa due salti piccoli invece di uno grande e la riflessione si riduce molto. Si veda <a href="https://it.wikipedia.org/wiki/Rivestimento_antiriflesso">rivestimento antiriflesso</a>.</p>
+<p>Nel software la «riflessione» è l'informazione persa o fraintesa nel passaggio fra chi scrive i requisiti e chi scrive il codice. Un modello intermedio, come un DSL che parla di attori, messaggi e stati, svolge il ruolo dello strato antiriflesso: è abbastanza vicino al linguaggio del problema da essere letto dal committente, e abbastanza formale da essere tradotto automaticamente in codice. qak, costruito con Xtext, è esattamente questo tipo di strato.</p>
+</div>
+
+<div class="note phys">
+<h4>dal testo all'equazione</h4>
+<p>Un problema di fisica a parole («un corpo cade da un'altezza h») si risolve solo dopo averlo tradotto in un modello: il corpo è un punto materiale, l'accelerazione g è costante, l'attrito dell'aria è trascurabile. Ogni ipotesi è dichiarata, e il modello (h = ½·g·t²) si può verificare con un esperimento. L'analisi dei requisiti fa la stessa cosa: «il robot» diventa un punto su una griglia con un'orientazione, «un ostacolo» diventa una cella occupata. Le ipotesi semplificative non sono un difetto, purché siano scritte e verificabili.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s2"><span class="n">2</span>Analisi dei requisiti</h2>
+<p><strong>Obiettivo:</strong> capire <em>che cosa</em> vuole il committente, eliminando le ambiguità, senza ancora decidere <em>come</em> realizzarlo. La domanda guida è: «come faremo a sapere che il sistema è quello richiesto?».</p>
+
+<h3><span class="n">2.1</span>Azioni</h3>
+<ol>
+<li><strong>Individuare le parole ambigue</strong> e, per ciascuna, elencare le interpretazioni possibili (l'AI è utile a questo scopo, §7).</li>
+<li><strong>Interrogare il committente</strong> su quelle interpretazioni, con domande chiuse e possibilmente con un esempio concreto (una mappa disegnata, uno scenario).</li>
+<li><strong>Fissare le assunzioni</strong> dove il committente non decide, rendendole visibili e revocabili.</li>
+<li><strong>Tradurre ogni termine del glossario in un tipo</strong> di un linguaggio di programmazione (modello del dominio).</li>
+<li><strong>Scrivere gli scenari di accettazione</strong> in forma strutturata e trasformarli in test eseguibili, che all'inizio falliscono.</li>
+<li><strong>Costruire un modello eseguibile del sistema visto dall'esterno</strong> (scatola nera): quali messaggi riceve, quali risposte produce.</li>
+</ol>
+
+<h3><span class="n">2.2</span>Le ambiguità del requisito</h3>
+<div class="tbl"><table>
+<thead><tr><th>Termine</th><th>Interpretazioni possibili</th><th>Domanda al committente</th><th>Decisione (o assunzione)</th></tr></thead>
+<tbody>
+<tr><td>servizio</td><td>libreria chiamata nello stesso processo; componente raggiungibile in rete; applicazione con GUI</td><td>Chi lo usa: una persona, un altro sistema? Da dove?</td><td>Componente di rete che riceve una richiesta e risponde con l'esito; i client sono altri sistemi software.</td></tr>
+<tr><td>pilotare</td><td>teleguidare mossa per mossa; ricevere un percorso già calcolato; decidere autonomamente il percorso</td><td>Il client indica la sola meta o anche il percorso?</td><td>Il servizio decide il percorso; il client indica solo l'obiettivo.</td></tr>
+<tr><td>DDR</td><td>qualunque robot a due ruote motrici indipendenti; un robot specifico (virtuale, fisico)</td><td>Quali comandi espone il robot? Ha sensori?</td><td>Il robot accetta comandi elementari: avanti/indietro per un tempo dato, rotazione di 90° a sinistra/destra, stop; ha un sonar frontale e segnala le collisioni. Si parte dal robot virtuale (WEnv), poi quello fisico.</td></tr>
+<tr><td>stanza</td><td>forma qualunque; rettangolo; dimensioni note o no</td><td>Forma e dimensioni sono note?</td><td>Rettangolare, dimensioni note, pareti come confini.</td></tr>
+<tr><td>posizione A, B</td><td>punto (x,y) in metri; cella di una griglia; coppia (punto, orientamento)</td><td>Conta l'orientamento finale? Con quale tolleranza si considera «arrivato»?</td><td>Cella di una griglia; orientamento finale libero; arrivato = centro della cella B entro mezza cella.</td></tr>
+<tr><td>date e fissate</td><td>costanti di configurazione; parametri di ogni richiesta</td><td>A e B cambiano mai? Chi le stabilisce?</td><td>Costanti di configurazione, lette all'avvio. Il messaggio di richiesta viene però progettato in modo da poter ricevere B come parametro in un incremento successivo.</td></tr>
+<tr><td>A come posizione iniziale</td><td>il robot è già in A; il servizio deve prima portarlo in A</td><td>Che cosa succede se il robot non è in A all'avvio?</td><td>All'avvio il robot è in A con orientamento noto (posizione HOME); è un prerequisito di installazione.</td></tr>
+<tr><td>ostacoli fissi</td><td>posizioni note a priori (mappa fornita); posizioni da scoprire esplorando</td><td>Esiste una mappa della stanza? Chi la fornisce, in che formato?</td><td><strong>Domanda decisiva</strong>, cambia il problema (§3). Assunzione per il primo incremento: mappa nota, fornita come file.</td></tr>
+<tr><td>non ci sono ostacoli mobili</td><td>garanzia assoluta; caso normale con eccezioni possibili (una persona entra)</td><td>Se compare un ostacolo imprevisto, il servizio deve gestirlo o può fallire?</td><td>Non si ripianifica; se il robot urta, si ferma e risponde con un fallimento che indica quanto percorso è stato fatto.</td></tr>
+<tr><td>(non detto) esito</td><td>nessuna risposta; risposta alla fine; notifiche di avanzamento</td><td>Il client deve sapere dove si trova il robot durante il moto?</td><td>Risposta finale obbligatoria (successo o fallimento con causa); stato osservabile durante il moto.</td></tr>
+<tr><td>(non detto) tempo</td><td>nessun limite; tempo massimo</td><td>Esiste un tempo massimo accettabile?</td><td>Il client riceve sempre una risposta entro un tempo massimo configurabile.</td></tr>
+</tbody></table></div>
+
+<div class="note obs">
+<h4>le domande non dette</h4>
+<p>Le ultime due righe riguardano aspetti che il requisito non menziona affatto. Sono spesso le più importanti: un servizio che, in qualche caso, non risponde mai è inutilizzabile da un altro sistema. L'analisi del modello robotsmart26 lo mostra concretamente: se la meta è irraggiungibile, la richiesta <code>moverobot</code> resta senza risposta (stato <a href="https://github.com/anatali/issLab2026/blob/08521577acc22bdc6862a014e663f9b2cd1a3a46/robotsmart26/src/robotsmart26.qak#L196-L199"><code>noplanfound</code></a>). Un requisito «c'è sempre una risposta entro T» avrebbe reso il difetto visibile già in un test di accettazione.</p>
+</div>
+
+<h3><span class="n">2.3</span>Prodotti</h3>
+<div class="tbl"><table>
+<thead><tr><th>Id</th><th>Prodotto</th><th>Forma</th><th>A che cosa serve</th></tr></thead>
+<tbody>
+<tr><td class="pid">R1</td><td>Tabella delle ambiguità e delle decisioni (§2.2), con le domande aperte registrate come <em>issue</em> su GitHub</td><td><span class="tag t-txt">testo</span></td><td>Tracciare perché il sistema è fatto così; ogni assunzione ha un proprietario e può essere riaperta.</td></tr>
+<tr><td class="pid">R2</td><td>Glossario tradotto in tipi (modello del dominio)</td><td><span class="tag t-mod">modello</span> <span class="tag t-exe">eseguibile</span></td><td>Fissare il significato dei termini con la precisione di un compilatore.</td></tr>
+<tr><td class="pid">R3</td><td>Formato della mappa e mappe di riferimento (file di testo)</td><td><span class="tag t-mod">modello</span></td><td>Rendere concreto e condiviso «ostacoli in diversi punti».</td></tr>
+<tr><td class="pid">R4</td><td>Scenari di accettazione in forma strutturata (Gherkin)</td><td><span class="tag t-txt">testo</span> <span class="tag t-test">test</span></td><td>Descrivere il comportamento atteso in modo leggibile dal committente ed eseguibile.</td></tr>
+<tr><td class="pid">R5</td><td>Modello qak del sistema a scatola nera</td><td><span class="tag t-mod">modello</span> <span class="tag t-exe">eseguibile</span></td><td>Fissare l'interfaccia del servizio (messaggi e risposte) prima di qualunque implementazione.</td></tr>
+<tr><td class="pid">R6</td><td>Test di accettazione JUnit, inizialmente falliti</td><td><span class="tag t-test">test</span></td><td>Definire in modo operativo «il requisito è soddisfatto».</td></tr>
+</tbody></table></div>
+
+<h4>R2 · Il glossario come tipi</h4>
+<p>Ogni termine del glossario diventa un tipo con regole di validità. Dove il testo dice «posizione», il codice non lascia scelta: una <code>Cell</code> ha due interi non negativi, non metri, non un'orientazione.</p>
+<pre><span class="src">Java 17 · modello del dominio (bozza di requisiti)</span><code>public enum Direction { UP, RIGHT, DOWN, LEFT }
+
+/** Una posizione è una cella della griglia, non un punto in metri. */
+public record Cell(int x, int y) {
+    public Cell {
+        if (x &lt; 0 || y &lt; 0) throw new IllegalArgumentException("cella negativa");
+    }
+}
+
+/** Lo stato del robot come lo conosce il servizio (non come è fisicamente). */
+public record RobotState(Cell cell, Direction dir) {}
+
+/** La stanza: rettangolo di celle, ciascuna libera o occupata da un ostacolo fisso. */
+public interface RoomMap {
+    int rows();
+    int cols();
+    boolean isObstacle(Cell c);
+    boolean contains(Cell c);
+}
+
+/** Configurazione: A e B sono "date e fissate". */
+public record Mission(Cell a, Direction initialDir, Cell b) {}</code></pre>
+<p>Il commento su <code>RobotState</code> anticipa un concetto che l'analisi del problema renderà centrale: c'è differenza fra dove il servizio <em>crede</em> sia il robot e dove il robot <em>è</em>.</p>
+
+<h4>R3 · La mappa come dato</h4>
+<p>Il formato riprende quello di <a href="https://github.com/anatali/issLab2026/blob/08521577acc22bdc6862a014e663f9b2cd1a3a46/robotsmart26/tf25map.txt">tf25map.txt</a>: <code>0</code> cella libera, <code>1</code> ostacolo, righe separate da <code>@</code>. Si producono alcune mappe di riferimento, concordate con il committente, che diventano dati di test.</p>
+<pre><span class="src">maps/room1.txt · A=(0,0), B=(5,3)</span><code>000000
+001100
+000010
+011000
+000000</code></pre>
+
+<h4>R4 · Scenari di accettazione</h4>
+<pre><span class="src">Gherkin · features/goto_b.feature</span><code>Feature: portare il robot da A a B
+
+  Background:
+    Given la stanza descritta da "maps/room1.txt"
+    And il robot è nella cella A (0,0) orientato verso DOWN
+
+  Scenario: B è raggiungibile
+    When un client chiede al servizio di andare in B
+    Then entro 120 secondi il client riceve la risposta "arrivato"
+    And il robot si trova fisicamente nella cella B (5,3)
+    And il robot non ha mai occupato una cella con ostacolo
+
+  Scenario: B non è raggiungibile
+    Given la stanza descritta da "maps/room_closed.txt"
+    When un client chiede al servizio di andare in B
+    Then entro 10 secondi il client riceve la risposta "fallito" con causa "nopath"
+    And il robot è ancora nella cella A
+
+  Scenario: ostacolo non presente nella mappa
+    Given un ostacolo fisico in (2,0) che la mappa non riporta
+    When un client chiede al servizio di andare in B
+    Then il client riceve la risposta "fallito" con causa "collision"
+    And la risposta indica la cella in cui il robot si è fermato</code></pre>
+<div class="note tool">
+<h4>Gherkin e Cucumber</h4>
+<p><a href="https://cucumber.io/docs/gherkin/reference/">Gherkin</a> è un formato di testo strutturato (<code>Given</code> / <code>When</code> / <code>Then</code>) per descrivere scenari. È leggibile da chi non programma, ma ogni riga è collegata a un metodo Java (<em>step definition</em>) da strumenti come <a href="https://cucumber.io/docs/installation/java/">Cucumber</a>, che eseguono lo scenario come test. È il punto in cui il testo del committente e il codice si toccano: se una frase non si riesce a collegare a un metodo, è ancora ambigua.</p>
+</div>
+
+<h4>R5 · Il sistema a scatola nera in qak</h4>
+<p>Il modello fissa il <em>contratto</em> del servizio: un solo messaggio di richiesta, due possibili risposte. Il comportamento interno è volutamente fittizio (risponde subito), ma il modello compila, genera codice, si avvia e può essere interrogato da un client reale. Il committente vede il protocollo funzionare prima che esista un robot.</p>
+<pre><span class="src">ddrAtoB_req.qak · modello dei requisiti</span><code class="qak">System ddrAtoB
+
+Request gotoB       : gotoB(X)              "porta il robot da A a B (X ignorato nel primo incremento)"
+Reply   gotoBdone   : arrived(CX,CY)        for gotoB
+Reply   gotoBfailed : failed(CAUSE,CX,CY)   for gotoB   // CAUSE = nopath | collision | timeout
+
+Context ctxddr ip [host="localhost" port=8030]
+
+QActor ddrservice context ctxddr {
+  State s0 initial { println("$name | robot in A, servizio pronto") }
+  Goto idle
+  State idle { }
+  Transition t0  whenRequest gotoB -> serve
+  State serve {
+    // REQUISITO: al termine il robot è in B. Qui si modella solo il protocollo.
+    replyTo gotoB with gotoBdone : arrived(5,3)
+  }
+  Goto idle
+}
+
+QActor clientsim context ctxddr {          // client simulato: rende eseguibile lo scenario
+  State s0 initial { request ddrservice -m gotoB : gotoB(go) }
+  Transition t0
+    whenTime 120000         -> timeout
+    whenReply gotoBdone     -> ok
+    whenReply gotoBfailed   -> ko
+  State ok      { printCurrentMessage }
+  State ko      { printCurrentMessage }
+  State timeout { println("$name | nessuna risposta: requisito violato") }
+}</code></pre>
+
+<h4>R6 · Test di accettazione</h4>
+<p>Il test usa la stessa infrastruttura di comunicazione dei test esistenti nel repository (si veda <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/test/java/robotsmart26tests/TestSetDirection.java">TestSetDirection.java</a>). La parte decisiva è l'<em>oracolo</em>, cioè il criterio con cui il test decide se il risultato è giusto: non basta la risposta del servizio, bisogna verificare dove si trova il robot <em>fisicamente</em>, con una fonte indipendente dal servizio.</p>
+<pre><span class="src">JUnit 4 · src/test/java/acceptance/TestGotoB.java (bozza)</span><code>@Test(timeout = 120_000)
+public void robotReachesB() throws Exception {
+    Interaction conn = ConnectionFactory.createClientSupport23(ProtocolType.tcp, HOST, "8030");
+    IApplMessage req = CommUtils.buildRequest("tester", "gotoB", "gotoB(go)", "ddrservice");
+    IApplMessage reply = conn.request(req);
+
+    assertEquals("gotoBdone", reply.msgId());                  // 1. il servizio dichiara successo
+    assertEquals(new Cell(5, 3), groundTruth.robotCell());       // 2. il robot è davvero in B
+    assertTrue(groundTruth.collisions().isEmpty());              // 3. nessun urto lungo il percorso
+}</code></pre>
+<p><code>groundTruth</code> è un'astrazione che in questa fase resta da definire: per il robot virtuale può leggere lo stato della scena, per il robot fisico può usare una telecamera o un marcatore. Averlo dichiarato già nei requisiti costringe l'analisi a chiedersi come osservare il robot.</p>
+
+<div class="note phys">
+<h4>il glossario come sistema di unità di misura</h4>
+<p>In fisica una grandezza senza unità non ha significato: «la distanza è 3» non dice nulla. Nel 1999 la sonda Mars Climate Orbiter andò perduta perché un gruppo di lavoro forniva valori in unità anglosassoni e un altro li interpretava in unità del sistema internazionale (<a href="https://it.wikipedia.org/wiki/Mars_Climate_Orbiter">Mars Climate Orbiter</a>). Il glossario tradotto in tipi svolge la funzione di un sistema di unità: <code>Cell</code> e una distanza in metri non sono intercambiabili, e il compilatore impedisce di confonderle.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s3"><span class="n">3</span>Analisi del problema</h2>
+<p><strong>Obiettivo:</strong> capire <em>che cosa rende difficile</em> soddisfare i requisiti, e quanto è distante il problema dalla tecnologia disponibile. Non si sceglie ancora una soluzione definitiva, ma si individuano le responsabilità che qualunque soluzione dovrà avere e si producono un'<em>architettura logica</em> e un piano di test.</p>
+
+<h3><span class="n">3.1</span>Azioni</h3>
+<ol>
+<li>Elencare le <strong>questioni del problema</strong>, cioè le difficoltà che derivano dal requisito e non da una scelta tecnologica.</li>
+<li>Per ciascuna, <strong>analizzare le alternative</strong> e le loro conseguenze, anche con piccoli esperimenti.</li>
+<li><strong>Misurare l'abstraction gap</strong>: che cosa offre la piattaforma disponibile, che cosa manca.</li>
+<li>Ricavare le <strong>responsabilità</strong> e le <strong>interazioni</strong> fra componenti, e scriverle in un modello eseguibile (architettura logica).</li>
+<li>Raffinare il <strong>piano di test</strong>: quali proprietà si possono verificare su ciascun componente isolato.</li>
+<li>Stimare rischi e lavoro, e suddividere lo sviluppo in <strong>incrementi</strong>.</li>
+</ol>
+
+<h3><span class="n">3.2</span>Le questioni del problema</h3>
+
+<h4>Q1 · Dove si trova il robot?</h4>
+<p>Il robot non ha un sensore di posizione (niente GPS in una casa). Il servizio deve <em>dedurre</em> la posizione dalle mosse comandate: se il robot era in (2,3) orientato a destra ed è avanzato di un passo, ora è in (3,3). Questa tecnica è la <a href="https://it.wikipedia.org/wiki/Navigazione_stimata">navigazione stimata</a> (dead reckoning). Conseguenza: il sistema deve mantenere una rappresentazione dello stato del robot (la «mappa di contesto» di robotsmart26) e va distinto lo stato <em>creduto</em> da quello <em>reale</em>.</p>
+
+<div class="note phys">
+<h4>accumulo dell'errore</h4>
+<p>Ogni passo ha un piccolo errore: il robot avanza di 0,98 celle invece di 1, o ruota di 88° invece di 90°. Gli errori si sommano. Se l'errore è sistematico (ad esempio la velocità reale è il 2% inferiore a quella supposta), dopo n passi l'errore è circa n volte quello di un passo, cioè cresce linearmente. Se è casuale (ora un po' in più, ora un po' in meno), cresce circa come √n, come lo spostamento di una particella in moto browniano (<a href="https://it.wikipedia.org/wiki/Passeggiata_aleatoria">passeggiata aleatoria</a>). Gli errori di rotazione sono i più dannosi: un errore d'angolo θ produce, dopo un tratto rettilineo lungo L, uno scarto laterale di circa L·θ (θ in radianti). Due conseguenze pratiche: i test devono includere percorsi lunghi e con molte rotazioni; serve una procedura di riallineamento (in robotsmart26 è <code>tuneAtHome</code>).</p>
+</div>
+
+<h4>Q2 · Come si rappresenta la stanza?</h4>
+<p>Una stanza è uno spazio continuo; un calcolatore lavora meglio con uno spazio discreto. La scelta più semplice è una griglia di celle quadrate con lato pari circa al diametro del robot. Conseguenze: un ostacolo che occupa parzialmente una cella la rende occupata (si perde un po' di spazio libero, a favore della sicurezza); la posizione è sempre il centro di una cella; il moto si riduce a due tipi di mossa, «avanza di una cella» e «ruota di 90°».</p>
+
+<div class="note phys">
+<h4>cinematica del DDR</h4>
+<p>Un DDR ha due ruote motrici indipendenti a distanza d. Se le ruote hanno velocità v<sub>R</sub> e v<sub>L</sub>, il robot avanza con velocità v = (v<sub>R</sub> + v<sub>L</sub>)/2 e ruota con velocità angolare ω = (v<sub>R</sub> − v<sub>L</sub>)/d. Due casi particolari giustificano la griglia: con v<sub>R</sub> = v<sub>L</sub> il robot va dritto (ω = 0); con v<sub>R</sub> = −v<sub>L</sub> ruota su se stesso senza spostarsi (v = 0). Quindi il robot può cambiare direzione restando nella sua cella, e ogni percorso sulla griglia si scompone in tratti rettilinei e rotazioni sul posto. Si veda <a href="https://en.wikipedia.org/wiki/Differential_wheeled_robot">Differential wheeled robot</a>.</p>
+<p>Il robot non riceve comandi del tipo «avanza di 30 cm», ma «avanza per t millisecondi». Lo spostamento è s = v·t: per far corrispondere un passo a una cella occorre <em>misurare</em> v e scegliere t di conseguenza. È un esperimento di calibrazione, da fare in questa fase.</p>
+</div>
+
+<h4>Q3 · Come si trova il percorso?</h4>
+<p>Con la mappa nota (assunzione R1), trovare un percorso da A a B evitando ostacoli è un problema di ricerca di un cammino su un grafo: le celle libere sono nodi, le celle adiacenti sono collegate. È un problema classico con soluzioni note (ricerca in ampiezza, <a href="https://it.wikipedia.org/wiki/A*">A*</a>). Siccome gli ostacoli sono fissi, il percorso si può calcolare una volta all'inizio e non va ricalcolato durante il moto. Il risultato è un <em>piano</em>: una sequenza di mosse, ad esempio <code>wwrwwlw</code> (<code>w</code> avanza, <code>l</code>/<code>r</code> ruota).</p>
+<p>Se invece la mappa non fosse nota, il problema diventerebbe di esplorazione e costruzione della mappa: molto più complesso e con requisiti di sensori diversi. È il motivo per cui la domanda sugli ostacoli in §2.2 è stata marcata come decisiva.</p>
+
+<h4>Q4 · Come si esegue il piano, e che cosa succede se qualcosa va storto?</h4>
+<p>Il piano va tradotto in comandi al robot uno alla volta, aggiornando lo stato creduto dopo ogni mossa riuscita. Se il robot urta un ostacolo non previsto (la mappa è sbagliata, o il robot ha deviato), la mossa fallisce: il servizio deve fermare il robot, non aggiornare lo stato creduto, e rispondere al client con un fallimento che dica quanto del piano è stato eseguito.</p>
+
+<h4>Q5 · Che tipo di interazione richiede un'operazione lunga?</h4>
+<p>Portare il robot in B richiede secondi o minuti. Un'interazione sincrona (il client resta bloccato finché il robot non arriva) è fragile. Il servizio deve essere interrogabile in modo asincrono: il client invia la richiesta, continua a fare altro, riceve la risposta come messaggio. Lo stato del robot durante il moto deve essere osservabile da chi è interessato (una GUI, un sistema di monitoraggio) senza interferire con il moto.</p>
+
+<h4>Q6 · Dove girano i componenti?</h4>
+<p>Il robot fisico ha a bordo un piccolo calcolatore (ad esempio un Raspberry Pi); il servizio potrebbe stare a bordo oppure su un altro nodo della rete. Se la comunicazione con il robot passa per la rete, i messaggi possono ritardare o perdersi. Conseguenza: le interazioni vanno modellate come scambio di messaggi, non come chiamate di metodo, così che la decisione di distribuzione resti aperta.</p>
+
+<h3><span class="n">3.3</span>Misurare l'abstraction gap</h3>
+<p>La distanza fra il problema e il linguaggio di implementazione dipende da che cosa offre la piattaforma. Conviene renderla esplicita con una tabella.</p>
+<div class="tbl"><table>
+<thead><tr><th>Concetto richiesto dal problema</th><th>Java/Python puri</th><th>Piattaforma disponibile nel corso</th></tr></thead>
+<tbody>
+<tr><td>componente che riceve richieste in rete</td><td>socket, thread, serializzazione: da scrivere</td><td><code>QActor</code> in un <code>Context</code></td></tr>
+<tr><td>richiesta e risposta asincrone</td><td><code>CompletableFuture</code>, code, correlazione delle risposte: da scrivere</td><td><code>Request</code>/<code>Reply</code>, <code>whenReply</code></td></tr>
+<tr><td>comportamento a stati, reazione a eventi</td><td>pattern State, switch su enum: da scrivere</td><td><code>State</code>, <code>Transition</code>, <code>whenEvent</code></td></tr>
+<tr><td>stato osservabile</td><td>pattern Observer, protocollo di notifica: da scrivere</td><td><code>updateResource</code> (CoAP observe)</td></tr>
+<tr><td>comandi al robot</td><td>protocollo del robot virtuale/fisico</td><td>POJO <code>VRObjForQak</code>, servizio basicrobot</td></tr>
+<tr><td>calcolo del percorso</td><td>da scrivere o da libreria</td><td>POJO <code>AStarPathfinding</code></td></tr>
+<tr><td>stato creduto del robot e mappa</td><td>da scrivere</td><td>POJO <code>RobotPosUtils</code></td></tr>
+<tr><td>servizio completo «vai nella cella (x,y)»</td><td>—</td><td>robotsmart26: <code>moverobot(X,Y,STEPTIME)</code></td></tr>
+</tbody></table></div>
+<p>L'ultima riga è la scoperta più importante dell'analisi: esiste già un servizio che risolve gran parte del problema. La progettazione dovrà decidere se riusarlo (§4.2). Prima, però, l'analisi ne verifica le proprietà rispetto ai requisiti, e individua le differenze: robotsmart26 non risponde se la meta è irraggiungibile, mentre il requisito fissato in §2.2 impone una risposta sempre.</p>
+
+<h3><span class="n">3.4</span>Prodotti</h3>
+<div class="tbl"><table>
+<thead><tr><th>Id</th><th>Prodotto</th><th>Forma</th><th>A che cosa serve</th></tr></thead>
+<tbody>
+<tr><td class="pid">A1</td><td>Elenco delle questioni (§3.2), ciascuna con: analisi, alternative, conseguenza, elemento del modello che la recepisce</td><td><span class="tag t-txt">testo</span></td><td>Collegare ogni scelta strutturale al problema che la motiva.</td></tr>
+<tr><td class="pid">A2</td><td>Tabella dell'abstraction gap (§3.3) e valutazione dei componenti riusabili</td><td><span class="tag t-txt">testo</span></td><td>Stimare il lavoro reale e preparare la decisione «costruire o riusare».</td></tr>
+<tr><td class="pid">A3</td><td>Architettura logica in qak</td><td><span class="tag t-mod">modello</span> <span class="tag t-exe">eseguibile</span></td><td>Fissare responsabilità e messaggi; eseguibile con componenti simulati.</td></tr>
+<tr><td class="pid">A4</td><td>Esperimenti: calibrazione del passo su WEnv e sul robot fisico; A* sulle mappe di riferimento</td><td><span class="tag t-exe">eseguibile</span> <span class="tag t-txt">testo</span></td><td>Sostituire stime con misure (valore di <code>STEPTIME</code>, errore per passo).</td></tr>
+<tr><td class="pid">A5</td><td>Piano di test raffinato: proprietà per componente</td><td><span class="tag t-test">test</span></td><td>Sapere che cosa verificare su ciascun componente, prima di progettarlo.</td></tr>
+<tr><td class="pid">A6</td><td>Tabella dei rischi e piano degli incrementi (§6)</td><td><span class="tag t-txt">testo</span></td><td>Affrontare per primi i rischi maggiori.</td></tr>
+</tbody></table></div>
+
+<h4>A3 · Architettura logica</h4>
+<p>Dalle questioni emergono tre responsabilità distinte: <em>decidere</em> il percorso e rispondere al client (Q3, Q5); <em>eseguire</em> un piano mossa per mossa reagendo ai fallimenti (Q4); <em>comandare il robot</em> e mantenere lo stato creduto (Q1, Q2). Ciascuna diventa un attore, perché ha un proprio flusso di controllo e deve poter essere spostata su un nodo diverso (Q6). Le interazioni sono messaggi.</p>
+<pre><span class="src">ddrAtoB_logic.qak · architettura logica (componenti con comportamento essenziale)</span><code class="qak">System ddrAtoB
+
+Request gotoB       : gotoB(X)
+Reply   gotoBdone   : arrived(CX,CY)       for gotoB
+Reply   gotoBfailed : failed(CAUSE,CX,CY)  for gotoB
+
+Request doplan       : doplan(PLAN,STEPTIME)
+Reply   doplandone   : doplandone(ARG)      for doplan
+Reply   doplanfailed : doplanfailed(TODO)   for doplan
+
+Request step       : step(TIME)
+Reply   stepdone   : stepdone(V)              for step
+Reply   stepfailed : stepfailed(DURATION,CAUSE) for step
+Dispatch turn      : turn(D)                  // D = l | r
+
+Context ctxddr ip [host="localhost" port=8030]
+
+QActor ddrservice context ctxddr {     // decide: pianifica e risponde al client
+  State s0 initial { }  Goto idle
+  State idle { }
+  Transition t0  whenRequest gotoB -> plan
+  State plan {
+    [# val Plan = "wwrww" #]            // in analisi: piano fisso; in progetto: A* sulla mappa
+    request pathexec -m doplan : doplan($Plan, 345)
+  }
+  Transition t1
+    whenReply doplandone   -> done
+    whenReply doplanfailed -> failed
+  State done   { replyTo gotoB with gotoBdone   : arrived(5,3) }       Goto idle
+  State failed { replyTo gotoB with gotoBfailed : failed(collision,0,0) } Goto idle
+}
+
+QActor pathexec context ctxddr {       // esegue: una mossa alla volta
+  /* riceve doplan, invia step/turn a robotadapter, risponde doplandone|doplanfailed */
+}
+
+QActor robotadapter context ctxddr {   // comanda il robot e mantiene lo stato creduto
+  /* in analisi: robot simulato che risponde stepdone dopo TIME ms */
+}</code></pre>
+<p>Il modello è già eseguibile: <code>robotadapter</code> può simulare il robot, e i test di accettazione R6 possono essere lanciati contro questa architettura (passano lo scenario «B raggiungibile» con il piano fisso, falliscono gli altri: è l'informazione che si vuole).</p>
+
+<h4>A5 · Proprietà da verificare per componente</h4>
+<div class="tbl"><table>
+<thead><tr><th>Componente</th><th>Proprietà</th></tr></thead>
+<tbody>
+<tr><td>pianificatore</td><td>P1 il piano porta da A a B; P2 nessuna cella del percorso è un ostacolo o è fuori dalla stanza; P3 se esiste un percorso, il piano non è vuoto; P4 se non esiste, il pianificatore lo dichiara (non restituisce un piano errato); P5 il numero di passi è minimo</td></tr>
+<tr><td>esecutore</td><td>E1 le mosse sono inviate nell'ordine del piano; E2 dopo un fallimento non si inviano altre mosse; E3 la risposta di fallimento contiene esattamente le mosse non eseguite</td></tr>
+<tr><td>adattatore del robot</td><td>D1 lo stato creduto cambia solo dopo una mossa riuscita; D2 una rotazione non cambia la cella; D3 dopo una collisione il robot è fermo</td></tr>
+<tr><td>servizio</td><td>S1 ogni <code>gotoB</code> riceve esattamente una risposta entro il tempo massimo; S2 richieste concorrenti sono serializzate o rifiutate</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="s4"><span class="n">4</span>Progettazione</h2>
+<p><strong>Obiettivo:</strong> decidere <em>come</em> realizzare l'architettura logica con la tecnologia disponibile, fissando protocolli, componenti concreti, gestione dei guasti e deployment. Il prodotto principale è un modello abbastanza dettagliato da generare il codice.</p>
+
+<h3><span class="n">4.1</span>Azioni</h3>
+<ol>
+<li>Prendere le <strong>decisioni di progetto</strong> e registrarle come ADR (riuso o costruzione, protocolli, gestione del tempo massimo, accesso concorrente).</li>
+<li>Completare il <strong>modello qak</strong> con i comportamenti reali e generare il codice.</li>
+<li>Definire i <strong>contratti dei POJO</strong> (interfacce Java con precondizioni e postcondizioni) e i relativi test unitari.</li>
+<li>Definire il <strong>deployment</strong>: container, porte, variabili di configurazione.</li>
+<li>Costruire la <strong>matrice di tracciabilità</strong> requisiti → elementi del modello → test.</li>
+</ol>
+
+<h3><span class="n">4.2</span>Decisione principale: riusare robotsmart26</h3>
+<p>L'analisi (§3.3) ha mostrato che robotsmart26 realizza già le tre responsabilità dell'architettura logica (<code>robotsmart</code> decide, <code>planexec</code> esegue, <code>robotmnemo</code> comanda il robot e mantiene la mappa) e offre <code>moverobot(X,Y,STEPTIME)</code>. Le differenze rispetto ai requisiti sono poche e circoscritte.</p>
+<pre><span class="src">docs/adr/0001-riuso-robotsmart26.md</span><code># ADR 0001 · Riusare robotsmart26 come servizio esterno
+
+Stato: accettata (2026-10-14)
+
+Contesto
+  Il requisito "portare il robot da A a B" coincide con una singola moverobot
+  di robotsmart26, se A è la posizione HOME e la mappa di robotsmart26 è quella
+  della stanza. robotsmart26 non soddisfa due requisiti fissati in analisi:
+  - S1 (risposta sempre): in caso di piano vuoto non risponde;
+  - la causa del fallimento non è distinta (nopath / collision).
+
+Decisione
+  ddrservice è una facciata (facade) su robotsmart26:
+  - traduce gotoB in moverobot(BX,BY,STEPTIME);
+  - aggiunge un tempo massimo con whenTime, che copre il caso "nessuna risposta";
+  - prima di inviare moverobot verifica con buildPlan che un piano esista,
+    e risponde failed(nopath,...) se il piano è vuoto.
+
+Alternative scartate
+  - Costruire tre attori nuovi: duplicazione di codice già collaudato.
+  - Modificare robotsmart26: è un componente condiviso da altri progetti.
+
+Conseguenze
+  + poco codice nuovo; il comportamento sul robot è quello già testato
+  - ddrservice deve essere l'unico client di robotsmart26 (nessuna mutua
+    esclusione sui comandi delegati): vincolo di deployment</code></pre>
+<div class="note tool">
+<h4>Architecture Decision Record</h4>
+<p>Un ADR è un breve file di testo, conservato nel repository accanto al codice, che registra una decisione di progetto: contesto, decisione, alternative, conseguenze. Non si modifica: se la decisione cambia se ne scrive uno nuovo che lo sostituisce. In questo modo la storia del <em>perché</em> segue la storia del <em>che cosa</em> registrata da Git. Si veda <a href="https://adr.github.io/">adr.github.io</a>.</p>
+</div>
+
+<h3><span class="n">4.3</span>Il modello di progetto</h3>
+<pre><span class="src">ddrAtoB.qak · modello di progetto</span><code class="qak">System ddrAtoB
+
+Request gotoB       : gotoB(X)
+Reply   gotoBdone   : arrived(CX,CY)       for gotoB
+Reply   gotoBfailed : failed(CAUSE,CX,CY)  for gotoB
+
+// contratto di robotsmart26 (messaggi usati)
+Request buildPlan       : buildPlan(PX,PY,TX,TY)
+Reply   buildPlanDone   : buildPlanDone(PLAN)              for buildPlan
+Request moverobot       : moverobot(TARGETX,TARGETY,STEPTIME)
+Reply   moverobotdone   : moverobotok(ARG)                 for moverobot
+Reply   moverobotfailed : moverobotfailed(PLANDONE,PLANTODO) for moverobot
+Request getrobotstate   : getrobotstate(X)
+Reply   robotstate      : robotstate(POS,DIR)              for getrobotstate
+
+Dispatch nopath : nopath(X)                                // auto-messaggio
+
+Context ctxddr        ip [host="localhost" port=8030]
+Context ctxrobotsmart ip [host="127.0.0.1" port=8020]
+ExternalQActor robotsmart context ctxrobotsmart
+
+QActor ddrservice context ctxddr {
+  [# val AX = 0; val AY = 0; val BX = 5; val BY = 3   // in progetto finale: da file di configurazione
+     val StepTime = 345                                // valore misurato in A4
+     val MaxTimeMs = 120000L #]
+
+  State s0 initial { println("$name | A=($AX,$AY) B=($BX,$BY)") }
+  Goto idle
+
+  State idle { }
+  Transition t0  whenRequest gotoB -> checkplan
+
+  State checkplan {
+    request robotsmart -m buildPlan : buildPlan($AX,$AY,$BX,$BY)
+  }
+  Transition t1
+    whenTime 10000          -> timeoutfail
+    whenReply buildPlanDone -> evalplan
+
+  State evalplan {
+    onMsg( buildPlanDone : buildPlanDone(PLAN) ){
+      [# val P = payloadArg(0) #]
+      if [# P == "''" || P.isEmpty() #] { autodispatch nopath : nopath(x) }
+      else { request robotsmart -m moverobot : moverobot($BX,$BY,$StepTime) }
+    }
+  }
+  Transition t2
+    whenMsg   nopath          -> nopathfail
+    whenTime  120000          -> timeoutfail
+    whenReply moverobotdone   -> done
+    whenReply moverobotfailed -> collisionfail
+
+  State done          { replyTo gotoB with gotoBdone : arrived($BX,$BY) }
+  Goto idle
+  State nopathfail    { replyTo gotoB with gotoBfailed : failed(nopath,$AX,$AY) }
+  Goto idle
+  State collisionfail { request robotsmart -m getrobotstate : getrobotstate(x) }
+  Transition t3  whenReply robotstate -> replycollision
+  State replycollision {
+    onMsg( robotstate : robotstate(POS,D) ){
+      [# val XY = payloadArg(0).substringAfter("(").substringBefore(")").split(",")
+         val CX = XY[0]; val CY = XY[1] #]          // POS = pos(X,Y): cella in cui il robot si è fermato
+      replyTo gotoB with gotoBfailed : failed(collision,$CX,$CY)
+    }
+  }
+  Goto idle
+  State timeoutfail   { replyTo gotoB with gotoBfailed : failed(timeout,-1,-1) }
+  Goto idle
+}</code></pre>
+<p>Il modello rende visibili decisioni che in un documento testuale resterebbero implicite: quale messaggio si attende in quale stato, che cosa accade se non arriva, quale risposta riceve il client in ogni caso. È possibile verificare a vista la proprietà S1 (ogni ramo termina con un <code>replyTo gotoB</code>) e la si verifica anche con un test (§5).</p>
+
+<div class="note obs">
+<h4>dettagli da verificare sul modello</h4>
+<ul>
+<li>Dopo un <code>timeoutfail</code> una reply tardiva di robotsmart26 può arrivare quando <code>ddrservice</code> è già in <code>idle</code>: resta in coda e verrebbe consumata da una richiesta successiva. Un test deve coprire il caso; una soluzione è inviare <code>move(h)</code> (halt) e scartare le reply in un apposito stato di pulizia.</li>
+<li>La dichiarazione di robotsmart26 <code>Reply moverobotdone : moverobotok(ARG)</code> non coincide con il payload effettivamente inviato (<code>moverobotdone(ok)</code>): per questo il modello usa solo <code>whenReply moverobotdone</code> e non ne analizza il payload.</li>
+<li>Lo stato <code>checkplan</code> calcola il piano da A, non dalla posizione corrente: è corretto solo se il robot è in A a ogni richiesta. Dopo un fallimento il robot non è più in A, e una seconda <code>gotoB</code> deve prima leggere la posizione con <code>getrobotstate</code>. È un caso da aggiungere ai requisiti (che cosa deve fare il servizio alla richiesta successiva a un fallimento?).</li>
+</ul>
+</div>
+
+<h3><span class="n">4.4</span>Contratti dei POJO</h3>
+<p>Il pianificatore è usato da robotsmart26 come oggetto Java. Se si vuole poterlo sostituire (un algoritmo diverso, una mappa caricata altrove), conviene fissarne il contratto in un'interfaccia; un adattatore sopra <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/main/java/utils/planning/AStarPathfinding.java">AStarPathfinding</a> la implementa.</p>
+<pre><span class="src">Java · contratto del pianificatore</span><code>public interface Planner {
+    /**
+     * Pre:  map.contains(from) && map.contains(to)
+     *       !map.isObstacle(from) && !map.isObstacle(to)
+     * Post: Optional.empty() se e solo se nessun cammino esiste;
+     *       altrimenti una stringa su {w,l,r} che, applicata da (from, startDir),
+     *       attraversa solo celle libere interne alla stanza e termina in to.
+     */
+    Optional&lt;String&gt; plan(RoomMap map, Cell from, Direction startDir, Cell to);
+}</code></pre>
+<p>Il contratto sostituisce la convenzione di robotsmart26 di indicare «nessun piano» con la stringa <code>''</code>: un <code>Optional</code> vuoto non si può confondere con un piano. È un esempio di come un tipo riduca un'ambiguità che nel codice esistente è affidata a un commento.</p>
+
+<h3><span class="n">4.5</span>Deployment</h3>
+<pre><span class="src">ddrAtoB.yaml (estratto)</span><code>services:
+  wenv:          { image: docker.io/natbodocker/virtualrobotdisi26:1.0, ports: ["8090:8090","8091:8091"] }
+  robotsmart26:  { image: natbodocker/robotsmart26:1.0, ports: ["8020:8020/tcp","8020:8020/udp"], depends_on: [wenv] }
+  ddrservice:
+    image: ddrAtoB:1.0
+    ports: ["8030:8030/tcp","8030:8030/udp"]
+    environment: [ "MISSION_A=0,0,down", "MISSION_B=5,3", "MAP=/maps/room1.txt" ]
+    depends_on: [robotsmart26]
+networks: { default: { name: iss-network } }</code></pre>
+<p>I nomi delle immagini sono indicativi e vanno allineati a quelli del repository di riferimento. La configurazione di A, B e della mappa passa per variabili d'ambiente: «date e fissate» diventa «fissate al deployment», ed è possibile eseguire gli stessi test su mappe diverse senza ricompilare.</p>
+
+<h3><span class="n">4.6</span>Matrice di tracciabilità</h3>
+<div class="tbl"><table>
+<thead><tr><th>Requisito / decisione</th><th>Elemento del modello</th><th>Test</th></tr></thead>
+<tbody>
+<tr><td>il robot arriva in B</td><td><code>evalplan</code> → <code>moverobot</code> → <code>done</code></td><td>TestGotoB.robotReachesB</td></tr>
+<tr><td>nessun urto con ostacoli noti</td><td>pianificatore (contratto P2)</td><td>PlannerProperties.pathAvoidsObstacles; oracolo collisions()</td></tr>
+<tr><td>risposta sempre entro T (S1)</td><td>transizioni <code>whenTime</code> in <code>checkplan</code>, <code>evalplan</code></td><td>TestGotoB.alwaysAnswers (robotsmart26 simulato muto)</td></tr>
+<tr><td>B irraggiungibile → nopath</td><td><code>nopathfail</code></td><td>TestGotoB.unreachableB (room_closed.txt)</td></tr>
+<tr><td>ostacolo imprevisto → collision + cella</td><td><code>collisionfail</code>, <code>replycollision</code></td><td>TestGotoB.unexpectedObstacle</td></tr>
+<tr><td>unico client di robotsmart26</td><td>deployment (porta 8020 non esposta all'esterno in produzione)</td><td>revisione del file YAML</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="s5"><span class="n">5</span>Testing</h2>
+<p>Il testing non è una fase che inizia alla fine: i test di accettazione sono nati nei requisiti, le proprietà dei componenti nell'analisi, i test di integrazione nella progettazione. La fase di testing li <em>completa, li automatizza e li esegue</em> in condizioni controllate, e aggiunge i test che solo un sistema completo permette.</p>
+
+<h3><span class="n">5.1</span>Azioni</h3>
+<ol>
+<li>Organizzare i test per <strong>livello</strong> (unità, componente, integrazione, sistema).</li>
+<li>Definire per ogni livello l'<strong>oracolo</strong> e il modo di <strong>osservare</strong> il sistema senza perturbarlo.</li>
+<li>Generare <strong>casi di test sistematici</strong> (mappe casuali, casi limite) invece di pochi esempi scelti a mano.</li>
+<li>Iniettare <strong>guasti</strong> in modo controllato (ostacolo non in mappa, robotsmart26 che non risponde).</li>
+<li>Rendere i test <strong>riproducibili</strong> e automatici (container, integrazione continua).</li>
+<li>Collaudare sul <strong>robot fisico</strong> con le mappe di riferimento concordate.</li>
+</ol>
+
+<h3><span class="n">5.2</span>Livelli, oracoli e prodotti</h3>
+<div class="tbl"><table>
+<thead><tr><th>Id</th><th>Livello</th><th>Che cosa</th><th>Oracolo / osservazione</th></tr></thead>
+<tbody>
+<tr><td class="pid">T1</td><td>unità</td><td>modello del dominio (parsing delle mappe), pianificatore</td><td>proprietà P1–P5 verificate su centinaia di mappe generate</td></tr>
+<tr><td class="pid">T2</td><td>componente</td><td><code>ddrservice</code> con robotsmart26 sostituito da un attore simulato (che risponde, fallisce o tace)</td><td>la risposta al client in ciascun caso; proprietà S1</td></tr>
+<tr><td class="pid">T3</td><td>integrazione</td><td><code>ddrservice</code> + robotsmart26 + robot virtuale (WEnv)</td><td>reply del servizio, risorsa CoAP di <code>robotmnemo</code>, stato della scena</td></tr>
+<tr><td class="pid">T4</td><td>sistema / accettazione</td><td>gli scenari Gherkin R4 su tutte le mappe di riferimento</td><td><code>groundTruth</code>: posizione reale, collisioni</td></tr>
+<tr><td class="pid">T5</td><td>robustezza</td><td>ostacolo aggiunto alla scena e non alla mappa; container robotsmart26 arrestato; richieste concorrenti</td><td>tipo di risposta e tempo di risposta</td></tr>
+<tr><td class="pid">T6</td><td>collaudo fisico</td><td>robot reale, stanza reale</td><td>marcatore a terra o telecamera; misura dello scarto finale e della deriva</td></tr>
+<tr><td class="pid">T7</td><td>automazione</td><td>pipeline di integrazione continua che esegue T1–T5 a ogni commit</td><td>rapporto dei test, log, copertura del modello (stati visitati)</td></tr>
+</tbody></table></div>
+
+<h4>T1 · Test basati su proprietà</h4>
+<p>Invece di verificare il pianificatore su tre mappe scelte a mano, si generano mappe casuali e si verificano le proprietà del contratto. Il test non ha bisogno di conoscere il piano giusto: gli basta controllare che quello prodotto sia ammissibile, e confrontare l'esistenza di un piano con una ricerca in ampiezza indipendente (un secondo algoritmo, più semplice, usato come oracolo).</p>
+<pre><span class="src">JUnit 5 · PlannerProperties.java (bozza)</span><code>@RepeatedTest(500)
+void planIsAdmissibleOrAbsentIffNoPath() {
+    RoomMap map = RandomMaps.generate(rnd, 6, 8, 0.25);      // 25% di celle occupate
+    Cell a = map.randomFreeCell(rnd), b = map.randomFreeCell(rnd);
+
+    Optional&lt;String&gt; plan = planner.plan(map, a, Direction.DOWN, b);
+    boolean reachable = Bfs.reachable(map, a, b);             // oracolo indipendente
+
+    assertEquals(reachable, plan.isPresent());                 // P3, P4
+    plan.ifPresent(p -&gt; {
+        List&lt;Cell&gt; path = Simulator.apply(map, a, Direction.DOWN, p);
+        assertEquals(b, path.get(path.size() - 1));            // P1
+        assertTrue(path.stream().noneMatch(map::isObstacle));  // P2
+        assertEquals(Bfs.distance(map, a, b), Plans.steps(p)); // P5
+    });
+}</code></pre>
+<div class="note tool">
+<h4>property-based testing</h4>
+<p>Nel testing basato su proprietà si scrive una proprietà che deve valere per tutti gli input (ad esempio «il piano non attraversa ostacoli») e uno strumento genera molti input casuali, riducendo poi automaticamente un controesempio al caso più piccolo possibile. In Java lo fa <a href="https://jqwik.net/">jqwik</a>, in Python <a href="https://hypothesis.readthedocs.io/">Hypothesis</a>. È particolarmente efficace quando è difficile calcolare a mano il risultato atteso, ma facile riconoscere un risultato sbagliato.</p>
+</div>
+
+<h4>T2 · Sostituire robotsmart26 con un simulatore</h4>
+<p>Il comportamento «robotsmart26 non risponde» è difficile da provocare sul sistema vero. Un attore qak che si presenta con lo stesso nome e gli stessi messaggi, ma con un comportamento scelto dal test, lo rende banale. La stessa tecnica si applica al robot: in robotsmart26 basta cambiare la classe iniettata con <code>withobj robot using "..."</code>.</p>
+<pre><span class="src">robotsmartmock.qak · per il test di S1</span><code class="qak">QActor robotsmart context ctxrobotsmart {   // stesso nome dell'ExternalQActor
+  State s0 initial { }
+  Transition t0  whenRequest buildPlan -> answerplan
+  State answerplan { replyTo buildPlan with buildPlanDone : buildPlanDone(wwww) }
+  Transition t1  whenRequest moverobot -> mute
+  State mute { println("$name | ricevuto moverobot, non rispondo") }   // nessuna reply
+}</code></pre>
+
+<div class="note phys">
+<h4>il test come esperimento</h4>
+<p>Un test è un esperimento: si fissano le condizioni iniziali, si agisce, si osserva, si confronta con la previsione. Come in laboratorio, valgono due regole. La prima è la riproducibilità: un container Docker è un laboratorio con condizioni controllate, che chiunque può ricostruire identico. La seconda è che un esperimento può smentire un'ipotesi ma non dimostrarla in generale: mille test superati non provano che il sistema sia corretto, uno fallito prova che non lo è. Dijkstra lo diceva così: il testing mostra la presenza degli errori, non la loro assenza. Per questo si scelgono esperimenti che hanno più probabilità di smentire: mappe casuali, percorsi lunghi, guasti iniettati.</p>
+<p>C'è anche un'analogia con il problema della misura: osservare il sistema non deve perturbarlo. Leggere lo stato tramite osservazione CoAP non interferisce con l'automa dell'attore; inviare comandi per «controllare» lo stato (ad esempio <code>setrobotstate</code>) lo altererebbe.</p>
+</div>
+
+<h4>T7 · Integrazione continua</h4>
+<pre><span class="src">.github/workflows/tests.yml (estratto)</span><code>on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - run: ./gradlew test                                  # T1, T2: nessuna dipendenza esterna
+      - run: docker compose -f ddrAtoB.yaml up -d            # avvia WEnv, robotsmart26, ddrservice
+      - run: ./gradlew integrationTest                       # T3, T4, T5
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: logs, path: logs/ }</code></pre>
+<div class="note tool">
+<h4>GitHub Actions</h4>
+<p><a href="https://docs.github.com/en/actions">GitHub Actions</a> esegue automaticamente una sequenza di comandi (un <em>workflow</em>) su una macchina virtuale a ogni <code>push</code> o <em>pull request</em>. Il risultato compare accanto al commit: un segno verde o una croce rossa. In questo modo nessuna modifica entra nel ramo principale se rompe un test, e lo stato del progetto è sempre noto a tutto il gruppo.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s6"><span class="n">6</span>Il processo: incrementi e repository</h2>
+<p>Le quattro fasi non si eseguono una volta sola in sequenza. In un processo agile e incrementale si ripetono a ogni incremento, su una porzione crescente del problema; ogni incremento termina con un sistema eseguibile e testato.</p>
+<div class="tbl"><table>
+<thead><tr><th>Incremento</th><th>Obiettivo</th><th>Rischio affrontato</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>modello a scatola nera (R5) e test di accettazione eseguibili, robot simulato</td><td>incomprensione del requisito</td></tr>
+<tr><td>1</td><td>A → B su stanza senza ostacoli, robot virtuale</td><td>calibrazione, catena di comunicazione</td></tr>
+<tr><td>2</td><td>A → B con ostacoli fissi sulle mappe di riferimento</td><td>correttezza del pianificatore</td></tr>
+<tr><td>3</td><td>gestione dei fallimenti (nopath, collision, timeout)</td><td>servizio che non risponde</td></tr>
+<tr><td>4</td><td>robot fisico e collaudo</td><td>deriva, differenze fra virtuale e reale</td></tr>
+</tbody></table></div>
+
+<div class="note tool">
+<h4>Git come registro delle fasi</h4>
+<p>Il repository contiene tutti i prodotti, non solo il codice: <code>docs/</code> per testo e ADR, <code>maps/</code> per le mappe, <code>src/*.qak</code> per i modelli, <code>src/test</code> per i test, i file YAML per il deployment. Ogni domanda aperta è una <a href="https://docs.github.com/en/issues">issue</a>; ogni incremento si sviluppa su un ramo (<em>branch</em>) e rientra nel ramo principale con una <em>pull request</em>, che è anche il luogo della revisione. Al termine di ogni fase si apre un <em>tag</em> (ad esempio <code>v0.1-requisiti</code>, <code>v0.2-analisi</code>): un nome permanente associato a un commit, che permette di ritrovare esattamente lo stato dei prodotti in quel momento. I link a righe di codice in questo documento sono <em>permalink</em>: contengono l'identificativo del commit e quindi non cambiano se il file viene modificato (<a href="https://docs.github.com/en/repositories/working-with-files/using-files/getting-permanent-links-to-files">GitHub Docs: permanent links</a>).</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s7"><span class="n">7</span>Il ruolo dell'AI</h2>
+<p>Un assistente AI produce testo e codice plausibili rapidamente. Questo è utile, ma aggrava il problema di §1: un testo plausibile può essere ambiguo o sbagliato in modo convincente. La regola adottata è che <strong>l'AI produce bozze, i modelli eseguibili e i test decidono</strong>. Ogni prodotto dell'AI entra nel progetto solo dopo aver superato una verifica che non dipende dall'AI stessa.</p>
+<div class="tbl"><table>
+<thead><tr><th>Fase</th><th>Uso utile dell'AI</th><th>Verifica umana o automatica</th></tr></thead>
+<tbody>
+<tr><td>requisiti</td><td>elencare le interpretazioni possibili di ogni frase; proporre domande per il committente; tradurre scenari in Gherkin</td><td>il committente sceglie; gli scenari diventano test eseguibili</td></tr>
+<tr><td>analisi</td><td>proporre questioni del problema e alternative; riassumere componenti esistenti (come per robotsmart26); scrivere gli script degli esperimenti</td><td>le misure si fanno davvero; le affermazioni sul codice esistente si verificano sui permalink</td></tr>
+<tr><td>progettazione</td><td>prima stesura del modello qak, degli ADR, dei file di deployment; revisione del modello rispetto alla matrice di tracciabilità</td><td>il modello compila e genera codice; i test di componente passano</td></tr>
+<tr><td>testing</td><td>generare casi limite e mappe ostili; scrivere step definition e simulatori</td><td>l'oracolo (che cosa è giusto) è deciso dal progettista, non dall'AI</td></tr>
+</tbody></table></div>
+
+<div class="note ai">
+<h4>usare l'AI per trovare ambiguità</h4>
+<p>Una richiesta efficace non è «scrivi i requisiti», ma «per ogni frase del testo seguente elenca almeno due interpretazioni diverse e la domanda che le distingue». L'AI è più affidabile nel generare alternative che nello sceglierne una: la scelta spetta al committente. La tabella di §2.2 è un esempio di questo uso.</p>
+</div>
+<div class="note ai">
+<h4>perché i modelli formali aiutano anche l'AI</h4>
+<p>Un modello qak o un'interfaccia Java sono un contesto molto più preciso di una pagina di testo: un assistente che riceve il modello di progetto e la matrice di tracciabilità genera test e codice più pertinenti. Lo stesso strato intermedio che riduce le incomprensioni fra persone riduce quelle fra persona e AI.</p>
+</div>
+<div class="note ai">
+<h4>questo documento</h4>
+<p>Il documento è stato redatto da un assistente AI a partire dal requisito, dal modello robotsmart26 e dai test presenti nel repository. I modelli qak di §2–§5 sono bozze di lavoro: la loro sintassi va verificata compilandoli con il plugin qak, che è esattamente il tipo di verifica raccomandata.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s8"><span class="n">8</span>Quadro riassuntivo dei prodotti</h2>
+<div class="tbl"><table>
+<thead><tr><th>Fase</th><th><span class="tag t-txt">testo</span></th><th><span class="tag t-mod">modello</span> / <span class="tag t-exe">eseguibile</span></th><th><span class="tag t-test">test</span></th><th>Domanda a cui risponde</th></tr></thead>
+<tbody>
+<tr><td>Requisiti</td><td>R1 ambiguità e decisioni; issue aperte</td><td>R2 tipi di dominio; R3 mappe; R5 qak a scatola nera</td><td>R4 scenari Gherkin; R6 accettazione JUnit (rossi)</td><td>che cosa vuole il committente, e come sapremo di averlo fatto?</td></tr>
+<tr><td>Analisi del problema</td><td>A1 questioni; A2 abstraction gap; A6 rischi e incrementi</td><td>A3 architettura logica qak; A4 esperimenti di calibrazione e pianificazione</td><td>A5 proprietà per componente</td><td>che cosa rende difficile il problema, e che cosa esiste già?</td></tr>
+<tr><td>Progettazione</td><td>ADR (riuso, tempi massimi, accesso esclusivo)</td><td>modello qak completo e codice generato; contratti POJO; YAML di deployment</td><td>matrice di tracciabilità; test di integrazione</td><td>come lo realizziamo con la tecnologia disponibile?</td></tr>
+<tr><td>Testing</td><td>rapporto di collaudo; misure di deriva sul robot fisico</td><td>simulatori (robotsmart26 muto, robot fittizio); generatori di mappe</td><td>T1–T6; pipeline T7</td><td>il sistema fa ciò che i requisiti chiedono, anche quando qualcosa va storto?</td></tr>
+</tbody></table></div>
+<p>Letta per colonne, la tabella mostra che il testo diminuisce e si specializza (dal glossario alle sole decisioni), mentre modelli e test crescono e si accumulano: i test di accettazione scritti nella prima fase sono ancora quelli che, alla fine, stabiliscono se il sistema è accettato.</p>
+
+<!-- ============================================================ -->
+<h2 id="s9"><span class="n">9</span>Riferimenti</h2>
+<h4>Repository e modelli</h4>
+<ul>
+<li><a href="https://github.com/anatali/isss27reference/tree/main">isss27reference</a> · <a href="https://github.com/anatali/isss27reference/tree/main/robotsmart26">robotsmart26</a> · <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/robotsmart26.qak">robotsmart26.qak</a></li>
+<li><a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/test/java/robotsmart26tests/TestSetDirection.java">TestSetDirection.java</a> · <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/main/java/utils/planning/AStarPathfinding.java">AStarPathfinding.java</a></li>
+<li><a href="https://github.com/anatali/issLab2026">issLab2026</a> · <a href="https://github.com/anatali/issLab2026/blob/08521577acc22bdc6862a014e663f9b2cd1a3a46/robotsmart26/src/robotsmart26.qak">robotsmart26.qak, permalink al commit 0852157</a> · <a href="https://github.com/anatali/issLab2026/blob/08521577acc22bdc6862a014e663f9b2cd1a3a46/robotsmart26/tf25map.txt">tf25map.txt</a></li>
+<li>Protobook: cap. 30 RobotSmart26, cap. 31 TemaFinale26</li>
+</ul>
+<h4>Metodi e strumenti</h4>
+<ul>
+<li><a href="https://cucumber.io/docs/gherkin/reference/">Gherkin</a> · <a href="https://jqwik.net/">jqwik</a> · <a href="https://hypothesis.readthedocs.io/">Hypothesis</a> · <a href="https://junit.org/junit5/docs/current/user-guide/">JUnit 5</a></li>
+<li><a href="https://adr.github.io/">Architecture Decision Records</a> · <a href="https://eclipse.dev/Xtext/">Xtext</a> · <a href="https://docs.docker.com/compose/">Docker Compose</a> · <a href="https://docs.github.com/en/actions">GitHub Actions</a></li>
+</ul>
+<h4>Robotica e fisica</h4>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Differential_wheeled_robot">Differential wheeled robot</a> · <a href="https://it.wikipedia.org/wiki/Navigazione_stimata">Navigazione stimata</a> · <a href="https://it.wikipedia.org/wiki/A*">Algoritmo A*</a></li>
+<li><a href="https://it.wikipedia.org/wiki/Passeggiata_aleatoria">Passeggiata aleatoria</a> · <a href="https://it.wikipedia.org/wiki/Rivestimento_antiriflesso">Rivestimento antiriflesso</a> · <a href="https://it.wikipedia.org/wiki/Mars_Climate_Orbiter">Mars Climate Orbiter</a></li>
+</ul>
+
+</div>
+
+<script>
+(function(){
+  var kw=/\b(System|mqttBroker|eventTopic|Context|QActor|ExternalQActor|context|withobj|using|State|initial|Transition|Goto|if|else|whenMsg|whenRequest|whenReply|whenEvent|whenInterruptEvent|whenTime|returnFromInterrupt|onMsg|forward|request|replyTo|with|autodispatch|emit|delegate|to|subscribeTo|for|updateResource|memoCurrentTime|delayVar|delay|println|color|printCurrentMessage|ip|Request|Reply|Dispatch|Event)\b/g;
+  document.querySelectorAll('code.qak').forEach(function(el){
+    var t=el.textContent;
+    var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+    var out='',re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(\[#[\s\S]*?#\])|("(?:[^"\\]|\\.)*")/g,last=0,m;
+    while((m=re.exec(t))){
+      out+=esc(t.slice(last,m.index)).replace(kw,'<span class="kw">$1</span>');
+      if(m[1]) out+='<span class="kc">'+esc(m[1])+'</span>';
+      else if(m[2]) out+='<span class="km">'+esc(m[2])+'</span>';
+      else out+='<span class="kt">'+esc(m[3])+'</span>';
+      last=re.lastIndex;
+    }
+    out+=esc(t.slice(last)).replace(kw,'<span class="kw">$1</span>');
+    el.innerHTML=out;
+  });
+})();
+</script>
+</body>
+</html>

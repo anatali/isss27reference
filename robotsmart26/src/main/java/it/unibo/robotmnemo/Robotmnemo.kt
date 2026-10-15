@@ -29,7 +29,7 @@ class Robotmnemo ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
-		val rpos = utils.smart.RobotPosUtils.getInstance("localhost")
+		val rpos = utils.smart.RobotPosUtils.getInstance("192.168.1.132")
 		val robot = utils.robots.VRObjForQak(myself,"logs/robotsmart26.log")
 		 var doingAsynchStep = false   
 		  	   var CurTime         = 0L	   

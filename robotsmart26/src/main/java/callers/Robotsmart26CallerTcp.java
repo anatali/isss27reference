@@ -56,12 +56,12 @@ public class Robotsmart26CallerTcp  {
 			CommUtils.outmagenta("connectService robotstate before=" + robotstate);
 			
  
-			CommUtils.outcyan("cmdl:" + Robotsmart26Cmds.cmdl);
-			conn.forward(Robotsmart26Cmds.cmdl.toString());  // Turn left
+//			CommUtils.outcyan("cmdl:" + Robotsmart26Cmds.cmdl);
+//			conn.forward(Robotsmart26Cmds.cmdl.toString());  // Turn left
  			
-//			CommUtils.outcyan("setDirectionLeft:" + Robotsmart26Cmds.setDirectionLeft);
-//			String reply = conn.request(Robotsmart26Cmds.setDirectionLeft.toString());  // Mind
-//			CommUtils.outcyan("setDirectionLeft ANSWER:" + reply);
+			CommUtils.outcyan("setDirectionLeft:" + Robotsmart26Cmds.setDirectionLeft);
+			String reply = conn.request(Robotsmart26Cmds.setDirectionLeft.toString());  // Mind
+			CommUtils.outcyan("setDirectionLeft ANSWER:" + reply);
 
 			robotstate = getRobotState();
 			CommUtils.outmagenta("connectService robotstate after=" + robotstate);
@@ -129,6 +129,18 @@ public class Robotsmart26CallerTcp  {
         System.exit(0);
 	}
 	
+	/*
+	 * Fatto da Claude
+	 */
+	public static IApplMessage requestOrFail(Interaction conn, IApplMessage req, int toutMs)
+	        throws Exception {
+	    IApplMessage answer = conn.request(req, toutMs);      // lancia "request timeout"
+	    if (answer.msgId().equals("requestfailed"))
+	        //throw new QakRequestFailedException(answer.msgContent());
+	    	throw new Exception(answer.msgContent());
+	    return answer;
+	}
+	
  
     /**
      * Executes a predefined path-following command sequence.
@@ -151,7 +163,7 @@ public class Robotsmart26CallerTcp  {
      */
 	public static void main(String[] args) throws Exception  {
  		Robotsmart26CallerTcp caller = new Robotsmart26CallerTcp();
-		caller.doSomeCmd();  // basic movement demo
- 		//caller.doSetDir();  // set direction demo
+		//caller.doSomeCmd();  // basic movement demo
+ 		caller.doSetDir();  // set direction demo
 	}
 }

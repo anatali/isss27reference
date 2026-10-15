@@ -18,6 +18,9 @@ Simboli grafici
                   sinistro e glifo di automa a stati finiti (FSM) in alto a destra
   CodedQActor     come QActor, con glifo { } al posto della FSM
   ExternalQActor  come QActor, bordo tratteggiato e fondo grigio
+  QActor hidden   come QActor, bordo tratteggiato fine e fondo bianco, dentro il
+                  riquadro del suo contesto; stereotipo «QActor hidden»
+                  [Claude, Oct 2026] HIDDEN QActor
   POJO            box in stile classe UML (due compartimenti, stereotipo <<POJO>>),
                   legato all'attore da una composizione (rombo pieno)   [withobj]
   WebService      box con glifo a globo, stereotipo <<WebService>>
@@ -100,6 +103,7 @@ class Model:
 def new_actor(name, kind, ctx):
     return dict(name=name, kind=kind, ctx=ctx, pojos=[], procs=[], kb=[],
                 className=None, coap=False, mqtt=None, dynamic=False,
+                hidden=False,      # [Claude, Oct 2026] HIDDEN QActor
                 requests=[], forwards=[], autodisp=[], delegates=[],
                 emits=[], perceives=[], replies=[], observes=[],
                 publishes=[], subscribes=[], webservice=False, urls=[])
@@ -139,11 +143,13 @@ def parse(text):
     bounds = starts + [len(code)]
     for k in range(len(starts)):
         chunk = code[bounds[k]:bounds[k + 1]]
-        r = re.match(r'\s*(QActor|ExternalQActor|CodedQActor)\s+(\w+)\s+context\s+(\w+)', chunk)
+        # [Claude, Oct 2026] HIDDEN QActor: flag opzionale 'hidden' subito dopo il contesto
+        r = re.match(r'\s*(QActor|ExternalQActor|CodedQActor)\s+(\w+)\s+context\s+(\w+)(\s+hidden\b)?', chunk)
         if not r:
             continue
-        kind, name, ctx = r.groups()
+        kind, name, ctx, hid = r.groups()
         a = new_actor(name, kind, ctx)
+        a['hidden'] = bool(hid) and kind != 'ExternalQActor'
         if kind == 'CodedQActor':
             c = re.search(r'className\s+"([^"]*)"', chunk)
             a['className'] = c.group(1) if c else None
@@ -513,6 +519,8 @@ def draw_actor(S, b, a):
     ws = a.get('webservice')
     fill = '#f3f3f3' if ext else '#ffffff'
     dash = ' stroke-dasharray="6 4"' if ext else ''
+    if a.get('hidden'):                       # [Claude, Oct 2026] HIDDEN QActor
+        dash = ' stroke-dasharray="3 3"'
     L = S.front
     L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="9" fill="%s" stroke="#222" stroke-width="1.6"%s/>'
              % (b.x, b.y, b.w, b.h, fill, dash))
@@ -539,6 +547,8 @@ def draw_actor(S, b, a):
               'ExternalQActor': '«ExternalQActor»'}[a['kind']]
     if ws:
         stereo = '«WebService» ' + ('(ExternalQActor)' if ext else '')
+    if a.get('hidden'):                       # [Claude, Oct 2026] HIDDEN QActor
+        stereo = stereo[:-1] + ' hidden»'
     S.text(L, b.cx + 6, b.y + 22, stereo, 9.5, 'middle', fill='#555')
     S.text(L, b.cx + 6, b.y + 41, a['name'], 14, 'middle', 'bold')
     for i, line in enumerate(actor_badges(a)):
@@ -800,6 +810,8 @@ def draw_legend(S, m, L, y, used):
     items_sym = [('actor', '«QActor»: mailbox + automa a stati'), ('pojo', '«POJO» (withobj), composizione')]
     if any(a['kind'] == 'CodedQActor' for a in m.actors.values()): items_sym.append(('coded', '«CodedQActor»'))
     if any(a['kind'] == 'ExternalQActor' for a in m.actors.values()): items_sym.append(('ext', '«ExternalQActor»'))
+    if any(a.get('hidden') for a in m.actors.values()):   # [Claude, Oct 2026] HIDDEN QActor
+        items_sym.append(('hidden', '«QActor hidden»: invocabile solo dal suo contesto'))
     if m.webservices or any(a.get('webservice') for a in m.actors.values()): items_sym.append(('ws', '«WebService»'))
     if any(a['procs'] for a in m.actors.values()): items_sym.append(('proc', '«OS process»'))
     kinds = [k for k in STYLE if k in used]
@@ -811,9 +823,10 @@ def draw_legend(S, m, L, y, used):
     for i, (k, lab) in enumerate(items_sym):
         yy = y + 40 + 26 * i
         x = 36
-        if k in ('actor', 'coded', 'ext'):
+        if k in ('actor', 'coded', 'ext', 'hidden'):   # 'hidden': [Claude, Oct 2026] HIDDEN QActor
             L_.append('<rect x="%s" y="%.1f" width="46" height="20" rx="4" fill="%s" stroke="#222"%s/>'
-                      % (x, yy - 13, '#f3f3f3' if k == 'ext' else '#fff', ' stroke-dasharray="4 3"' if k == 'ext' else ''))
+                      % (x, yy - 13, '#f3f3f3' if k == 'ext' else '#fff',
+                         ' stroke-dasharray="4 3"' if k == 'ext' else (' stroke-dasharray="2 2"' if k == 'hidden' else '')))
             for j in range(2):
                 L_.append('<rect x="%s" y="%.1f" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>' % (x + 4, yy - 10 + j * 6.5))
             if k == 'coded':

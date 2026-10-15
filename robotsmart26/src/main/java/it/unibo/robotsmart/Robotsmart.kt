@@ -59,6 +59,7 @@ class Robotsmart ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						delegate("getrobotstate", "robotmnemo") 
 						delegate("getenvmap", "robotmnemo") 
 						delegate("setrobotstate", "robotmnemo") 
+						delegate("setdirection", "robotmnemo") 
 						delegate("doplan", "planexec") 
 						  planner = utils.planning.AStarPathfinding(  )  
 						//genTimer( actor, state )
@@ -142,6 +143,7 @@ class Robotsmart ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					action { //it:State
 						CommUtils.outred("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
+						answer("moverobot", "moverobotdone", "moverobotdone(ko)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

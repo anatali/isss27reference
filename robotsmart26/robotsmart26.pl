@@ -5,7 +5,7 @@ mqttBroker("localhost", "1883", "robotsmart26in").
 request( buildPlan, buildPlan(PX,PY,TX,TY) ). %create plan from (PX,PY) to (TX,TY)
 reply( buildPlanDone, buildPlanDone(PLAN) ).  %%for buildPlan
 request( moverobot, moverobot(TARGETX,TARGETY,STEPTIME) ). %move from current pos to (TARGETX,TARGETY)
-reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot
+reply( moverobotdone, moverobotdone(ARG) ).  %%for moverobot
 reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot
 dispatch( noplan, noplan(X) ).
 dispatch( setplanbuildelay, value(V) ). %parameter = V >= 0

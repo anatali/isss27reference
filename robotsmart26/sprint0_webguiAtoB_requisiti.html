@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprint0 webguiAtoB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --bg:#fbfcfd; --fg:#1b2329; --muted:#56636d; --rule:#d5dde3; --soft:#eef3f6;
+  --accent:#1d5b78; --req:#1d5b78; --disp:#6b4b16; --ev:#a3341f; --ok:#2f6b3a;
+  --phys:#eef4ee; --physb:#5b8a5f; --tool:#eef2f8; --toolb:#4f6f9e; --obs:#fbf3e8; --obsb:#b07a2a;
+  --code:#f3f6f8;
+  --f-body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-head:"IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14191d; --fg:#dde4e9; --muted:#9aa8b2; --rule:#2e3a42; --soft:#1c2429;
+  --accent:#7fb7d4; --req:#7fb7d4; --disp:#d9b26a; --ev:#ef8a72; --ok:#8cc596;
+  --phys:#18231a; --physb:#7fb184; --tool:#18202b; --toolb:#8aa6d1; --obs:#272014; --obsb:#d9a65a;
+  --code:#1b2227; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#14191d; --fg:#dde4e9; --muted:#9aa8b2; --rule:#2e3a42; --soft:#1c2429;
+  --accent:#7fb7d4; --req:#7fb7d4; --disp:#d9b26a; --ev:#ef8a72; --ok:#8cc596;
+  --phys:#18231a; --physb:#7fb184; --tool:#18202b; --toolb:#8aa6d1; --obs:#272014; --obsb:#d9a65a;
+  --code:#1b2227; color-scheme:dark }
+@media print{:root,:root[data-theme="dark"],:root:not([data-theme="light"]){
+  --bg:#fff; --fg:#111; --muted:#444; --rule:#bbb; --soft:#f4f4f4;
+  --accent:#1d5b78; --req:#1d5b78; --disp:#6b4b16; --ev:#a3341f; --ok:#2f6b3a;
+  --phys:#fff; --physb:#5b8a5f; --tool:#fff; --toolb:#4f6f9e; --obs:#fff; --obsb:#b07a2a; --code:#f6f6f6; color-scheme:light }
+  a{color:var(--fg)} .toc{display:none} pre{white-space:pre-wrap} figure,.note,tr{break-inside:avoid}}
+
+body{background:var(--bg);color:var(--fg);font:400 1.06rem/1.62 var(--f-body);margin:0}
+.wrap{max-width:52rem;margin:0 auto;padding-inline:1rem;padding-block:2.5rem 4rem}
+h1,h2,h3,h4{font-family:var(--f-head);font-weight:600;line-height:1.2;text-wrap:balance;color:var(--fg)}
+h1{font-size:2.1rem;margin:0 0 .4rem}
+h2{font-size:1.5rem;margin:3rem 0 .8rem;padding-top:.6rem;border-top:1px solid var(--rule)}
+h3{font-size:1.18rem;margin:2rem 0 .5rem}
+h4{font-size:1rem;margin:1.3rem 0 .3rem}
+h2 .n,h3 .n{color:var(--accent);margin-right:.45em;font-variant-numeric:tabular-nums}
+p{margin:.6rem 0}
+.lead{color:var(--muted);font-size:1.05rem}
+.meta{font-family:var(--f-head);font-size:.85rem;color:var(--muted);letter-spacing:.02em}
+a{color:var(--accent);text-underline-offset:2px}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--code);padding:.05em .3em;border-radius:3px}
+pre{font-family:var(--f-mono);font-size:.8rem;line-height:1.5;background:var(--code);border:1px solid var(--rule);padding:.8rem 1rem;overflow-x:auto;margin:.8rem 0;border-radius:3px}
+pre code{background:none;padding:0;font-size:inherit}
+pre .src{display:block;font-family:var(--f-head);font-size:.75rem;color:var(--muted);margin-bottom:.4rem;letter-spacing:.03em}
+.kw{color:var(--req);font-weight:500}.kc{color:var(--muted);font-style:italic}.kt{color:var(--ev)}.km{color:var(--disp)}
+blockquote{margin:1rem 0;padding:.6rem 1rem;border-left:3px solid var(--fg);background:var(--soft);font-style:italic}
+ul,ol{padding-left:1.4rem;margin:.5rem 0} li{margin:.25rem 0}
+.tbl{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;vertical-align:top;padding:.45rem .55rem;border-bottom:1px solid var(--rule)}
+th{font-family:var(--f-head);font-weight:600;font-size:.8rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:1.5px solid var(--fg)}
+td.id{font-family:var(--f-mono);font-size:.82rem;white-space:nowrap;color:var(--accent)}
+.note{margin:1.1rem 0;padding:.7rem 1rem .75rem;border-left:3px solid var(--toolb);background:var(--tool)}
+.note.phys{border-color:var(--physb);background:var(--phys)}
+.note.obs{border-color:var(--obsb);background:var(--obs)}
+.note h4{margin:0 0 .3rem;font-size:.92rem}
+.note p{margin:.35rem 0}
+.note.phys h4::before{content:"Fisica · ";color:var(--physb)}
+.note.tool h4::before{content:"Strumenti · ";color:var(--toolb)}
+.note.obs h4::before{content:"Osservazione · ";color:var(--obsb)}
+figure{margin:1.5rem 0}
+figcaption{font-size:.9rem;color:var(--muted);margin-top:.5rem}
+.fig{overflow-x:auto;border:1px solid var(--rule);background:var(--bg)}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.toc{font-family:var(--f-head);font-size:.95rem;columns:2 16rem;column-gap:2rem;margin:1.2rem 0;padding:0;list-style:none}
+.toc li{margin:.15rem 0;break-inside:avoid}
+.toc a{text-decoration:none}
+.tag{display:inline-block;font:600 .7rem/1 var(--f-head);letter-spacing:.05em;text-transform:uppercase;padding:.2rem .35rem;border:1px solid currentColor;border-radius:2px;white-space:nowrap}
+.t-req{color:var(--req)}.t-disp{color:var(--disp)}.t-ok{color:var(--ok)}.t-ev{color:var(--ev)}
+/* svg */
+.sv-box{fill:var(--bg);stroke:var(--fg);stroke-width:1.3}
+.sv-ctx{fill:var(--soft);stroke:var(--accent);stroke-width:1.4;stroke-dasharray:6 4}
+.sv-ext{fill:var(--bg);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:3 3}
+.sv-t{fill:var(--fg);font-family:var(--f-head);font-size:15px;font-weight:600}
+.sv-s{fill:var(--muted);font-family:var(--f-head);font-size:12px}
+.sv-l{font-family:var(--f-mono);font-size:11px}
+.e-req{stroke:var(--req);stroke-width:1.6;fill:none}
+.e-disp{stroke:var(--disp);stroke-width:1.5;fill:none;stroke-dasharray:7 4}
+.e-ok{stroke:var(--ok);stroke-width:1.5;fill:none;stroke-dasharray:9 3 2 3}
+.e-ev{stroke:var(--ev);stroke-width:1.6;fill:none;stroke-dasharray:2 4}
+.e-mu{stroke:var(--muted);stroke-width:1.3;fill:none}
+.l-req{fill:var(--req)}.l-disp{fill:var(--disp)}.l-ok{fill:var(--ok)}.l-ev{fill:var(--ev)}.l-mu{fill:var(--muted)}
+.m-req{fill:var(--req)}.m-disp{fill:var(--disp)}.m-ok{fill:var(--ok)}.m-ev{fill:var(--ev)}.m-mu{fill:var(--muted)}
+.sv-obst{fill:var(--muted);opacity:.55}
+@media (max-width:560px){h1{font-size:1.7rem}h2{font-size:1.3rem}body{font-size:1rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<p class="meta">Ingegneria dei sistemi software · iss27 · Sprint0 · 15 ottobre 2026</p>
+<h1>webguiAtoB · Sprint0: analisi dei requisiti</h1>
+<p class="lead">Analisi dei soli requisiti di un sistema in cui un operatore umano, tramite una webgui, chiede a un DDR gestito dal servizio robotsmart26 di muoversi da un punto A a un punto B e osserva la posizione corrente del robot. L'obiettivo è formalizzare i requisiti in un modello qak, impostare un primo TestPlan e delimitare il goal dello Sprint1, secondo la sezione 1.6 di AboutSprints.</p>
+<p class="meta">Riferimenti di lavoro: <a href="https://github.com/anatali/isss27reference/tree/main">isss27reference</a> (corrente) · <a href="https://github.com/anatali/issLab2026">issLab2026</a> (anno precedente) · servizio fornito: <a href="https://github.com/anatali/isss27reference/tree/main/robotsmart26">robotsmart26</a>.</p>
+</header>
+
+<nav aria-label="Indice">
+<ul class="toc">
+<li><a href="#s0">0 · Il testo e il goal dello Sprint0</a></li>
+<li><a href="#s1">1 · Lettura del testo</a></li>
+<li><a href="#s2">2 · robotsmart26 come vocabolario dato</a></li>
+<li><a href="#s3">3 · Ambiguità e domande al committente</a></li>
+<li><a href="#s4">4 · Le domande iniziali dello Sprint0</a></li>
+<li><a href="#s5">5 · Il modello qak dei requisiti</a></li>
+<li><a href="#s6">6 · Primo TestPlan funzionale</a></li>
+<li><a href="#s7">7 · Goal dello Sprint1</a></li>
+<li><a href="#s8">8 · Prodotti dello Sprint0</a></li>
+<li><a href="#s9">9 · Riferimenti</a></li>
+</ul>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="s0"><span class="n">0</span>Il testo e il goal dello Sprint0</h2>
+
+<blockquote>
+Un operatore umano vuole avvalersi di una webgui per inviare a un DDR (Differential Drive Robot) che opera in una stanza di una normale abitazione, di muoversi da un punto A a un punto B usando come robot il servizio robotsmart26. La webgui dovrebbe anche riportare dinamicamente la posizione corrente del robot.<br><br>
+Nella stanza sono presenti, in diversi punti, ostacoli fissi disposti in modo identico a quanto memorizzato nella mappa interna a robotsmart26. Non ci sono ostacoli mobili.
+</blockquote>
+
+<p>Secondo AboutSprints §1.6.1, lo Sprint0 deve, interagendo con il committente:</p>
+<ol>
+<li>definire in modo preciso e non ambiguo (formalizzare) i requisiti: §§1–4 e il modello di §5;</li>
+<li>delineare un primo modello eseguibile del sistema: §5;</li>
+<li>impostare un primo insieme di TestPlan funzionali basati sul modello dei requisiti: §6;</li>
+<li>definire il sottoinsieme di requisiti che fanno parte del goal dello Sprint1: §7.</li>
+</ol>
+
+<p><strong>Perimetro.</strong> Il documento si ferma all'analisi dei requisiti. Non affronta le questioni del problema (come ottenere la posizione durante il moto, come realizzare la pagina web, quale tecnologia usare per il server della webgui) né la progettazione. Il servizio robotsmart26 viene esaminato solo nel suo contratto, cioè nei messaggi che accetta e produce, perché il testo lo impone come parte del requisito («usando come robot il servizio robotsmart26»).</p>
+
+<p><strong>Regola di §1.6.5.</strong> Il modello dei requisiti non deve contenere componenti o messaggi non indicati esplicitamente dai requisiti, anche se servirebbero a renderlo eseguibile. Ne segue che il modello di §5 è eseguibile solo in parte. Le parti mancanti non sono dimenticanze: sono domande aperte (§3) e il TestPlan le rende visibili (§6, TP4).</p>
+
+<!-- ============================================================ -->
+<h2 id="s1"><span class="n">1</span>Lettura del testo</h2>
+
+<h3><span class="n">1.1</span>Termini e loro categoria</h3>
+<p>Ogni sostantivo e ogni verbo rilevante del testo viene classificato. La classificazione distingue ciò che va sviluppato da ciò che è dato, e le entità del mondo fisico da quelle software.</p>
+
+<div class="tbl"><table>
+<thead><tr><th>Termine</th><th>Categoria</th><th>Che cosa dice il testo</th><th>Che cosa non dice</th></tr></thead>
+<tbody>
+<tr><td>operatore umano</td><td>utente, esterno al sistema software</td><td>usa la webgui per comandare il robot</td><td>quanti operatori, da dove si collegano</td></tr>
+<tr><td>webgui</td><td>componente software <strong>da sviluppare</strong></td><td>riceve il comando dall'operatore, lo inoltra, mostra la posizione</td><td>come l'operatore indica A e B; se mostra la mappa; se mostra l'esito</td></tr>
+<tr><td>inviare … di muoversi da A a B</td><td>funzionalità (comando)</td><td>la webgui trasmette al robot l'ordine di spostarsi</td><td>se l'operatore attende un esito; che cosa accade se il robot non è in A</td></tr>
+<tr><td>DDR</td><td>entità fisica o virtuale, <strong>data</strong></td><td>robot a guida differenziale nella stanza</td><td>se è il robot virtuale (WEnv) o un robot reale</td></tr>
+<tr><td>robotsmart26</td><td>servizio software <strong>fornito</strong> dal committente</td><td>è il robot dal punto di vista del sistema</td><td>se può essere modificato</td></tr>
+<tr><td>stanza di una normale abitazione</td><td>ambiente fisico</td><td>contiene il robot e gli ostacoli</td><td>forma e dimensioni (sono implicite nella mappa)</td></tr>
+<tr><td>punto A, punto B</td><td>dati del comando</td><td>origine e destinazione del movimento</td><td>unità (metri o celle), orientamento, validità</td></tr>
+<tr><td>posizione corrente</td><td>dato prodotto dal robot, mostrato dalla webgui</td><td>va riportata dalla webgui</td><td>se comprende la direzione; in che forma è mostrata</td></tr>
+<tr><td>dinamicamente</td><td>vincolo temporale</td><td>la posizione mostrata segue il moto</td><td>con quale frequenza o latenza</td></tr>
+<tr><td>dovrebbe</td><td>priorità</td><td>—</td><td>se la visualizzazione è obbligatoria o desiderabile</td></tr>
+<tr><td>ostacoli fissi identici alla mappa</td><td>ipotesi sull'ambiente</td><td>la mappa interna di robotsmart26 è corretta</td><td>—</td></tr>
+<tr><td>nessun ostacolo mobile</td><td>ipotesi sull'ambiente</td><td>non ci sono imprevisti durante il moto</td><td>—</td></tr>
+</tbody></table></div>
+
+<h3><span class="n">1.2</span>Requisiti, ipotesi e vincoli</h3>
+<p>Dalla tabella si ricava un elenco numerato, che è il riferimento per tutto il resto del documento (modello, test, goal dello Sprint1).</p>
+
+<div class="tbl"><table>
+<thead><tr><th>Id</th><th>Tipo</th><th>Enunciato</th></tr></thead>
+<tbody>
+<tr><td class="id">R1</td><td>funzionale</td><td>L'operatore, tramite la webgui, comanda al robot di muoversi da A a B.</td></tr>
+<tr><td class="id">R2</td><td>funzionale</td><td>La webgui mostra all'operatore la posizione corrente del robot.</td></tr>
+<tr><td class="id">R3</td><td>non funzionale (tempo)</td><td>La posizione mostrata è aggiornata «dinamicamente», cioè durante il moto.</td></tr>
+<tr><td class="id">C1</td><td>vincolo</td><td>Il robot è usato esclusivamente tramite il servizio robotsmart26.</td></tr>
+<tr><td class="id">C2</td><td>vincolo</td><td>L'interfaccia verso l'operatore è una web GUI, cioè una pagina usata con un browser.</td></tr>
+<tr><td class="id">H1</td><td>ipotesi</td><td>Gli ostacoli fisici coincidono con quelli della mappa interna di robotsmart26.</td></tr>
+<tr><td class="id">H2</td><td>ipotesi</td><td>Non esistono ostacoli mobili.</td></tr>
+</tbody></table></div>
+
+<p>H1 e H2 hanno una conseguenza che conviene scrivere subito: se A e B sono celle libere e fra di esse esiste un cammino sulla mappa, il movimento non dovrebbe fallire. Il caso di fallimento resta però possibile per cause non legate agli ostacoli (B non raggiungibile, B occupata, guasti). Di questo si occupa la domanda Q9.</p>
+
+<!-- ============================================================ -->
+<h2 id="s2"><span class="n">2</span>robotsmart26 come vocabolario dato</h2>
+
+<p>Il vincolo C1 rende il contratto di robotsmart26 parte dei requisiti. AboutSprints §1.4 chiarisce che un servizio non espone una <em>interface</em> come un oggetto, ma un vocabolario di messaggi. La tabella riporta solo i messaggi di quel vocabolario evocati dal testo dei requisiti. Il contratto completo è analizzato in <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/robotsmart26.qak">robotsmart26.qak</a> e nel documento di progetto «Il modello robotsmart26».</p>
+
+<div class="tbl"><table>
+<thead><tr><th>Messaggio</th><th>Tipo</th><th>Evocato da</th><th>Significato</th></tr></thead>
+<tbody>
+<tr><td><code>moverobot(TARGETX,TARGETY,STEPTIME)</code> → <code>moverobotdone</code> | <code>moverobotfailed(PLANDONE,PLANTODO)</code></td><td><span class="tag t-req">request</span></td><td>R1</td><td>porta il robot dalla cella corrente alla cella (TARGETX,TARGETY), evitando gli ostacoli della mappa</td></tr>
+<tr><td><code>getrobotstate(ARG)</code> → <code>robotstate(pos(X,Y),DIR)</code></td><td><span class="tag t-req">request</span></td><td>R2</td><td>restituisce cella e direzione correnti del robot</td></tr>
+<tr><td><code>getenvmap(X)</code> → <code>envmap(MAP)</code></td><td><span class="tag t-req">request</span></td><td>Q3 (eventuale)</td><td>restituisce la mappa come stringa; serve solo se il committente chiede che la webgui mostri la mappa</td></tr>
+</tbody></table></div>
+
+<p>Dal contratto discendono cinque fatti che incidono sull'interpretazione del testo.</p>
+<ol>
+<li><strong>A non è un parametro di <code>moverobot</code>.</strong> Il servizio muove il robot dalla posizione in cui si trova. Il punto A del testo va quindi riconciliato con questo fatto (Q2).</li>
+<li><strong>La posizione è una cella e una direzione</strong>, espresse nelle coordinate (X,Y) della mappa interna. Le coordinate dell'operatore devono essere le stesse, oppure qualcuno deve convertirle (Q1).</li>
+<li><strong>La posizione è stimata, non misurata.</strong> robotsmart26 deduce la cella dalle mosse comandate. Con H1 e H2 la stima coincide con la posizione reale finché nessuna mossa fallisce.</li>
+<li><strong>Il servizio non pubblica i cambiamenti di posizione.</strong> La posizione si ottiene con una richiesta (<code>getrobotstate</code>). La risorsa osservabile di <code>robotmnemo</code> riporta l'attività in corso (<code>doing(…)</code>) e la mappa, non la cella. R3 richiede quindi un chiarimento con il committente (Q6, Q13). Come ottenere la posizione durante il moto è una questione di analisi del problema; qui si registra solo che il contratto attuale non la fornisce in modo spontaneo.</li>
+<li><strong>Un target non raggiungibile non riceve risposta.</strong> Nello stato <code>noplanfound</code> di <code>robotsmart</code> manca la <code>replyTo</code>. Se B coincide con un ostacolo o è isolata, il chiamante attende indefinitamente (Q9).</li>
+</ol>
+
+<div class="note obs">
+<h4>incoerenza nella dichiarazione di moverobotdone</h4>
+<p>Il modello dichiara <code>Reply moverobotdone : moverobotok(ARG)</code>, ma l'attore risponde con <code>moverobotdone(ok)</code>. Un client che seleziona la reply per identificativo (<code>whenReply moverobotdone</code>) funziona; uno che ne filtra il contenuto con il template dichiarato no. Il modello di §5 usa solo l'identificativo. La discrepanza va segnalata al committente come difetto del contratto.</p>
+</div>
+
+<div class="note phys">
+<h4>posizione stimata e posizione reale</h4>
+<p>In meccanica, conoscendo posizione e velocità iniziali e le forze agenti, si prevede la traiettoria di un corpo. La previsione è esatta solo se non agiscono forze che il modello ignora: un colpo di vento sposta un proiettile da dove le equazioni lo collocano. robotsmart26 fa una previsione analoga in forma discreta: parte da una cella nota e, per ogni mossa comandata, aggiorna la cella stimata (<a href="https://it.wikipedia.org/wiki/Navigazione_stimata">navigazione stimata</a>). H1 e H2 sono l'equivalente dell'ipotesi «nessuna forza non modellata»: sotto queste ipotesi la «posizione corrente» del testo e la posizione stimata dal servizio si possono considerare la stessa grandezza. Senza di esse il requisito R2 diventerebbe ambiguo (quale delle due mostrare?).</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s3"><span class="n">3</span>Ambiguità e domande al committente</h2>
+
+<p>Per ogni ambiguità si elencano le interpretazioni possibili, la domanda da porre e l'assunzione provvisoria adottata nel modello di §5. Un'assunzione provvisoria non è una decisione: è la scelta che rende il modello scrivibile oggi e che il committente può revocare. Nel modello ogni assunzione è richiamata da un commento con il suo identificativo.</p>
+
+<div class="tbl"><table>
+<thead><tr><th>Id</th><th>Termine</th><th>Interpretazioni</th><th>Domanda</th><th>Assunzione provvisoria</th></tr></thead>
+<tbody>
+<tr><td class="id">Q1</td><td>punto A, punto B</td><td>(a) punto (x,y) in metri; (b) cella (X,Y) della mappa di robotsmart26; (c) cella più orientamento</td><td>In che unità l'operatore indica A e B? Conta l'orientamento finale?</td><td>(b): celle della mappa interna, orientamento finale libero.</td></tr>
+<tr><td class="id">Q2</td><td>da A</td><td>(a) il robot è già in A (precondizione); (b) il robot va prima in A e poi in B; (c) A è solo informativo</td><td>Che cosa deve accadere se, quando arriva il comando, il robot non si trova in A?</td><td>(b): il robot raggiunge A, poi B. È l'unica lettura in cui il comando ha effetto in ogni caso e il percorso A→B avviene davvero.</td></tr>
+<tr><td class="id">Q3</td><td>indicare A e B</td><td>(a) l'operatore digita le coordinate; (b) l'operatore sceglie le celle su una mappa disegnata dalla webgui</td><td>La webgui deve mostrare la mappa della stanza?</td><td>(a): il testo non nomina la mappa nella webgui.</td></tr>
+<tr><td class="id">Q4</td><td>inviare</td><td>(a) invio senza attesa (dispatch); (b) richiesta con risposta di esito (request/reply)</td><td>L'operatore deve ricevere un esito esplicito (arrivato / non arrivato)?</td><td>(a): il testo dice solo «inviare»; l'operatore deduce l'effetto dalla posizione mostrata.</td></tr>
+<tr><td class="id">Q5</td><td>dovrebbe</td><td>(a) obbligatorio; (b) desiderabile</td><td>La visualizzazione della posizione è un requisito di accettazione?</td><td>(a), con priorità inferiore a R1 (§7).</td></tr>
+<tr><td class="id">Q6</td><td>dinamicamente</td><td>(a) a ogni cambio di cella; (b) periodicamente, ogni T secondi; (c) all'inizio e alla fine di ogni movimento</td><td>Quale ritardo massimo è accettabile fra lo spostamento del robot e la sua visualizzazione?</td><td>(a): ogni cella attraversata deve comparire (TP4). Il modello dello Sprint0 realizza solo (c).</td></tr>
+<tr><td class="id">Q7</td><td>posizione corrente</td><td>(a) sola cella; (b) cella e direzione; (c) testuale o grafica</td><td>Che cosa deve vedere l'operatore?</td><td>(b) in forma testuale: <code>robotstate(pos(X,Y),DIR)</code>.</td></tr>
+<tr><td class="id">Q8</td><td>comandi successivi</td><td>(a) accodati; (b) rifiutati; (c) sostituiscono il comando in corso</td><td>Che cosa accade se l'operatore invia un nuovo comando mentre il robot si muove?</td><td>(a): è il comportamento predefinito della coda di un attore qak.</td></tr>
+<tr><td class="id">Q9</td><td>A o B non validi</td><td>B fuori mappa, su un ostacolo o non raggiungibile: (a) la webgui rifiuta il comando; (b) il comando parte e fallisce; (c) non specificato</td><td>Che cosa deve vedere l'operatore in questi casi?</td><td>Nessuna: il caso è escluso dal modello e il test corrispondente è sospeso (TP5).</td></tr>
+<tr><td class="id">Q10</td><td>operatore umano</td><td>(a) uno solo; (b) più operatori contemporanei; accesso da rete locale o da Internet</td><td>Quanti operatori? Da dove? Serve autenticazione?</td><td>Un solo operatore, rete locale, nessuna autenticazione.</td></tr>
+<tr><td class="id">Q11</td><td>DDR</td><td>(a) robot virtuale in WEnv; (b) robot reale</td><td>Su quale robot avviene l'accettazione?</td><td>(a) per gli Sprint iniziali; robotsmart26 rende la differenza invisibile alla webgui.</td></tr>
+<tr><td class="id">Q12</td><td>stato iniziale</td><td>(a) robot in HOME (0,0) all'avvio del servizio; (b) posizione qualunque</td><td>Dove si trova il robot quando il sistema viene avviato?</td><td>(a), che è l'ipotesi di robotsmart26.</td></tr>
+<tr><td class="id">Q13</td><td>robotsmart26</td><td>(a) da usare così com'è; (b) modificabile o estendibile</td><td>Il servizio fornito può essere modificato (ad esempio per pubblicare la posizione a ogni passo)?</td><td>(a): il contratto è preso come dato.</td></tr>
+</tbody></table></div>
+
+<div class="note tool">
+<h4>tracciare le domande con le issue di GitHub</h4>
+<p>Le domande Q1–Q13 conviene registrarle come <a href="https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues">issue</a> del repository, una per domanda, con un'etichetta comune (ad esempio <code>sprint0-question</code>). Una issue ha un autore, una discussione e uno stato (aperta o chiusa). Quando il committente risponde, la issue viene chiusa con un riferimento al commit che aggiorna il modello o il test: la storia del repository mostra allora perché il modello è cambiato, non solo come. Un commit si collega a una issue scrivendo nel messaggio <code>Closes #12</code>, come descritto in <a href="https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue">Linking a pull request to an issue</a>.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s4"><span class="n">4</span>Le domande iniziali dello Sprint0</h2>
+
+<p>AboutSprints §1.6.2 pone otto domande. Le risposte si basano solo sul testo dei requisiti e sul contratto di robotsmart26.</p>
+
+<h4>1 · Sistema distribuito o centralizzato?</h4>
+<p>Distribuito. robotsmart26 è un servizio autonomo, distribuito come container Docker (<a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/yamls/robotsmart26.yaml">robotsmart26.yaml</a>) e raggiungibile in rete sulla porta 8020. L'operatore usa la webgui da un browser, quindi da un dispositivo che in generale non è quello su cui opera robotsmart26.</p>
+
+<h4>2 · Per quale numero minimo N di nodi va progettato il software?</h4>
+<p>N = 2 nodi logici: il nodo di robotsmart26 (dato) e il nodo della webgui (da sviluppare). Il browser dell'operatore è un terzo nodo fisico, ma se e quanta logica vi risieda (pagina statica, applicazione JavaScript) è una scelta di progetto, non un requisito. Nel modello i due nodi logici sono due <code>Context</code>.</p>
+
+<h4>3 · Un unico linguaggio o un sistema eterogeneo?</h4>
+<p>Eterogeneo. robotsmart26 è scritto in qak/Kotlin; la parte della webgui eseguita nel browser richiede almeno HTML e JavaScript (vincolo C2). Lo scambio fra le parti avviene quindi con messaggi su protocolli standard (TCP, CoAP, MQTT, HTTP/WebSocket) e non con chiamate di metodo, in accordo con AboutSprints §1.5.</p>
+
+<h4>4 · Quali macro-componenti vanno sviluppati?</h4>
+<p>Uno: la <strong>webgui</strong>. robotsmart26 e il robot (virtuale in WEnv o reale) sono forniti.</p>
+
+<h4>5 · Qual è la natura logica dei macro-componenti?</h4>
+<div class="tbl"><table>
+<thead><tr><th>Componente</th><th>Natura</th><th>Motivo</th></tr></thead>
+<tbody>
+<tr><td>operatore umano</td><td>utente esterno</td><td>non è software; interagisce solo con la webgui</td></tr>
+<tr><td>webgui</td><td>servizio con interfaccia umana</td><td>ha flusso di controllo proprio (attende comandi, attende risposte da robotsmart26, aggiorna la vista) e comunica a messaggi; non è un POJO richiamabile</td></tr>
+<tr><td>robotsmart26</td><td>servizio (microservizio)</td><td>processo autonomo in un container, con un vocabolario di messaggi (§2)</td></tr>
+<tr><td>DDR</td><td>dispositivo</td><td>è raggiunto solo attraverso robotsmart26 (C1)</td></tr>
+</tbody></table></div>
+
+<h4>6 · Quali interazioni sono indicate esplicitamente?</h4>
+<ol>
+<li>operatore → webgui: comando di movimento con A e B («avvalersi di una webgui per inviare»);</li>
+<li>webgui → robotsmart26: ordine di movimento («usando come robot il servizio robotsmart26»);</li>
+<li>robotsmart26 → webgui: posizione corrente (implicata da «riportare la posizione corrente»: la posizione è nota solo al servizio);</li>
+<li>webgui → operatore: visualizzazione della posizione («la webgui dovrebbe anche riportare»).</li>
+</ol>
+<p>Il testo indica la direzione dell'informazione, non il meccanismo. Per l'interazione 3 non stabilisce se la webgui chiede la posizione o la riceve senza chiederla; il contratto attuale di robotsmart26 consente solo la prima modalità (§2, fatto 4).</p>
+
+<h4>7 · Come sono collocati i componenti sui nodi?</h4>
+<p>webgui nel contesto <code>ctxwebgui</code>; robotsmart26 nel contesto <code>ctxrobotsmart</code> (host del container, porta 8020). Nelle fasi iniziali i due contesti possono stare sullo stesso calcolatore, su porte diverse: la separazione logica è comunque espressa nel modello e un successivo spostamento cambia solo l'indirizzo di un contesto (AboutSprints §1.6.5, «Modelli e Prototipi»).</p>
+
+<h4>8 · Come sono distribuite le responsabilità?</h4>
+<div class="tbl"><table>
+<thead><tr><th>Responsabilità</th><th>Assegnata a</th><th>Fonte nel testo</th></tr></thead>
+<tbody>
+<tr><td>scegliere A e B</td><td>operatore</td><td>«un operatore umano vuole … muoversi da un punto A a un punto B»</td></tr>
+<tr><td>acquisire A e B e inoltrare il comando</td><td>webgui</td><td>«avvalersi di una webgui per inviare»</td></tr>
+<tr><td>calcolare il percorso evitando gli ostacoli ed eseguirlo</td><td>robotsmart26</td><td>«usando come robot il servizio robotsmart26»; ostacoli «memorizzati nella mappa interna a robotsmart26»</td></tr>
+<tr><td>conoscere la posizione corrente</td><td>robotsmart26</td><td>la mappa interna è di robotsmart26</td></tr>
+<tr><td>mostrare la posizione corrente</td><td>webgui</td><td>«la webgui dovrebbe anche riportare dinamicamente la posizione corrente»</td></tr>
+</tbody></table></div>
+<p>La webgui non pianifica e non conosce gli ostacoli: questa responsabilità, che in un'altra formulazione del problema sarebbe centrale, qui è interamente del servizio fornito.</p>
+
+<!-- ============================================================ -->
+<h2 id="s5"><span class="n">5</span>Il modello qak dei requisiti</h2>
+
+<p>Il modello traduce le risposte di §4 e le assunzioni di §3 in un sistema qak. Usa solo elementi che il testo nomina: l'operatore (come mittente di un messaggio), la webgui, robotsmart26 e due suoi messaggi.</p>
+
+<figure>
+<div class="fig">
+<svg viewBox="0 0 900 380" role="img" aria-labelledby="figt">
+<title id="figt">Architettura logica del modello dei requisiti: operatore, webgui in ctxwebgui, robotsmart in ctxrobotsmart, DDR nella stanza</title>
+<defs>
+<marker id="a-req" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-req"/></marker>
+<marker id="a-disp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-disp"/></marker>
+<marker id="a-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-ok"/></marker>
+<marker id="a-ev" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-ev"/></marker>
+<marker id="a-mu" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-mu"/></marker>
+</defs>
+
+<!-- operatore -->
+<rect x="20" y="120" width="150" height="80" class="sv-ext"/>
+<text x="95" y="152" text-anchor="middle" class="sv-t">Operatore</text>
+<text x="95" y="170" text-anchor="middle" class="sv-s">umano, con browser</text>
+<text x="95" y="186" text-anchor="middle" class="sv-s">(il test, in §6)</text>
+
+<!-- ctxwebgui -->
+<rect x="250" y="60" width="210" height="200" class="sv-ctx"/>
+<text x="262" y="82" class="sv-t">ctxwebgui</text>
+<text x="262" y="98" class="sv-s">localhost:8050 · da sviluppare</text>
+<rect x="290" y="125" width="130" height="70" class="sv-box"/>
+<text x="355" y="155" text-anchor="middle" class="sv-t">webgui</text>
+<text x="355" y="173" text-anchor="middle" class="sv-s">risorsa osservabile</text>
+
+<!-- ctxrobotsmart -->
+<rect x="560" y="60" width="210" height="200" class="sv-ctx"/>
+<text x="572" y="82" class="sv-t">ctxrobotsmart</text>
+<text x="572" y="98" class="sv-s">:8020 · fornito (container)</text>
+<rect x="600" y="125" width="130" height="70" class="sv-ext"/>
+<text x="665" y="155" text-anchor="middle" class="sv-t">robotsmart</text>
+<text x="665" y="173" text-anchor="middle" class="sv-s">ExternalQActor</text>
+
+<!-- stanza -->
+<rect x="570" y="295" width="190" height="70" class="sv-ext"/>
+<text x="590" y="318" class="sv-t">stanza + DDR</text>
+<text x="590" y="336" class="sv-s">ostacoli fissi = mappa (H1)</text>
+<rect x="716" y="306" width="14" height="14" class="sv-obst"/><rect x="736" y="326" width="14" height="14" class="sv-obst"/><rect x="716" y="340" width="14" height="14" class="sv-obst"/>
+<line x1="665" y1="260" x2="665" y2="293" class="e-mu" marker-end="url(#a-mu)"/>
+<text x="672" y="282" class="sv-l l-mu">comandi al robot</text>
+
+<!-- operatore -> webgui -->
+<line x1="170" y1="140" x2="288" y2="140" class="e-disp" marker-end="url(#a-disp)"/>
+<text x="229" y="132" text-anchor="middle" class="sv-l l-disp">moveAtoB</text>
+<!-- webgui -> operatore (observe) -->
+<line x1="288" y1="182" x2="172" y2="182" class="e-ev" marker-end="url(#a-ev)"/>
+<text x="229" y="200" text-anchor="middle" class="sv-l l-ev">robotstate (R2)</text>
+
+<!-- webgui <-> robotsmart -->
+<line x1="420" y1="138" x2="598" y2="138" class="e-req" marker-end="url(#a-req)"/>
+<text x="509" y="131" text-anchor="middle" class="sv-l l-req">moverobot · getrobotstate</text>
+<line x1="598" y1="162" x2="422" y2="162" class="e-ok" marker-end="url(#a-ok)"/>
+<text x="509" y="180" text-anchor="middle" class="sv-l l-ok">moverobotdone|failed · robotstate</text>
+<!-- open: dynamic position -->
+<path d="M640 196 V232 H380 V198" class="e-ev" marker-end="url(#a-ev)"/>
+<text x="510" y="250" text-anchor="middle" class="sv-l l-ev">posizione durante il moto: ? (R3, Q6, Q13)</text>
+
+<!-- legend -->
+<g transform="translate(20,300)">
+<line x1="0" y1="8" x2="36" y2="8" class="e-disp"/><text x="44" y="12" class="sv-s">Dispatch</text>
+<line x1="0" y1="28" x2="36" y2="28" class="e-req"/><text x="44" y="32" class="sv-s">Request</text>
+<line x1="0" y1="48" x2="36" y2="48" class="e-ok"/><text x="44" y="52" class="sv-s">Reply</text>
+<line x1="150" y1="8" x2="186" y2="8" class="e-ev"/><text x="194" y="12" class="sv-s">osservazione / aperto</text>
+<rect x="150" y="22" width="36" height="14" class="sv-ext"/><text x="194" y="33" class="sv-s">dato o esterno</text>
+<rect x="150" y="42" width="36" height="14" class="sv-ctx"/><text x="194" y="53" class="sv-s">Context</text>
+</g>
+</svg>
+</div>
+<figcaption>Figura 1. Architettura logica espressa dal modello dei requisiti. La freccia inferiore, fra robotsmart e webgui, è l'interazione 3 di §4 durante il moto: il testo la richiede (R3), il contratto attuale non la offre, il modello la lascia aperta.</figcaption>
+</figure>
+
+<pre><span class="src">webguiAtoB_req.qak · modello dei requisiti (Sprint0)</span><code class="qak">System webguiAtoB
+
+/* --------------------------------------------------------------
+ * Vocabolario di robotsmart26 (C1): solo i messaggi evocati dal testo
+ * -------------------------------------------------------------- */
+Request moverobot       : moverobot(TARGETX,TARGETY,STEPTIME)          // R1
+Reply   moverobotdone   : moverobotok(ARG)                   for moverobot
+Reply   moverobotfailed : moverobotfailed(PLANDONE,PLANTODO) for moverobot
+
+Request getrobotstate   : getrobotstate(ARG)                            // R2
+Reply   robotstate      : robotstate(POS,DIR)                for getrobotstate
+
+/* --------------------------------------------------------------
+ * Comando dell'operatore umano, ricevuto dalla webgui
+ * -------------------------------------------------------------- */
+Dispatch moveAtoB : moveAtoB(AX,AY,BX,BY)   "celle della mappa (Q1); invio senza esito (Q4)"
+
+Context ctxwebgui     ip [host="localhost" port=8050]
+Context ctxrobotsmart ip [host="127.0.0.1" port=8020]
+
+ExternalQActor robotsmart context ctxrobotsmart
+
+QActor webgui context ctxwebgui {
+  [# var AX = ""; var AY = ""; var BX = ""; var BY = ""
+     var Phase = ""          // "" | "A" | "B" : tratto in corso (Q2)
+     val StepTime = "335"    // parametro richiesto da moverobot, non dai requisiti
+  #]
+  State s0 initial {
+    println("$name | starts") color blue
+  }
+  Goto readpos                            // R2: posizione mostrata dall'avvio (Q12)
+
+  State waitcmd {
+    println("$name | waiting a command") color blue
+  }
+  Transition t0
+    whenMsg moveAtoB -> gotoA             // Q8: comandi successivi restano in coda
+
+  State gotoA {                           // Q2 (b): prima in A ...
+    onMsg( moveAtoB : moveAtoB(AX,AY,BX,BY) ){
+      [# AX = payloadArg(0); AY = payloadArg(1)
+         BX = payloadArg(2); BY = payloadArg(3)
+         Phase = "A" #]
+      request robotsmart -m moverobot : moverobot($AX,$AY,$StepTime)
+    }
+  }
+  Transition t0
+    whenReply moverobotdone   -> readpos
+    whenReply moverobotfailed -> failure
+
+  State gotoB {                           // Q2 (b): ... poi in B
+    [# Phase = "B" #]
+    request robotsmart -m moverobot : moverobot($BX,$BY,$StepTime)
+  }
+  Transition t0
+    whenReply moverobotdone   -> readpos
+    whenReply moverobotfailed -> failure
+
+  State failure {                         // escluso da H1, H2; esito non richiesto (Q4, Q9)
+    printCurrentMessage color red
+    [# Phase = "" #]
+  }
+  Goto readpos
+
+  State readpos {                         // R2: la posizione la conosce robotsmart26
+    request robotsmart -m getrobotstate : getrobotstate(0)
+  }
+  Transition t0
+    whenReply robotstate -> showpos
+
+  State showpos {                         // R2, Q7: ciò che l'operatore vede
+    onMsg( robotstate : robotstate(POS,DIR) ){
+      updateResource [# "robotstate(${payloadArg(0)},${payloadArg(1)})" #]
+    }
+  }
+  Goto gotoB if [# Phase == "A" #] else waitcmd
+  // R3 (Q6, Q13): l'aggiornamento DURANTE il moto non è modellato.
+}</code></pre>
+
+<h3><span class="n">5.1</span>Lettura del modello</h3>
+<ul>
+<li><strong>Due contesti.</strong> Risposta alle domande 2 e 7 di §4. Un <code>Context</code> qak è un nodo di elaborazione: un processo con indirizzo IP e porta, che ospita attori e ne gestisce la comunicazione.</li>
+<li><strong><code>ExternalQActor robotsmart</code>.</strong> Dichiara che <code>robotsmart</code> fa parte del sistema ma è definito altrove, nel contesto indicato. Il modello ne usa il vocabolario senza descriverne il comportamento: è la forma qak del vincolo C1.</li>
+<li><strong><code>Dispatch moveAtoB</code>.</strong> È il comando dell'operatore (R1). È un dispatch per l'assunzione Q4; se il committente chiedesse un esito, diventerebbe una <code>Request</code> con due <code>Reply</code>, e gli stati <code>readpos</code> e <code>failure</code> risponderebbero all'operatore.</li>
+<li><strong>webgui come attore.</strong> La webgui reale sarà una pagina web con un eventuale server, ma qui interessa il suo comportamento logico: attendere un comando, chiedere i due movimenti, leggere e pubblicare la posizione. AboutSprints §1.6.5 ammette che un componente sia rappresentato inizialmente da un attore «mock», da sostituire in seguito anche con un'altra tecnologia purché resti la stessa logica di interazione a messaggi.</li>
+<li><strong>Posizione mostrata = risorsa osservabile.</strong> <code>updateResource</code> cambia il valore della risorsa associata all'attore e lo notifica a chi la osserva. Nel modello quel valore è, per definizione, ciò che l'operatore vede (R2). La definizione rende R2 verificabile: un test che osserva la risorsa vede quello che vedrebbe l'operatore.</li>
+<li><strong>Q2 in due stati.</strong> <code>gotoA</code> e <code>gotoB</code> realizzano l'assunzione «prima in A, poi in B». La variabile <code>Phase</code> distingue, dopo la lettura della posizione, se proseguire verso B o tornare in attesa.</li>
+</ul>
+
+<h3><span class="n">5.2</span>Tracciabilità</h3>
+<div class="tbl"><table>
+<thead><tr><th>Elemento del modello</th><th>Origine</th></tr></thead>
+<tbody>
+<tr><td><code>Context ctxwebgui</code>, <code>Context ctxrobotsmart</code></td><td>§4 domande 1, 2, 7</td></tr>
+<tr><td><code>ExternalQActor robotsmart</code></td><td>C1</td></tr>
+<tr><td><code>moverobot</code>, <code>moverobotdone</code>, <code>moverobotfailed</code></td><td>R1, contratto di robotsmart26</td></tr>
+<tr><td><code>getrobotstate</code>, <code>robotstate</code></td><td>R2, contratto di robotsmart26</td></tr>
+<tr><td><code>Dispatch moveAtoB(AX,AY,BX,BY)</code></td><td>R1, Q1, Q4</td></tr>
+<tr><td><code>QActor webgui</code></td><td>C2, §4 domanda 4</td></tr>
+<tr><td>stati <code>gotoA</code>, <code>gotoB</code>, variabile <code>Phase</code></td><td>Q2</td></tr>
+<tr><td>stati <code>readpos</code>, <code>showpos</code>, <code>updateResource</code></td><td>R2, Q7, Q12</td></tr>
+<tr><td>stato <code>failure</code></td><td>contratto di <code>moverobot</code>; H1, H2 lo rendono non atteso</td></tr>
+<tr><td><code>StepTime = "335"</code></td><td>nessun requisito: parametro obbligatorio di <code>moverobot</code>, con il valore di default del servizio</td></tr>
+</tbody></table></div>
+
+<h3><span class="n">5.3</span>Che cosa il modello non contiene, e perché</h3>
+<div class="tbl"><table>
+<thead><tr><th>Assente</th><th>Motivo</th></tr></thead>
+<tbody>
+<tr><td>aggiornamento della posizione durante il moto</td><td>R3 è ambiguo (Q6) e il contratto non offre il meccanismo (Q13). Scegliere fra richieste periodiche, osservazione o estensione del servizio è analisi del problema.</td></tr>
+<tr><td>timeout sulla risposta di <code>moverobot</code></td><td>Non è nel testo. Il caso in cui la risposta manca (B non raggiungibile) è la domanda Q9; il timeout compare nel test (§6), che deve terminare comunque.</td></tr>
+<tr><td>controllo di validità di A e B</td><td>Q9.</td></tr>
+<tr><td>visualizzazione della mappa</td><td>Q3.</td></tr>
+<tr><td>esito comunicato all'operatore</td><td>Q4.</td></tr>
+<tr><td>comandi di arresto o annullamento</td><td>Non nominati dal testo.</td></tr>
+<tr><td>MQTT, HTTP, WebSocket</td><td>Protocolli: scelte di progetto. Il modello usa il trasporto predefinito dei contesti qak.</td></tr>
+</tbody></table></div>
+
+<h3><span class="n">5.4</span>Grado di eseguibilità</h3>
+<p>Il modello è eseguibile insieme a robotsmart26 attivo (<code>docker compose -f robotsmart26.yaml up</code>). In esecuzione:</p>
+<ul>
+<li>all'avvio la webgui pubblica la posizione iniziale;</li>
+<li>alla ricezione di <code>moveAtoB</code> il robot raggiunge A e poi B, e la posizione viene pubblicata dopo l'arrivo in A e dopo l'arrivo in B;</li>
+<li>durante ciascuno dei due tratti la posizione pubblicata non cambia: R3 non è soddisfatto.</li>
+</ul>
+<p>Eseguire il modello davanti al committente è il «confronto operativo» di AboutSprints §1.6.5: il committente vede il robot muoversi e la webgui aggiornarsi solo a fine tratto, e può rispondere a Q6 su un caso concreto invece che su una frase.</p>
+
+<!-- ============================================================ -->
+<h2 id="s6"><span class="n">6</span>Primo TestPlan funzionale</h2>
+
+<p>Il TestPlan è scritto in modo comprensibile alla macchina (AboutSprints §1.1): un test JUnit che, eseguito contro il modello di §5, passa o fallisce. Il test svolge il ruolo dell'operatore: invia il comando come farebbe il browser e osserva la risorsa della webgui come farebbe l'operatore guardando la pagina. Come oracolo, cioè come criterio indipendente dalla webgui per stabilire se il risultato è corretto, interroga direttamente robotsmart26.</p>
+
+<h3><span class="n">6.1</span>Proprietà da verificare</h3>
+<p>Celle di riferimento sulla mappa <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/tf25map.txt">tf25map.txt</a>: HOME = (0,0), A = (4,0), B = (3,4), ostacolo = (2,4). Le stesse celle compaiono negli esempi di <code>AStarPathfinding.java</code>; A è diversa da HOME, così il tratto verso A comporta un movimento effettivo.</p>
+
+<div class="tbl"><table>
+<thead><tr><th>Id</th><th>Proprietà</th><th>Requisito</th><th>Esito atteso sul modello dello Sprint0</th></tr></thead>
+<tbody>
+<tr><td class="id">TP1</td><td>All'avvio la webgui mostra la cella che robotsmart26 riporta per il robot.</td><td>R2, Q12</td><td><span class="tag t-ok">passa</span></td></tr>
+<tr><td class="id">TP2</td><td>Dopo <code>moveAtoB(A,B)</code>, entro TMAX la webgui mostra B e robotsmart26 riporta B.</td><td>R1, R2</td><td><span class="tag t-ok">passa</span></td></tr>
+<tr><td class="id">TP3</td><td>La webgui mostra A prima di B.</td><td>R1, Q2</td><td><span class="tag t-ok">passa</span></td></tr>
+<tr><td class="id">TP4</td><td>Due posizioni mostrate consecutivamente distano al più una cella (nessuna cella attraversata è omessa).</td><td>R3, Q6</td><td><span class="tag t-ev">fallisce</span> (atteso)</td></tr>
+<tr><td class="id">TP5</td><td>Con B su un ostacolo, l'operatore vede il comportamento concordato.</td><td>Q9</td><td>sospeso</td></tr>
+<tr><td class="id">TP6</td><td>Con A uguale alla posizione corrente, il robot va in B.</td><td>Q2</td><td>da eseguire: il comportamento di <code>moverobot</code> verso la cella corrente non è documentato nel contratto</td></tr>
+</tbody></table></div>
+
+<p>TP4 è un test che fallisce di proposito. Non è un errore del TestPlan: rende eseguibile e misurabile la distanza fra il modello e il requisito R3. Quando, in uno Sprint successivo, la webgui mostrerà ogni cella, TP4 passerà senza essere modificato.</p>
+
+<div class="note phys">
+<h4>«dinamicamente» come frequenza di campionamento</h4>
+<p>La posizione del robot, vista da robotsmart26, è un segnale a gradini: resta costante per la durata di un passo (circa 335 ms più i ritardi di esecuzione) e poi salta alla cella adiacente. Chi la mostra ne prende dei campioni. Il <a href="https://it.wikipedia.org/wiki/Teorema_del_campionamento_di_Nyquist-Shannon">teorema del campionamento</a> dice, per segnali continui, che per non perdere informazione bisogna campionare almeno al doppio della frequenza più alta presente nel segnale. Qui l'analogo è più semplice: per non perdere celle, serve almeno un campione per ogni gradino. Campionare più spesso non aggiunge nulla, perché fra due gradini la posizione non cambia; campionare meno spesso fa vedere salti di due o più celle, cioè un robot che «attraversa» ostacoli o pareti. TP4 traduce proprio questo criterio: il salto fra due campioni consecutivi non deve superare una cella.</p>
+</div>
+
+<h3><span class="n">6.2</span>Il test</h3>
+<p>La bozza usa le stesse librerie di <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/test/java/robotsmart26tests/TestSetDirection.java">TestSetDirection.java</a> per i messaggi qak (<code>unibo.basicomm23</code>) e <a href="https://eclipse.dev/californium/">Californium</a> per osservare la risorsa CoAP della webgui. L'indirizzo di una risorsa qak ha la forma <code>coap://host:porta/contesto/attore</code>.</p>
+
+<pre><span class="src">src/test/java/webguiAtoBtests/TestWebguiAtoB.java · bozza</span><code>/**
+ * Primo TestPlan dello Sprint0 (JUnit 4).
+ * Il test svolge il ruolo dell'operatore umano:
+ *  - invia moveAtoB alla webgui (come farebbe il browser);
+ *  - osserva la risorsa CoAP della webgui (cio' che vedrebbe l'operatore);
+ *  - interroga robotsmart26 come oracolo indipendente dalla webgui.
+ * Prerequisiti: robotsmart26 attivo, robot in HOME (Q12),
+ *               modello webguiAtoB_req.qak attivo su ctxwebgui:8050.
+ */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class TestWebguiAtoB {
+  static final String GUI_HOST = "localhost", GUI_PORT = "8050";
+  static final String RS_HOST  = "localhost", RS_PORT  = "8020";
+  static final int  AX = 4, AY = 0, BX = 3, BY = 4;   // celle libere di tf25map.txt
+  static final long TMAX = 60_000;                    // da concordare (Q6)
+
+  static Interaction toGui, toRobot;
+  static final List&lt;int[]&gt; shown = new CopyOnWriteArrayList&lt;&gt;();   // celle mostrate
+
+  @BeforeClass
+  public static void setup() throws Exception {
+    toGui   = ConnectionFactory.createClientSupport23(ProtocolType.tcp, GUI_HOST, GUI_PORT);
+    toRobot = ConnectionFactory.createClientSupport23(ProtocolType.tcp, RS_HOST,  RS_PORT);
+    CoapClient coap = new CoapClient("coap://" + GUI_HOST + ":" + GUI_PORT + "/ctxwebgui/webgui");
+    coap.observe(new CoapHandler() {
+      public void onLoad(CoapResponse r) {
+        int[] c = cellOf(r.getResponseText());
+        if (c != null) shown.add(c);
+      }
+      public void onError() { }
+    });
+  }
+
+  /** TP1: all'avvio la webgui mostra la posizione nota a robotsmart26. */
+  @Test(timeout = 10_000)
+  public void tp1_initialPositionShown() throws Exception {
+    while (shown.isEmpty()) Thread.sleep(100);
+    assertArrayEquals(robotCell(), last(shown));
+  }
+
+  /** TP2, TP3: il robot va in A e poi in B; la webgui lo mostra. */
+  @Test(timeout = TMAX)
+  public void tp2_robotGoesFromAtoB() throws Exception {
+    shown.clear();
+    toGui.forward(CommUtils.buildDispatch("operator", "moveAtoB",
+        "moveAtoB(" + AX + "," + AY + "," + BX + "," + BY + ")", "webgui"));
+    while (indexOf(shown, BX, BY) &lt; 0) Thread.sleep(200);       // la webgui mostra B
+    assertArrayEquals("oracolo", new int[]{BX, BY}, robotCell());  // TP2
+    int iA = indexOf(shown, AX, AY), iB = indexOf(shown, BX, BY);
+    assertTrue("A mostrata prima di B", iA &gt;= 0 &amp;&amp; iA &lt; iB);     // TP3
+  }
+
+  /** TP4: nessuna cella attraversata omessa. Atteso FALLIMENTO nello Sprint0. */
+  @Test
+  public void tp4_noCellSkipped() {                 // usa le posizioni raccolte da tp2
+    for (int i = 1; i &lt; shown.size(); i++) {
+      int d = Math.abs(shown.get(i)[0] - shown.get(i-1)[0])
+            + Math.abs(shown.get(i)[1] - shown.get(i-1)[1]);
+      assertTrue("salto di " + d + " celle fra due posizioni mostrate", d &lt;= 1);
+    }
+  }
+
+  @Ignore("in attesa della risposta a Q9")
+  @Test public void tp5_targetIsObstacle() { /* B = (2,4) */ }
+
+  /* ------------------------- supporto ------------------------- */
+  static int[] robotCell() throws Exception {      // robotstate(pos(X,Y),DIR)
+    IApplMessage rep = toRobot.request(CommUtils.buildRequest(
+        "operator", "getrobotstate", "getrobotstate(0)", "robotsmart"));
+    return cellOf(rep.msgContent());
+  }
+  static int[] cellOf(String s) {
+    Matcher m = Pattern.compile("pos\\((\\d+),(\\d+)\\)").matcher(s);
+    return m.find() ? new int[]{ Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)) } : null;
+  }
+  static int indexOf(List&lt;int[]&gt; l, int x, int y) {
+    for (int i = 0; i &lt; l.size(); i++) if (l.get(i)[0] == x &amp;&amp; l.get(i)[1] == y) return i;
+    return -1;
+  }
+  static int[] last(List&lt;int[]&gt; l) { return l.get(l.size() - 1); }
+}</code></pre>
+
+<p>Due dettagli del test meritano attenzione.</p>
+<ul>
+<li><strong>Il timeout è nel test, non nel modello.</strong> <code>@Test(timeout = TMAX)</code> garantisce che il test termini anche se robotsmart26 non risponde (§2, fatto 5). Il valore di TMAX è provvisorio e fa parte della domanda Q6.</li>
+<li><strong>Due fonti di verità.</strong> TP2 confronta ciò che la webgui mostra con ciò che robotsmart26 riporta. Se coincidono, la webgui riferisce correttamente la posizione stimata; per H1 e H2 questa è anche la posizione reale. Una verifica della posizione fisica (sulla scena di WEnv o con un sensore esterno) servirà quando le ipotesi verranno rilassate o si passerà al robot reale (Q11).</li>
+</ul>
+
+<div class="note tool">
+<h4>JUnit, ordine dei test e risorse CoAP</h4>
+<p><a href="https://junit.org/junit4/">JUnit 4</a> esegue i metodi annotati con <code>@Test</code>; <code>@BeforeClass</code> prepara le connessioni una sola volta; <code>@FixMethodOrder(NAME_ASCENDING)</code> esegue i test in ordine alfabetico, necessario qui perché la verifica di TP4 usa le posizioni raccolte durante TP2. <code>@Ignore</code> conserva nel TestPlan un test non ancora eseguibile, che compare nei report come sospeso: è il modo di tenere traccia di Q9 nel codice oltre che nella issue. L'osservazione CoAP (<a href="https://www.rfc-editor.org/rfc/rfc7641">RFC 7641</a>) consegna al test ogni nuovo valore della risorsa senza che il test lo richieda: è lo stesso meccanismo che userà la pagina web, o un suo intermediario, per aggiornarsi.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s7"><span class="n">7</span>Goal dello Sprint1</h2>
+
+<p>Il criterio di scelta è il valore per il committente a parità di rischio: R1 è la ragione d'essere del sistema e non dipende dalle domande più incerte (Q6, Q13); R3 dipende da entrambe.</p>
+
+<div class="tbl"><table>
+<thead><tr><th>Sprint</th><th>Requisiti</th><th>Test che devono passare</th><th>Condizione</th></tr></thead>
+<tbody>
+<tr><td>Sprint1</td><td>R1, R2 a fine tratto, C2: una webgui reale (pagina web) sostituisce l'attore mock mantenendo la stessa logica di interazione</td><td>TP1, TP2, TP3; TP6 eseguito e documentato</td><td>risposte a Q1, Q2, Q4, Q7</td></tr>
+<tr><td>Sprint2</td><td>R3 (aggiornamento a ogni cella); casi di A e B non validi</td><td>TP4, TP5</td><td>risposte a Q6, Q9, Q13</td></tr>
+<tr><td>da pianificare</td><td>mappa nella webgui, più operatori, robot reale</td><td>da scrivere</td><td>risposte a Q3, Q10, Q11</td></tr>
+</tbody></table></div>
+
+<p>Goal dello Sprint1, in una frase: <em>l'operatore, da un browser, invia un comando A→B e vede la webgui riportare la posizione del robot all'arrivo in A e in B, con TP1–TP3 superati contro il sistema reale.</em></p>
+
+<!-- ============================================================ -->
+<h2 id="s8"><span class="n">8</span>Prodotti dello Sprint0</h2>
+
+<div class="tbl"><table>
+<thead><tr><th>Prodotto</th><th>Forma</th><th>A che cosa serve</th></tr></thead>
+<tbody>
+<tr><td>questo documento</td><td>testo</td><td>spiega perché il modello e i test sono fatti così</td></tr>
+<tr><td>Q1–Q13 come issue</td><td>testo tracciato</td><td>registrano le domande aperte, le risposte e i cambiamenti che ne derivano</td></tr>
+<tr><td><code>webguiAtoB_req.qak</code></td><td>modello eseguibile</td><td>formalizza componenti, contesti, messaggi e comportamento logico della webgui</td></tr>
+<tr><td><code>TestWebguiAtoB.java</code></td><td>test eseguibile</td><td>stabilisce in modo operativo quando R1, R2, R3 sono soddisfatti</td></tr>
+<tr><td>goal dello Sprint1</td><td>testo</td><td>delimita il prossimo incremento e i test che lo chiudono</td></tr>
+</tbody></table></div>
+
+<p>Un'affermazione presente solo nel testo è un'ipotesi; diventa un fatto del progetto quando compare in un modello che si esegue o in un test che passa, oppure che fallisce in modo atteso come TP4.</p>
+
+<!-- ============================================================ -->
+<h2 id="s9"><span class="n">9</span>Riferimenti</h2>
+<h4>Progetto</h4>
+<ul>
+<li>AboutSprints, §1.6 «Lo Sprint0» (file di progetto <code>AboutSprints.pdf</code>)</li>
+<li><a href="https://github.com/anatali/isss27reference/tree/main/robotsmart26">robotsmart26</a> · <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/robotsmart26.qak">robotsmart26.qak</a> · <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/yamls/robotsmart26.yaml">robotsmart26.yaml</a> · <a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/tf25map.txt">tf25map.txt</a></li>
+<li><a href="https://github.com/anatali/isss27reference/blob/main/robotsmart26/src/test/java/robotsmart26tests/TestSetDirection.java">TestSetDirection.java</a> (esempio di test verso robotsmart26)</li>
+<li>Anno precedente: <a href="https://github.com/anatali/issLab2026/tree/main/robotsmart26">issLab2026/robotsmart26</a> · <a href="https://github.com/anatali/issLab2026/blob/main/robotsmart26usage/src/robotsmart26tf26.qak">robotsmart26tf26.qak</a> (uso di <code>ExternalQActor robotsmart</code>)</li>
+<li>Documenti di progetto: «Il modello robotsmart26»; «Un DDR da A a B: fasi, azioni e prodotti»; Protobook, cap. 18 (sintassi qak), cap. 22 (risorse osservabili), cap. 30 (RobotSmart26)</li>
+</ul>
+<h4>Concetti e tecnologie</h4>
+<ul>
+<li><a href="https://www.rfc-editor.org/rfc/rfc7252">RFC 7252 CoAP</a> · <a href="https://www.rfc-editor.org/rfc/rfc7641">RFC 7641 CoAP Observe</a> · <a href="https://eclipse.dev/californium/">Eclipse Californium</a></li>
+<li><a href="https://junit.org/junit4/">JUnit 4</a> · <a href="https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues">GitHub Issues</a></li>
+<li><a href="https://it.wikipedia.org/wiki/Navigazione_stimata">Navigazione stimata</a> · <a href="https://it.wikipedia.org/wiki/Teorema_del_campionamento_di_Nyquist-Shannon">Teorema del campionamento</a> · <a href="https://en.wikipedia.org/wiki/Differential_wheeled_robot">Differential wheeled robot</a></li>
+</ul>
+</div>
+
+<script>
+(function(){
+  var kw=/\b(System|Request|Reply|Dispatch|Event|for|Context|QActor|ExternalQActor|context|ip|State|initial|Transition|Goto|if|else|whenMsg|whenRequest|whenReply|whenEvent|whenTime|onMsg|forward|request|replyTo|with|updateResource|println|color|printCurrentMessage)\b/g;
+  document.querySelectorAll('code.qak').forEach(function(el){
+    var t=el.textContent;
+    var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+    var out='',re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(\[#[\s\S]*?#\])|("(?:[^"\\]|\\.)*")/g,last=0,m;
+    while((m=re.exec(t))){
+      out+=esc(t.slice(last,m.index)).replace(kw,'<span class="kw">$1</span>');
+      if(m[1]) out+='<span class="kc">'+esc(m[1])+'</span>';
+      else if(m[2]) out+='<span class="km">'+esc(m[2])+'</span>';
+      else out+='<span class="kt">'+esc(m[3])+'</span>';
+      last=re.lastIndex;
+    }
+    out+=esc(t.slice(last)).replace(kw,'<span class="kw">$1</span>');
+    el.innerHTML=out;
+  });
+})();
+</script>
+</body>
+</html>
