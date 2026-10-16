@@ -18,14 +18,29 @@ Simboli grafici
                   sinistro e glifo di automa a stati finiti (FSM) in alto a destra
   CodedQActor     come QActor, con glifo { } al posto della FSM
   ExternalQActor  come QActor, bordo tratteggiato e fondo grigio
-  QActor hidden   come QActor, bordo tratteggiato fine e fondo bianco, dentro il
+  QActor hidden   come QActor, bordo tratteggiato fine (stesso fondo), dentro il
                   riquadro del suo contesto; stereotipo «QActor hidden»
                   [Claude, Oct 2026] HIDDEN QActor
-  POJO            box in stile classe UML (due compartimenti, stereotipo <<POJO>>),
-                  legato all'attore da una composizione (rombo pieno)   [withobj]
+  POJO            icona (mini-classe) con il solo nome, DENTRO il QActor che lo
+                  possiede [withobj]; nessuna indicazione di metodi
+                  [Claude, Oct 2026] POJO locali
   WebService      box con glifo a globo, stereotipo <<WebService>>
   Processo OS     box con angolo ripiegato, stereotipo <<OS process>>  [Runtime.exec]
   MQTT broker     box con glifo a "hub"
+
+Colori  [Claude, Oct 2026]
+------
+Fondi chiari (adatti alla stampa) e diversi per QActor, CodedQActor, ExternalQActor,
+POJO, servizi Web e broker; un colore distinto per ciascun tipo di messaggio
+(dispatch, request, reply, event, ...), usato sia per gli archi sia nelle tabelle.
+La palette e' in FILL (nodi) e MSGCOLOR / STYLE (messaggi).
+
+Tabelle  [Claude, Oct 2026]
+-------
+  Messaggi : ogni Dispatch / Request / Reply / Signal / Token / Invitation con
+             chi lo invia (mittente -> destinatario) e chi lo riceve (transizioni);
+  Eventi   : chi li emette e chi li percepisce.
+  --no-table omette entrambe le tabelle.
 
 Riconoscimento dei servizi Web
 ------------------------------
@@ -217,6 +232,8 @@ def parse_body(a, body):
     if r: a['mqtt'] = r.group(1)
     a['coap'] = bool(re.search(r'\bupdateResource\b', q))
     a['inmsgs'] = sorted(set(re.findall(r'\b(?:whenMsg|whenRequest|whenInterrupt)\s+(\w+)', q)))
+    # [Claude, Oct 2026] tabella dei messaggi: reply attese dall'attore
+    a['inreplies'] = sorted(set(re.findall(r'\bwhenReply\s+(\w+)', q)))
 
 
 # =====================================================================
@@ -264,16 +281,50 @@ class Box:
                     self.y + self.h + pad < o.y or o.y + o.h + pad < self.y)
 
 
-STYLE = {   # kind -> (colore, dasharray, legenda)
-    'request':  ('#1f4e8c', '',          'request  (etichetta: richiesta → reply previste)'),
-    'dispatch': ('#2e7d32', '7 4',       'dispatch (forward)'),
-    'delegate': ('#555555', '10 3 2 3',  'delegate'),
-    'observe':  ('#6a1b9a', '2 3',       'observeResource (CoAP)'),
-    'http':     ('#b35900', '5 3',       'interazione HTTP / WS / CoAP (dal codice)'),
-    'exec':     ('#333333', '2 3',       'esecuzione processo OS'),
-    'mqtt':     ('#b00020', '4 2',       'eventi via MQTT (eventTopic / publish)'),
-    'event':    ('#444444', '',          'emette (→ canale) / percepisce (canale →)'),
+# [Claude, Oct 2026] COLORI
+# Colore (tratto) per tipo di messaggio, usato per archi, etichette e tabelle.
+MSGCOLOR = {
+    'Dispatch':   '#2e7d32',   # verde
+    'Request':    '#1565c0',   # blu
+    'Reply':      '#00838f',   # ciano scuro
+    'Event':      '#e65100',   # arancio
+    'Signal':     '#6d4c41',   # bruno
+    'Token':      '#6d4c41',
+    'Invitation': '#6d4c41',
 }
+
+STYLE = {   # kind -> (colore, dasharray, legenda)
+    'request':  (MSGCOLOR['Request'],  '',          'request  (etichetta: richiesta → reply previste)'),
+    'dispatch': (MSGCOLOR['Dispatch'], '7 4',       'dispatch (forward)'),
+    'delegate': ('#8d6e00',            '10 3 2 3',  'delegate'),
+    'observe':  ('#8e24aa',            '2 3',       'observeResource (CoAP)'),
+    'http':     ('#ad1457',            '5 3',       'interazione HTTP / WS / CoAP (dal codice)'),
+    'exec':     ('#546e7a',            '2 3',       'esecuzione processo OS'),
+    'mqtt':     ('#c62828',            '4 2',       'eventi via MQTT (eventTopic / publish)'),
+    'event':    (MSGCOLOR['Event'],    '',          'emette (→ canale) / percepisce (canale →)'),
+}
+
+# [Claude, Oct 2026] COLORI: fondi chiari (stampabili) per i nodi -> (fondo, bordo)
+FILL = {
+    'QActor':         ('#e3f0fc', '#1f3b5c'),   # azzurro
+    'CodedQActor':    ('#efe6fa', '#3e2a5c'),   # lilla
+    'ExternalQActor': ('#eeeeee', '#555555'),   # grigio
+    'pojo':           ('#fff3cd', '#a07800'),   # giallo chiaro
+    'webservice':     ('#e6f6ea', '#2a5c36'),   # verde chiaro
+    'broker':         ('#fde8ec', '#7a2333'),   # rosa chiaro
+    'proc':           ('#f1f3f4', '#555555'),
+    'context':        ('#fbfbfb', '#222222'),
+    'extcontext':     ('#ffffff', '#555555'),
+    'evband':         ('#fff1e6', '#e65100'),   # canale eventi (colore Event)
+}
+
+
+def tint(color, f=0.88):
+    """[Claude, Oct 2026] Versione chiara di un colore #rrggbb (mescolato al bianco)."""
+    c = color.lstrip('#')
+    r, g, b = (int(c[i:i + 2], 16) for i in (0, 2, 4))
+    r, g, b = (round(v + (255 - v) * f) for v in (r, g, b))
+    return '#%02x%02x%02x' % (r, g, b)
 
 
 # =====================================================================
@@ -290,10 +341,34 @@ class Layout:
     pass
 
 
+CHIP_H, CHIP_GAP = 20, 8     # [Claude, Oct 2026] POJO locali: icone dentro il QActor
+
+
+def chip_w(name):
+    return tw(name, 10) + 30
+
+
+def pojo_rows(a, w):
+    """[Claude, Oct 2026] Dispone le icone dei POJO su righe larghe al massimo w-40."""
+    rows, cur, cw = [], [], 0
+    for p in a['pojos']:
+        cwid = chip_w(p['name'])
+        if cur and cw + CHIP_GAP + cwid > w - 40:
+            rows.append(cur); cur, cw = [], 0
+        cur.append((p, cwid)); cw += (CHIP_GAP if cw else 0) + cwid
+    if cur: rows.append(cur)
+    return rows
+
+
 def actor_size(a):
     lines = actor_badges(a)
     w = max(AW_MIN, tw(a['name'], 14) + 80, *[tw(l, 9.5) + 46 for l in lines] or [0])
-    return w, AH_BASE + 13 * len(lines)
+    # [Claude, Oct 2026] POJO locali: spazio per le icone (al piu' 3 per riga)
+    if a['pojos']:
+        w = max(w, max(chip_w(p['name']) for p in a['pojos']) + 40,
+                min(sum(chip_w(p['name']) + CHIP_GAP for p in a['pojos'][:3]) + 40, 460))
+    nrows = len(pojo_rows(a, w))
+    return w, AH_BASE + 13 * len(lines) + (nrows * (CHIP_H + 6) + 6 if nrows else 0)
 
 
 def actor_badges(a):
@@ -362,10 +437,8 @@ def build_layout(m):
             a = m.actors[nm]
             aw, ah = actor_size(a)
             kids = []
-            for p in a['pojos']:
-                title = '%s : %s' % (p['name'], pojo_type(p['using']))
-                sub = trunc(p['using'], 44)
-                kids.append(('pojo', title, sub) + child_size('pojo', title, sub))
+            # [Claude, Oct 2026] POJO locali: non piu' box separati, ma icone dentro
+            # l'attore (vedi actor_size / draw_pojo_chips)
             for cmd in a['procs']:
                 sub = trunc(cmd, 44)
                 kids.append(('proc', 'OS process', sub) + child_size('proc', '', sub))
@@ -517,13 +590,14 @@ class SVG:
 def draw_actor(S, b, a):
     ext = a['kind'] == 'ExternalQActor'
     ws = a.get('webservice')
-    fill = '#f3f3f3' if ext else '#ffffff'
+    # [Claude, Oct 2026] COLORI: fondo/bordo per tipo di attore
+    fill, stroke = FILL['webservice'] if ws else FILL[a['kind']]
     dash = ' stroke-dasharray="6 4"' if ext else ''
     if a.get('hidden'):                       # [Claude, Oct 2026] HIDDEN QActor
         dash = ' stroke-dasharray="3 3"'
     L = S.front
-    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="9" fill="%s" stroke="#222" stroke-width="1.6"%s/>'
-             % (b.x, b.y, b.w, b.h, fill, dash))
+    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="9" fill="%s" stroke="%s" stroke-width="1.6"%s/>'
+             % (b.x, b.y, b.w, b.h, fill, stroke, dash))
     if ws:
         draw_globe(L, b.x + 22, b.y + 26, 11)
     else:
@@ -551,8 +625,40 @@ def draw_actor(S, b, a):
         stereo = stereo[:-1] + ' hidden»'
     S.text(L, b.cx + 6, b.y + 22, stereo, 9.5, 'middle', fill='#555')
     S.text(L, b.cx + 6, b.y + 41, a['name'], 14, 'middle', 'bold')
-    for i, line in enumerate(actor_badges(a)):
+    badges = actor_badges(a)
+    for i, line in enumerate(badges):
         S.text(L, b.cx + 6, b.y + 58 + 13 * i, line, 9.5, 'middle', fill='#333')
+    draw_pojo_chips(S, b, a, b.y + AH_BASE + 13 * len(badges) - 2)
+
+
+def pojo_icon(L, x, y, s=1.0):
+    """[Claude, Oct 2026] Glifo 'mini-classe' (rettangolo con intestazione) per un POJO."""
+    fill, stroke = FILL['pojo']
+    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="1.5" fill="#fff" stroke="%s" stroke-width="1"/>'
+             % (x, y, 10 * s, 12 * s, stroke))
+    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="%s"/>' % (x, y, 10 * s, 4 * s, stroke))
+    for k in (7, 9.5):
+        L.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="0.7"/>'
+                 % (x + 2 * s, y + k * s, x + 8 * s, y + k * s, stroke))
+
+
+def draw_pojo_chips(S, b, a, y0):
+    """[Claude, Oct 2026] POJO locali: icona + nome DENTRO il QActor (nessun metodo).
+    Il tipo del POJO e' disponibile come tooltip (<title>)."""
+    L = S.front
+    fill, stroke = FILL['pojo']
+    for r, row in enumerate(pojo_rows(a, b.w)):
+        roww = sum(w for _, w in row) + CHIP_GAP * (len(row) - 1)
+        x = max(b.x + 12, b.cx + 6 - roww / 2)
+        y = y0 + r * (CHIP_H + 6)
+        for p, w in row:
+            L.append('<g><title>%s : %s</title>' % (esc(p['name']), esc(pojo_type(p['using']))))
+            L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%s" rx="5" fill="%s" stroke="%s" stroke-width="1"/>'
+                     % (x, y, w, CHIP_H, fill, stroke))
+            pojo_icon(L, x + 6, y + 4)
+            S.text(L, x + 22, y + 14, p['name'], 10, weight='bold', fill='#3d2e00')
+            L.append('</g>')
+            x += w + CHIP_GAP
 
 
 def draw_globe(L, cx, cy, r):
@@ -566,8 +672,8 @@ def draw_globe(L, cx, cy, r):
 
 def draw_webservice(S, b, ws):
     L = S.front
-    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="16" fill="#fff" stroke="#222" stroke-width="1.6"/>'
-             % (b.x, b.y, b.w, b.h))
+    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="16" fill="%s" stroke="%s" stroke-width="1.6"/>'
+             % ((b.x, b.y, b.w, b.h) + FILL['webservice']))     # [Claude, Oct 2026] COLORI
     draw_globe(L, b.x + 26, b.cy, 14)
     S.text(L, b.cx + 18, b.y + 22, '«WebService»', 9.5, 'middle', fill='#555')
     S.text(L, b.cx + 18, b.y + 41, trunc(ws['label'], 30), 13, 'middle', 'bold')
@@ -575,21 +681,14 @@ def draw_webservice(S, b, ws):
         S.text(L, b.cx + 18, b.y + 59, trunc(ws['url'], 40), 9.5, 'middle', fill='#333', mono=True)
 
 
-def draw_pojo(S, b, d):
-    L = S.front
-    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#fffdf2" stroke="#222" stroke-width="1.2"/>'
-             % (b.x, b.y, b.w, b.h))
-    L.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#222"/>' % (b.x, b.y + 30, b.right(), b.y + 30))
-    S.text(L, b.cx, b.y + 12, '«POJO»', 8.5, 'middle', fill='#555')
-    S.text(L, b.cx, b.y + 25, d['title'], 11, 'middle', 'bold')
-    S.text(L, b.cx, b.y + 44, d['sub'], 9.5, 'middle', fill='#333', mono=True)
+# [Claude, Oct 2026] POJO locali: draw_pojo (box UML separato) sostituita da draw_pojo_chips
 
 
 def draw_proc(S, b, d):
     L = S.front
     f = 10
-    L.append('<path d="M%.1f,%.1f h%.1f l%s,%s v%.1f h%.1f z" fill="#f7f7f7" stroke="#555" stroke-width="1.1"/>'
-             % (b.x, b.y, b.w - f, f, f, b.h - f, -b.w))
+    L.append('<path d="M%.1f,%.1f h%.1f l%s,%s v%.1f h%.1f z" fill="%s" stroke="%s" stroke-width="1.1"/>'
+             % ((b.x, b.y, b.w - f, f, f, b.h - f, -b.w) + FILL['proc']))   # [Claude, Oct 2026] COLORI
     L.append('<path d="M%.1f,%.1f v%s h%s" fill="none" stroke="#555"/>' % (b.right() - f, b.y, f, f))
     S.text(L, b.cx, b.y + 17, '«OS process»', 9, 'middle', fill='#555')
     S.text(L, b.cx, b.y + 34, d['sub'], 9.5, 'middle', fill='#111', mono=True)
@@ -597,8 +696,8 @@ def draw_proc(S, b, d):
 
 def draw_broker(S, b, br):
     L = S.front
-    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="8" fill="#f2f2f2" stroke="#222" stroke-width="1.4"/>'
-             % (b.x, b.y, b.w, b.h))
+    L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="8" fill="%s" stroke="%s" stroke-width="1.4"/>'
+             % ((b.x, b.y, b.w, b.h) + FILL['broker']))      # [Claude, Oct 2026] COLORI
     hx, hy = b.x + 24, b.cy
     for ang in range(0, 360, 60):
         r = math.radians(ang)
@@ -630,8 +729,9 @@ def place_label(S, lines, x1, y1, x2, y2, color, obstacles):
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         best = Box(mx - w / 2, my - h / 2, w, h)
     S.label_boxes.append(best)
-    S.labels.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="3" fill="#fff" fill-opacity="0.92" stroke="%s" stroke-width="0.5"/>'
-                    % (best.x, best.y, best.w, best.h, color))
+    # [Claude, Oct 2026] COLORI: etichetta con fondo tenue del colore del messaggio
+    S.labels.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="3" fill="%s" fill-opacity="0.95" stroke="%s" stroke-width="0.6"/>'
+                    % (best.x, best.y, best.w, best.h, tint(color, 0.9), color))
     for i, l in enumerate(lines):
         S.text(S.labels, best.cx, best.y + 13 + 12.5 * i, l, fs, 'middle', fill=color)
 
@@ -655,6 +755,8 @@ def draw_edge(S, b1, b2, kind, lines, offset, obstacles, diamond=False, both=Fal
 
 def render(m, with_table=True):
     L = build_layout(m)
+    if with_table:   # [Claude, Oct 2026] la figura e' larga almeno quanto la tabella dei messaggi
+        L.width = max(L.width, message_table_width(m) + 40)
     S = SVG()
     obstacles = [b for b, k, _ in L.nodes.values()]
 
@@ -662,17 +764,17 @@ def render(m, with_table=True):
     for c, b in L.ctxboxes.items():
         ext = c in L.external
         S.back.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="12" fill="%s" stroke="%s" stroke-width="%s"%s/>'
-                      % (b.x, b.y, b.w, b.h, '#ffffff' if ext else '#fafafa', '#555' if ext else '#222',
-                         1.2 if ext else 1.6, ' stroke-dasharray="7 4"' if ext else ''))
+                      % ((b.x, b.y, b.w, b.h) + FILL['extcontext' if ext else 'context'] +   # [Claude, Oct 2026]
+                         (1.2 if ext else 1.6, ' stroke-dasharray="7 4"' if ext else '')))
         ci = m.contexts.get(c, {})
         S.text(S.back, b.x + 14, b.y + 22, 'Context ' + c, 13 if not ext else 12, weight='bold')
         S.text(S.back, b.x + 14, b.y + 38, '%s : %s' % (ci.get('host', '?'), ci.get('port', '?')), 10.5, fill='#333')
 
     # ---------- canali eventi
     for c, b in L.bands.items():
-        S.back.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="6" fill="#ececec" stroke="#222"/>'
-                      % (b.x, b.y, b.w, b.h))
-        S.text(S.back, b.cx, b.y + 21, 'canale degli eventi del contesto %s' % c, 11, 'middle', 'bold')
+        S.back.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="6" fill="%s" stroke="%s"/>'
+                      % ((b.x, b.y, b.w, b.h) + FILL['evband']))     # [Claude, Oct 2026] COLORI
+        S.text(S.back, b.cx, b.y + 21, 'canale degli eventi del contesto %s' % c, 11, 'middle', 'bold', fill='#7a2e00')
         for nm, (blk, row, colr) in L.blocks.items():
             a = m.actors[nm]
             if a['ctx'] != c or not (a['emits'] or a['perceives']):
@@ -705,11 +807,7 @@ def render(m, with_table=True):
     # ---------- composizione / processi
     for parent, cid, kind in L.children:
         pb, cb = L.nodes[parent][0], L.nodes[cid][0]
-        if kind == 'pojo':
-            color = '#222222'; mk = S.marker(color)
-            S.mid.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="1.3" marker-start="url(#d%s)"/>'
-                         % (min(max(cb.cx, pb.x + 20), pb.right() - 20), pb.bottom(), cb.cx, cb.y, color, mk))
-        else:
+        if kind == 'proc':      # [Claude, Oct 2026] i POJO non sono piu' figli separati
             color, dash, _ = STYLE['exec']; mk = S.marker(color)
             sx = min(max(cb.cx, pb.x + 20), pb.right() - 20)
             S.mid.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="1.3" stroke-dasharray="%s" marker-end="url(#%s)"/>'
@@ -768,7 +866,6 @@ def render(m, with_table=True):
     # ---------- nodi
     for nid, (b, kind, d) in L.nodes.items():
         if kind == 'actor': draw_actor(S, b, d)
-        elif kind == 'pojo': draw_pojo(S, b, d)
         elif kind == 'proc': draw_proc(S, b, d)
         elif kind == 'webservice': draw_webservice(S, b, d)
         elif kind == 'broker': draw_broker(S, b, d)
@@ -786,6 +883,7 @@ def render(m, with_table=True):
     if m.broker: used_kinds.add('mqtt')
     y = draw_legend(S, m, L, y, used_kinds)
     if with_table:
+        y = draw_message_table(S, m, y + 30, L.width)    # [Claude, Oct 2026] tabella dei messaggi
         y = draw_event_table(S, m, y + 30, L.width)
     H = y + 30
 
@@ -807,7 +905,9 @@ def perceived_events(m, ctx):
 
 def draw_legend(S, m, L, y, used):
     L_ = S.front
-    items_sym = [('actor', '«QActor»: mailbox + automa a stati'), ('pojo', '«POJO» (withobj), composizione')]
+    items_sym = [('actor', '«QActor»: mailbox + automa a stati')]
+    if any(a['pojos'] for a in m.actors.values()):        # [Claude, Oct 2026] POJO locali
+        items_sym.append(('pojo', 'POJO locale al QActor (withobj)'))
     if any(a['kind'] == 'CodedQActor' for a in m.actors.values()): items_sym.append(('coded', '«CodedQActor»'))
     if any(a['kind'] == 'ExternalQActor' for a in m.actors.values()): items_sym.append(('ext', '«ExternalQActor»'))
     if any(a.get('hidden') for a in m.actors.values()):   # [Claude, Oct 2026] HIDDEN QActor
@@ -824,8 +924,10 @@ def draw_legend(S, m, L, y, used):
         yy = y + 40 + 26 * i
         x = 36
         if k in ('actor', 'coded', 'ext', 'hidden'):   # 'hidden': [Claude, Oct 2026] HIDDEN QActor
-            L_.append('<rect x="%s" y="%.1f" width="46" height="20" rx="4" fill="%s" stroke="#222"%s/>'
-                      % (x, yy - 13, '#f3f3f3' if k == 'ext' else '#fff',
+            fl, st = FILL[{'actor': 'QActor', 'hidden': 'QActor', 'coded': 'CodedQActor',
+                           'ext': 'ExternalQActor'}[k]]          # [Claude, Oct 2026] COLORI
+            L_.append('<rect x="%s" y="%.1f" width="46" height="20" rx="4" fill="%s" stroke="%s"%s/>'
+                      % (x, yy - 13, fl, st,
                          ' stroke-dasharray="4 3"' if k == 'ext' else (' stroke-dasharray="2 2"' if k == 'hidden' else '')))
             for j in range(2):
                 L_.append('<rect x="%s" y="%.1f" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>' % (x + 4, yy - 10 + j * 6.5))
@@ -834,14 +936,16 @@ def draw_legend(S, m, L, y, used):
             else:
                 L_.append('<circle cx="%s" cy="%.1f" r="3" fill="#fff" stroke="#333"/><circle cx="%s" cy="%.1f" r="3" fill="#333"/>'
                           % (x + 26, yy - 3, x + 38, yy - 3))
-        elif k == 'pojo':
-            L_.append('<rect x="%s" y="%.1f" width="46" height="20" fill="#fffdf2" stroke="#222"/><line x1="%s" y1="%.1f" x2="%s" y2="%.1f" stroke="#222"/>'
-                      % (x, yy - 13, x, yy - 3, x + 46, yy - 3))
+        elif k == 'pojo':       # [Claude, Oct 2026] POJO locali: icona con nome
+            L_.append('<rect x="%s" y="%.1f" width="46" height="20" rx="5" fill="%s" stroke="%s"/>'
+                      % ((x, yy - 13) + FILL['pojo']))
+            pojo_icon(L_, x + 5, yy - 9)
+            S.text(L_, x + 19, yy + 1, 'obj', 9.5, weight='bold', fill='#3d2e00')
         elif k == 'ws':
-            L_.append('<rect x="%s" y="%.1f" width="46" height="20" rx="9" fill="#fff" stroke="#222"/>' % (x, yy - 13))
+            L_.append('<rect x="%s" y="%.1f" width="46" height="20" rx="9" fill="%s" stroke="%s"/>' % ((x, yy - 13) + FILL['webservice']))
             draw_globe(L_, x + 12, yy - 3, 7)
         elif k == 'proc':
-            L_.append('<path d="M%s,%.1f h40 l6,6 v14 h-46 z" fill="#f7f7f7" stroke="#555"/>' % (x, yy - 13))
+            L_.append('<path d="M%s,%.1f h40 l6,6 v14 h-46 z" fill="%s" stroke="%s"/>' % ((x, yy - 13) + FILL['proc']))
         S.text(L_, x + 58, yy + 1, lab, 10.5)
     x0 = 420
     for i, k in enumerate(kinds):
@@ -852,6 +956,98 @@ def draw_legend(S, m, L, y, used):
                   % (x0, yy, x0 + 60, yy, color, ' stroke-dasharray="%s"' % dash if dash else '', mk))
         S.text(L_, x0 + 72, yy + 4, lab, 10.5)
     return y + h
+
+
+def message_rows(m):
+    """[Claude, Oct 2026] Per ogni messaggio (non evento) dichiarato:
+    (nome, firma, tipo, for, mittenti, riceventi)."""
+    order = ['Dispatch', 'Request', 'Reply', 'Signal', 'Token', 'Invitation']
+    rows = []
+    for kind in order:
+        for name, md in m.messages.items():
+            if md['kind'] != kind:
+                continue
+            snd, rcv = [], []
+            add = lambda lst, v: lst.append(v) if v not in lst else None
+            for a in m.actors.values():
+                s = a['name']
+                for d, msg in a['forwards'] + a['requests']:
+                    if msg == name: add(snd, '%s → %s' % (s, d))
+                if name in a['autodisp']: add(snd, '%s (auto)' % s)
+                for req, rep in a['replies']:
+                    if rep == name: add(snd, s)
+                if name in a.get('inmsgs', []) or name in a.get('inreplies', []):
+                    add(rcv, s)
+                for d, msg in a['delegates']:
+                    if msg == name and d != '*current*': add(rcv, '%s (delegato da %s)' % (d, s))
+            rows.append((name, md['sig'], kind, md.get('forr'), snd, rcv))
+    return rows
+
+
+def message_cells(row):
+    """[Claude, Oct 2026] Testi delle celle di una riga della tabella dei messaggi."""
+    name, sig, kind, forr, snd, rcv = row
+    s_txt = ', '.join(snd) if snd else '— esterno al modello'
+    if rcv:
+        r_txt = ', '.join(rcv)
+    else:
+        r_txt = '— chiamante (anche esterno al modello)' if kind == 'Reply' else '— nessun attore del modello'
+    return [name + (' : ' + sig if sig else ''), kind + (' for %s' % forr if forr else ''), s_txt, r_txt]
+
+
+MSG_COL_CAP = [330, 230, 560, 560]   # [Claude, Oct 2026] larghezza massima (px) delle colonne
+
+
+def message_col_widths(m):
+    """[Claude, Oct 2026] Larghezze delle colonne calcolate dal contenuto (con tetto)."""
+    heads = ['Messaggio', 'Tipo', 'Inviato da (mittente → destinatario)', 'Ricevuto da']
+    ws = [tw(h, 10.5) + 18 for h in heads]
+    for row in message_rows(m):
+        for i, c in enumerate(message_cells(row)):
+            ws[i] = max(ws[i], min(tw(c, 10.5) + 18, MSG_COL_CAP[i]))
+    return ws
+
+
+def message_table_width(m):
+    return 30 + sum(message_col_widths(m)) if message_rows(m) else 0
+
+
+def draw_message_table(S, m, y, W):
+    """[Claude, Oct 2026] Tabella dei messaggi del sistema (analoga a quella degli eventi)."""
+    rows = message_rows(m)
+    if not rows:
+        return y
+    L_ = S.front
+    S.text(L_, 20, y, 'Messaggi: chi li invia e chi li riceve', 13, weight='bold')
+    y += 10
+    rh = 18
+    W = W - 40
+    # colonne dimensionate sul contenuto; l'ultima si allarga fino al bordo
+    cols = [20, 50]
+    for wcol in message_col_widths(m)[:-1]:
+        cols.append(cols[-1] + wcol)
+    cols.append(20 + W)
+    cap = lambda i: max(8, int((cols[i + 1] - cols[i] - 10) / (10.5 * 0.56)))
+    L_.append('<rect x="20" y="%.1f" width="%.1f" height="20" fill="#ececec" stroke="#999"/>' % (y, W))
+    for x, t in zip(cols, ['#', 'Messaggio', 'Tipo', 'Inviato da (mittente → destinatario)', 'Ricevuto da']):
+        S.text(L_, x + 8 if t == '#' else x, y + 14, t, 10.5, weight='bold')
+    y0 = y
+    y += 20
+    for i, (name, sig, kind, forr, snd, rcv) in enumerate(rows):
+        color = MSGCOLOR.get(kind, '#555555')
+        top = y + rh * i
+        L_.append('<rect x="20" y="%.1f" width="%.1f" height="%s" fill="%s"/>' % (top, W, rh, tint(color, 0.93)))
+        yy = top + 13
+        S.text(L_, cols[0] + 8, yy, str(i + 1), 10.5)
+        m_txt, k_txt, s_txt, r_txt = message_cells((name, sig, kind, forr, snd, rcv))
+        S.text(L_, cols[1], yy, trunc(m_txt, cap(1)), 10.5)
+        S.text(L_, cols[2], yy, trunc(k_txt, cap(2)), 10.5, weight='bold', fill=color)
+        S.text(L_, cols[3], yy, trunc(s_txt, cap(3)), 10.5, fill='#111' if snd else '#8a1c1c')
+        S.text(L_, cols[4], yy, trunc(r_txt, cap(4)), 10.5,
+               fill='#111' if rcv else ('#555' if kind == 'Reply' else '#8a1c1c'))
+    y += rh * len(rows) + 4
+    L_.append('<rect x="20" y="%.1f" width="%.1f" height="%.1f" fill="none" stroke="#999"/>' % (y0, W, y - y0))
+    return y
 
 
 def draw_event_table(S, m, y, W):
@@ -883,6 +1079,8 @@ def draw_event_table(S, m, y, W):
     y0 = y
     y += 20
     for i, (name, sig, em, pe) in enumerate(evs):
+        # [Claude, Oct 2026] COLORI: righe con il colore (tenue) degli eventi
+        L_.append('<rect x="20" y="%.1f" width="%.1f" height="%s" fill="%s"/>' % (y + rh * i, W, rh, tint(MSGCOLOR['Event'], 0.93)))
         yy = y + rh * i + 13
         S.text(L_, cols[0] + 8, yy, str(i + 1), 10.5)
         S.text(L_, cols[1], yy, trunc(name + (' : ' + sig if sig else ''), 52), 10.5)
