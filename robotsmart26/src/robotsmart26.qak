@@ -102,10 +102,9 @@ Context ctxrobotsmart ip [host="localhost" port=8020]
  * robotsmart
  * ------------------------------
  */ 
-QActor robotsmart context ctxrobotsmart {
-	//	withobj planner using "planning.AStarPathfinding( )"{
- 
-	[# lateinit var planner : utils.planning.AStarPathfinding   //Note lateinit		
+QActor robotsmart context ctxrobotsmart 
+		withobj planner using "utils.planning.AStarPathfinding()"{
+	[#  	
 		var Plan      = ""	
 		var Caller    = ""
 		var TargetX   = "" 
@@ -121,6 +120,7 @@ QActor robotsmart context ctxrobotsmart {
 		println("$name | WAIT  before delegate ")  color yellow
  		//delay 4000 //(B) attende creazione attori locali robotPos con  è lento
     }
+    //lateinit var planner : utils.planning.AStarPathfinding   //Note lateinit	
     Transition t0
     	whenMsg partnerstarted -> finishstart
     	
@@ -134,10 +134,12 @@ QActor robotsmart context ctxrobotsmart {
         delegate getenvmap     to robotmnemo
         delegate setrobotstate to robotmnemo
         delegate setdirection  to robotmnemo 
-        delegate doplan        to planexec
+        delegate doplan        to planexec  
         
         
-        [#  planner = utils.planning.AStarPathfinding(  ) #]   //inizaliza planner
+       // [#  planner = utils.planning.AStarPathfinding(  ) #]   //inizaliza planner
+       
+       [# planner.initialize() #]
  	}
     Goto waitinputmsg
  	
@@ -276,7 +278,7 @@ QActor robotmnemo context ctxrobotsmart hidden
 		println("$name | at home. GUI on ...") color blue		
 		[#  rpos.robotAtHome(   ) #] 
 		delay 500 //planexec must be started
-		delegate doplan to planexec     //nel caso di richieste dirette
+//		delegate doplan to planexec     //nel caso di richieste dirette CHE EVITIAMO
 	} 
 	Goto waitinputmsg
 	
@@ -556,7 +558,7 @@ QActor planexec context ctxrobotsmart hidden {  //withobj robot using "uniborobo
 	} 
 	Goto work
 
-	State work{  
+	State work{   
 		//println("planexec | waiting ...")  
 	} 
 	Transition t0 

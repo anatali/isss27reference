@@ -29,7 +29,8 @@ class Robotsmart ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
-		 lateinit var planner : utils.planning.AStarPathfinding   //Note lateinit		
+		val planner = utils.planning.AStarPathfinding()
+		  	
 				var Plan      = ""	
 				var Caller    = ""
 				var TargetX   = "" 
@@ -61,7 +62,7 @@ class Robotsmart ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						delegate("setrobotstate", "robotmnemo") 
 						delegate("setdirection", "robotmnemo") 
 						delegate("doplan", "planexec") 
-						  planner = utils.planning.AStarPathfinding(  )  
+						 planner.initialize()  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

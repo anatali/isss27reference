@@ -74,7 +74,7 @@ public class Robotsmart26CallerTcp  {
     /** Request getrobotstate; restituisce {X, Y, DIR} da robotstate(pos(X,Y),DIR). 
      * @throws Exception */
     private  String getRobotState() throws Exception   {
-        IApplMessage req = CommUtils.buildRequest("callertcp", "getrobotstate", "getrobotstate(test)", "robotmnemo");
+        IApplMessage req = CommUtils.buildRequest("callertcp", "getrobotstate", "getrobotstate(test)", "robotsmart");
         IApplMessage a = requestOrFail(conn, req, 6000);
         //String reply = conn.request(req.toString());
         
@@ -168,7 +168,7 @@ public class Robotsmart26CallerTcp  {
      */
 	public static void main(String[] args) throws Exception  {
  		Robotsmart26CallerTcp caller = new Robotsmart26CallerTcp();
-		//caller.doSomeCmd();  // basic movement demo
- 		caller.doSetDir();  // set direction demo
+		caller.doSomeCmd();  // basic movement demo
+ 		//caller.doSetDir();  // set direction demo
 	}
 }

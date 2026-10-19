@@ -4,7 +4,6 @@ import java.util.*;
 import unibo.basicomm23.utils.CommUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
 import utils.gui.AdapterGuiForMindrep;
 import utils.smart.RobotPosUtils;
 
@@ -37,11 +36,17 @@ import utils.smart.RobotPosUtils;
 public class AStarPathfinding {
 
 	/** Grid representation of the environment (shared with AdapterGui) */
-	protected int[][] grid = AdapterGuiForMindrep.grid;
+	/* [Claude, Oct 2026] grid, NR, NC NON sono piu' inizializzati nella dichiarazione:
+	 * gli inizializzatori dei campi vengono eseguiti in OGNI costruttore, quando la mappa
+	 * (creata da robotmnemo via RobotPosUtils/AdapterGuiForMindrep) puo' non esistere ancora.
+	 * Sono assegnati in initialize(). */
+	protected int[][] grid;
     /** Number of rows in the grid */
-    protected int NR = grid.length;
+    protected int NR;
     /** Number of columns in the grid */
-    protected int NC = grid[0].length;
+    protected int NC;
+    /** [Claude, Oct 2026] true dopo initialize() */
+    private boolean initialized = false;
     
     /** Starting node for pathfinding */
     protected Node start;
@@ -60,14 +65,47 @@ public class AStarPathfinding {
     /**
      * Default constructor - reads planner parameters from JSON configuration
      */
-    public AStarPathfinding( ) {
-    	CommUtils.outcyan("AStarPathfinding -------AdapterGuiForMindrep should be alreday created");
-    	gui = AdapterGuiForMindrep.getInstance(); 
-     	//robot = RobotPosUtils.getInstance(gui);    //SENZA gui: 
-     	robotposutil = RobotPosUtils.getInstance( );    //SENZA gui: TODO
-    	readPlannerParams();
+//    public AStarPathfindingOld( ) {
+//    	CommUtils.outcyan("AStarPathfindingOld -------AdapterGuiForMindrep should be alreday created");
+//    	gui = AdapterGuiForMindrep.getInstance(); 
+//     	//robot = RobotPosUtils.getInstance(gui);    //SENZA gui: 
+//     	robotposutil = RobotPosUtils.getInstance( );    //SENZA gui: TODO
+//    	readPlannerParams();
+//    }
+
+    /**
+     * [Claude, Oct 2026] Costruttore 'leggero': non dipende da altri componenti,
+     * quindi puo' essere usato in  withobj planner using "utils.planning.AStarPathfinding()".
+     * Prima dell'uso occorre chiamare initialize().
+     */
+    public AStarPathfinding(  ) {
+    	CommUtils.outcyan("AStarPathfinding CONSTRUCTOR");
     }
     
+    /**
+     * [Claude, Oct 2026] Seconda fase dell'inizializzazione: da chiamare quando la mappa
+     * esiste (in robotsmart: nello stato finishstart, dopo partnerstarted da robotmnemo).
+     */
+    public void initialize() {
+    	CommUtils.outcyan("AStarPathfinding  initialize -------AdapterGuiForMindrep should be alreday created");
+    	gui = AdapterGuiForMindrep.getInstance(); 
+    	if( gui == null || AdapterGuiForMindrep.grid == null )
+    		throw new IllegalStateException("AStarPathfinding.initialize: mappa non ancora creata (AdapterGuiForMindrep)");
+    	grid = AdapterGuiForMindrep.grid;
+    	NR   = grid.length;
+    	NC   = grid[0].length;
+     	//robot = RobotPosUtils.getInstance(gui);    //SENZA gui: 
+     	robotposutil = RobotPosUtils.getInstance( );    //SENZA gui: TODO
+    	readPlannerParams();    	
+    	initialized = true;
+    }
+
+    /** [Claude, Oct 2026] Errore esplicito (invece di NullPointerException) se si usa il planner prima di initialize() */
+    private void checkInit() {
+    	if( ! initialized )
+    		throw new IllegalStateException("AStarPathfinding: chiamare initialize() prima dell'uso");
+    }
+
     /**
      * Gets the map representation as a single-line string
      * Used for communication with other components
@@ -75,6 +113,7 @@ public class AStarPathfinding {
      * @return String representation of the grid map
      */
     public String getMapOneLine(){
+    	checkInit();   //[Claude, Oct 2026]
         String map = "'"+gui.getMapRep()+"'";
         return map;
     }
@@ -97,6 +136,7 @@ public class AStarPathfinding {
      * @param target The target node for pathfinding
      */
     public AStarPathfinding(Node start, Node target) {
+    	//[Claude, Oct 2026] anche con questo costruttore occorre chiamare initialize() prima di findPath
     	this.start = start;
     	this.target = target;
     }
@@ -173,6 +213,7 @@ public class AStarPathfinding {
      * @return List of nodes representing the optimal path, or null if no path exists
      */
     public List<Node> findPath(Node startNode, Node targetNode) {
+    	checkInit();   //[Claude, Oct 2026]
 
         // Open list: stores nodes to be evaluated, sorted by fCost
         PriorityQueue<Node> openSet = new PriorityQueue<>();
@@ -331,6 +372,7 @@ public class AStarPathfinding {
     }
     
     public void doPlan(String moves) {
+    	checkInit();   //[Claude, Oct 2026]
     	gui.showTheRoom( );
     	robotposutil.doPlan(moves,start,target);
     }

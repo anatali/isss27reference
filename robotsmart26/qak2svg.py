@@ -301,7 +301,9 @@ STYLE = {   # kind -> (colore, dasharray, legenda)
     'http':     ('#ad1457',            '5 3',       'interazione HTTP / WS / CoAP (dal codice)'),
     'exec':     ('#546e7a',            '2 3',       'esecuzione processo OS'),
     'mqtt':     ('#c62828',            '4 2',       'eventi via MQTT (eventTopic / publish)'),
-    'event':    (MSGCOLOR['Event'],    '',          'emette (→ canale) / percepisce (canale →)'),
+    # [Claude, Oct 2026] 'rail' = linea DOPPIA (binario): distinguibile dalla linea continua
+    # delle request anche in una stampa in bianco/nero
+    'event':    (MSGCOLOR['Event'],    'rail',      'emette (→ canale) / percepisce (canale →)'),
 }
 
 # [Claude, Oct 2026] COLORI: fondi chiari (stampabili) per i nodi -> (fondo, bordo)
@@ -317,6 +319,19 @@ FILL = {
     'extcontext':     ('#ffffff', '#555555'),
     'evband':         ('#fff1e6', '#e65100'),   # canale eventi (colore Event)
 }
+
+
+def rail(layer, points, color, mk_start=None, mk_end=None):
+    """[Claude, Oct 2026] Linea doppia ('binario') lungo una polilinea: tratto largo colorato,
+    tratto bianco sottile sopra, poi una polilinea invisibile che porta solo le frecce
+    (cosi' le frecce restano della dimensione normale)."""
+    pts = ' '.join('%.1f,%.1f' % p for p in points)
+    layer.append('<polyline points="%s" fill="none" stroke="%s" stroke-width="4.2" stroke-linejoin="round"/>' % (pts, color))
+    layer.append('<polyline points="%s" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>' % pts)
+    if mk_start or mk_end:
+        layer.append('<polyline points="%s" fill="none" stroke="none" stroke-width="1.4"%s%s/>'
+                     % (pts, ' marker-start="url(#%s)"' % mk_start if mk_start else '',
+                        ' marker-end="url(#%s)"' % mk_end if mk_end else ''))
 
 
 def tint(color, f=0.88):
@@ -785,10 +800,9 @@ def render(m, with_table=True):
             col = STYLE['event'][0]
             mk = S.marker(col)
             em, pe = bool(a['emits']), bool(a['perceives'])
-            S.mid.append('<polyline points="%.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="none" stroke="%s" stroke-width="1.2"%s%s/>'
-                         % (ab.right(), ys, xr, ys, xr, b.y, col,
-                            ' marker-start="url(#%s)"' % mk if pe else '',
-                            ' marker-end="url(#%s)"' % mk if em else ''))
+            # [Claude, Oct 2026] linea doppia per gli eventi (vedi rail)
+            rail(S.mid, [(ab.right(), ys), (xr, ys), (xr, b.y)], col,
+                 mk if pe else None, mk if em else None)
         if m.broker and '__broker' in L.nodes and any(
                 mode in ('emit', 'publish') for a in m.actors.values() if a['ctx'] == c for _, mode in a['emits']) \
                 or (m.broker and any(not emitted_by(m, ev) for ev in perceived_events(m, c))):
@@ -952,8 +966,11 @@ def draw_legend(S, m, L, y, used):
         color, dash, lab = STYLE[k]
         yy = y + 40 + 26 * i - 4
         mk = S.marker(color)
-        L_.append('<line x1="%s" y1="%.1f" x2="%s" y2="%.1f" stroke="%s" stroke-width="1.4"%s marker-end="url(#%s)"/>'
-                  % (x0, yy, x0 + 60, yy, color, ' stroke-dasharray="%s"' % dash if dash else '', mk))
+        if dash == 'rail':      # [Claude, Oct 2026] eventi: linea doppia
+            rail(L_, [(x0, yy), (x0 + 60, yy)], color, None, mk)
+        else:
+            L_.append('<line x1="%s" y1="%.1f" x2="%s" y2="%.1f" stroke="%s" stroke-width="1.4"%s marker-end="url(#%s)"/>'
+                      % (x0, yy, x0 + 60, yy, color, ' stroke-dasharray="%s"' % dash if dash else '', mk))
         S.text(L_, x0 + 72, yy + 4, lab, 10.5)
     return y + h
 

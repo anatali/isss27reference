@@ -49,7 +49,6 @@ class Robotmnemo ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						CommUtils.outblue("$name | at home. GUI on ...")
 						  rpos.robotAtHome(   )  
 						delay(500) 
-						delegate("doplan", "planexec") 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
