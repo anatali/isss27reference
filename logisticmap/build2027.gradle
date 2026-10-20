@@ -154,7 +154,7 @@ test {
        
 	// Configura quali eventi mostrare nei log
     testLogging {
-        // Mostra gli eventi base pi� le eccezioni
+        // Mostra gli eventi base più le eccezioni
         events "passed", "skipped", "failed", "standardOut", "standardError"
         
         // Mostra i dettagli delle eccezioni in caso di fallimento

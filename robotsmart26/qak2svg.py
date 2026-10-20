@@ -19,7 +19,7 @@ Simboli grafici
   CodedQActor     come QActor, con glifo { } al posto della FSM
   ExternalQActor  come QActor, bordo tratteggiato e fondo grigio
   QActor hidden   come QActor, bordo tratteggiato fine (stesso fondo), dentro il
-                  riquadro del suo contesto; stereotipo «QActor hidden»
+                  riquadro del suo contesto; stereotipo \u00abQActor hidden\u00bb
                   [Claude, Oct 2026] HIDDEN QActor
   POJO            icona (mini-classe) con il solo nome, DENTRO il QActor che lo
                   possiede [withobj]; nessuna indicazione di metodi
@@ -249,7 +249,7 @@ def tw(s, fs, mono=False):
 
 
 def trunc(s, n):
-    return s if len(s) <= n else s[:n - 1] + '…'
+    return s if len(s) <= n else s[:n - 1] + '\u2026'
 
 
 class Box:
@@ -294,7 +294,7 @@ MSGCOLOR = {
 }
 
 STYLE = {   # kind -> (colore, dasharray, legenda)
-    'request':  (MSGCOLOR['Request'],  '',          'request  (etichetta: richiesta → reply previste)'),
+    'request':  (MSGCOLOR['Request'],  '',          'request  (etichetta: richiesta \u2192 reply previste)'),
     'dispatch': (MSGCOLOR['Dispatch'], '7 4',       'dispatch (forward)'),
     'delegate': ('#8d6e00',            '10 3 2 3',  'delegate'),
     'observe':  ('#8e24aa',            '2 3',       'observeResource (CoAP)'),
@@ -303,7 +303,7 @@ STYLE = {   # kind -> (colore, dasharray, legenda)
     'mqtt':     ('#c62828',            '4 2',       'eventi via MQTT (eventTopic / publish)'),
     # [Claude, Oct 2026] 'rail' = linea DOPPIA (binario): distinguibile dalla linea continua
     # delle request anche in una stampa in bianco/nero
-    'event':    (MSGCOLOR['Event'],    'rail',      'emette (→ canale) / percepisce (canale →)'),
+    'event':    (MSGCOLOR['Event'],    'rail',      'emette (\u2192 canale) / percepisce (canale \u2192)'),
 }
 
 # [Claude, Oct 2026] COLORI: fondi chiari (stampabili) per i nodi -> (fondo, bordo)
@@ -632,12 +632,12 @@ def draw_actor(S, b, a):
         L.append('<circle cx="%.1f" cy="%.1f" r="2.4" fill="#333"/>' % (gx + 24, gy + 9))
         L.append('<path d="M%.1f,%.1f L%.1f,%.1f" stroke="#333" marker-end="url(#%s)"/>'
                  % (gx + 10, gy + 9, gx + 18.5, gy + 9, S.marker('#333333')))
-    stereo = {'QActor': '«QActor»', 'CodedQActor': '«CodedQActor»',
-              'ExternalQActor': '«ExternalQActor»'}[a['kind']]
+    stereo = {'QActor': '\u00abQActor\u00bb', 'CodedQActor': '\u00abCodedQActor\u00bb',
+              'ExternalQActor': '\u00abExternalQActor\u00bb'}[a['kind']]
     if ws:
-        stereo = '«WebService» ' + ('(ExternalQActor)' if ext else '')
+        stereo = '\u00abWebService\u00bb ' + ('(ExternalQActor)' if ext else '')
     if a.get('hidden'):                       # [Claude, Oct 2026] HIDDEN QActor
-        stereo = stereo[:-1] + ' hidden»'
+        stereo = stereo[:-1] + ' hidden\u00bb'
     S.text(L, b.cx + 6, b.y + 22, stereo, 9.5, 'middle', fill='#555')
     S.text(L, b.cx + 6, b.y + 41, a['name'], 14, 'middle', 'bold')
     badges = actor_badges(a)
@@ -690,7 +690,7 @@ def draw_webservice(S, b, ws):
     L.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="16" fill="%s" stroke="%s" stroke-width="1.6"/>'
              % ((b.x, b.y, b.w, b.h) + FILL['webservice']))     # [Claude, Oct 2026] COLORI
     draw_globe(L, b.x + 26, b.cy, 14)
-    S.text(L, b.cx + 18, b.y + 22, '«WebService»', 9.5, 'middle', fill='#555')
+    S.text(L, b.cx + 18, b.y + 22, '\u00abWebService\u00bb', 9.5, 'middle', fill='#555')
     S.text(L, b.cx + 18, b.y + 41, trunc(ws['label'], 30), 13, 'middle', 'bold')
     if ws['url']:
         S.text(L, b.cx + 18, b.y + 59, trunc(ws['url'], 40), 9.5, 'middle', fill='#333', mono=True)
@@ -705,7 +705,7 @@ def draw_proc(S, b, d):
     L.append('<path d="M%.1f,%.1f h%.1f l%s,%s v%.1f h%.1f z" fill="%s" stroke="%s" stroke-width="1.1"/>'
              % ((b.x, b.y, b.w - f, f, f, b.h - f, -b.w) + FILL['proc']))   # [Claude, Oct 2026] COLORI
     L.append('<path d="M%.1f,%.1f v%s h%s" fill="none" stroke="#555"/>' % (b.right() - f, b.y, f, f))
-    S.text(L, b.cx, b.y + 17, '«OS process»', 9, 'middle', fill='#555')
+    S.text(L, b.cx, b.y + 17, '\u00abOS process\u00bb', 9, 'middle', fill='#555')
     S.text(L, b.cx, b.y + 34, d['sub'], 9.5, 'middle', fill='#111', mono=True)
 
 
@@ -719,7 +719,7 @@ def draw_broker(S, b, br):
         L.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#333"/>' % (hx, hy, hx + 11 * math.cos(r), hy + 11 * math.sin(r)))
         L.append('<circle cx="%.1f" cy="%.1f" r="2.4" fill="#fff" stroke="#333"/>' % (hx + 11 * math.cos(r), hy + 11 * math.sin(r)))
     L.append('<circle cx="%.1f" cy="%.1f" r="4" fill="#333"/>' % (hx, hy))
-    S.text(L, b.cx + 14, b.y + 22, '«MQTT broker»', 9.5, 'middle', fill='#555')
+    S.text(L, b.cx + 14, b.y + 22, '\u00abMQTT broker\u00bb', 9.5, 'middle', fill='#555')
     S.text(L, b.cx + 14, b.y + 40, '%s : %s' % (br[0], br[1]), 12, 'middle', 'bold')
     S.text(L, b.cx + 14, b.y + 57, 'eventTopic "%s"' % br[2], 10.5, 'middle', italic=True)
 
@@ -838,7 +838,7 @@ def render(m, with_table=True):
         s = a['name']
         for d, msg in a['requests']:
             reps = [r for r, md in m.messages.items() if md['kind'] == 'Reply' and md['forr'] == msg]
-            line = msg + ('  → ' + ' | '.join(reps) if reps else '')
+            line = msg + ('  \u2192 ' + ' | '.join(reps) if reps else '')
             if d == s: selfl.setdefault(s, []).append(line)
             else: add(s, d, 'request', line)
         for d, msg in a['forwards']:
@@ -886,7 +886,7 @@ def render(m, with_table=True):
         elif kind == 'unknown':
             S.front.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="9" fill="#fff" stroke="#999" stroke-dasharray="3 3"/>'
                            % (b.x, b.y, b.w, b.h))
-            S.text(S.front, b.cx, b.y + 26, '«non dichiarato»', 9.5, 'middle', fill='#777')
+            S.text(S.front, b.cx, b.y + 26, '\u00abnon dichiarato\u00bb', 9.5, 'middle', fill='#777')
             S.text(S.front, b.cx, b.y + 45, d['name'], 13, 'middle', 'bold', '#555')
 
     # ---------- legenda + tabella
@@ -919,15 +919,15 @@ def perceived_events(m, ctx):
 
 def draw_legend(S, m, L, y, used):
     L_ = S.front
-    items_sym = [('actor', '«QActor»: mailbox + automa a stati')]
+    items_sym = [('actor', '\u00abQActor\u00bb: mailbox + automa a stati')]
     if any(a['pojos'] for a in m.actors.values()):        # [Claude, Oct 2026] POJO locali
         items_sym.append(('pojo', 'POJO locale al QActor (withobj)'))
-    if any(a['kind'] == 'CodedQActor' for a in m.actors.values()): items_sym.append(('coded', '«CodedQActor»'))
-    if any(a['kind'] == 'ExternalQActor' for a in m.actors.values()): items_sym.append(('ext', '«ExternalQActor»'))
+    if any(a['kind'] == 'CodedQActor' for a in m.actors.values()): items_sym.append(('coded', '\u00abCodedQActor\u00bb'))
+    if any(a['kind'] == 'ExternalQActor' for a in m.actors.values()): items_sym.append(('ext', '\u00abExternalQActor\u00bb'))
     if any(a.get('hidden') for a in m.actors.values()):   # [Claude, Oct 2026] HIDDEN QActor
-        items_sym.append(('hidden', '«QActor hidden»: invocabile solo dal suo contesto'))
-    if m.webservices or any(a.get('webservice') for a in m.actors.values()): items_sym.append(('ws', '«WebService»'))
-    if any(a['procs'] for a in m.actors.values()): items_sym.append(('proc', '«OS process»'))
+        items_sym.append(('hidden', '\u00abQActor hidden\u00bb: invocabile solo dal suo contesto'))
+    if m.webservices or any(a.get('webservice') for a in m.actors.values()): items_sym.append(('ws', '\u00abWebService\u00bb'))
+    if any(a['procs'] for a in m.actors.values()): items_sym.append(('proc', '\u00abOS process\u00bb'))
     kinds = [k for k in STYLE if k in used]
     rows = max(len(items_sym), len(kinds))
     h = 36 + 26 * rows
@@ -989,7 +989,7 @@ def message_rows(m):
             for a in m.actors.values():
                 s = a['name']
                 for d, msg in a['forwards'] + a['requests']:
-                    if msg == name: add(snd, '%s → %s' % (s, d))
+                    if msg == name: add(snd, '%s \u2192 %s' % (s, d))
                 if name in a['autodisp']: add(snd, '%s (auto)' % s)
                 for req, rep in a['replies']:
                     if rep == name: add(snd, s)
@@ -1004,11 +1004,11 @@ def message_rows(m):
 def message_cells(row):
     """[Claude, Oct 2026] Testi delle celle di una riga della tabella dei messaggi."""
     name, sig, kind, forr, snd, rcv = row
-    s_txt = ', '.join(snd) if snd else '— esterno al modello'
+    s_txt = ', '.join(snd) if snd else '\u2014 esterno al modello'
     if rcv:
         r_txt = ', '.join(rcv)
     else:
-        r_txt = '— chiamante (anche esterno al modello)' if kind == 'Reply' else '— nessun attore del modello'
+        r_txt = '\u2014 chiamante (anche esterno al modello)' if kind == 'Reply' else '\u2014 nessun attore del modello'
     return [name + (' : ' + sig if sig else ''), kind + (' for %s' % forr if forr else ''), s_txt, r_txt]
 
 
@@ -1017,7 +1017,7 @@ MSG_COL_CAP = [330, 230, 560, 560]   # [Claude, Oct 2026] larghezza massima (px)
 
 def message_col_widths(m):
     """[Claude, Oct 2026] Larghezze delle colonne calcolate dal contenuto (con tetto)."""
-    heads = ['Messaggio', 'Tipo', 'Inviato da (mittente → destinatario)', 'Ricevuto da']
+    heads = ['Messaggio', 'Tipo', 'Inviato da (mittente \u2192 destinatario)', 'Ricevuto da']
     ws = [tw(h, 10.5) + 18 for h in heads]
     for row in message_rows(m):
         for i, c in enumerate(message_cells(row)):
@@ -1046,7 +1046,7 @@ def draw_message_table(S, m, y, W):
     cols.append(20 + W)
     cap = lambda i: max(8, int((cols[i + 1] - cols[i] - 10) / (10.5 * 0.56)))
     L_.append('<rect x="20" y="%.1f" width="%.1f" height="20" fill="#ececec" stroke="#999"/>' % (y, W))
-    for x, t in zip(cols, ['#', 'Messaggio', 'Tipo', 'Inviato da (mittente → destinatario)', 'Ricevuto da']):
+    for x, t in zip(cols, ['#', 'Messaggio', 'Tipo', 'Inviato da (mittente \u2192 destinatario)', 'Ricevuto da']):
         S.text(L_, x + 8 if t == '#' else x, y + 14, t, 10.5, weight='bold')
     y0 = y
     y += 20
@@ -1091,7 +1091,7 @@ def draw_event_table(S, m, y, W):
     W = W - 40
     cols = [20, 50, 20 + W * 0.30, 20 + W * 0.58]
     L_.append('<rect x="20" y="%.1f" width="%.1f" height="20" fill="#ececec" stroke="#999"/>' % (y, W))
-    for x, t in zip(cols, ['#', 'Evento', 'Emesso da (modalità)', 'Percepito da']):
+    for x, t in zip(cols, ['#', 'Evento', 'Emesso da (modalit\u00e0)', 'Percepito da']):
         S.text(L_, x + 8 if t == '#' else x, y + 14, t, 10.5, weight='bold')
     y0 = y
     y += 20
@@ -1101,8 +1101,8 @@ def draw_event_table(S, m, y, W):
         yy = y + rh * i + 13
         S.text(L_, cols[0] + 8, yy, str(i + 1), 10.5)
         S.text(L_, cols[1], yy, trunc(name + (' : ' + sig if sig else ''), 52), 10.5)
-        e_txt = ', '.join('%s (%s)' % x for x in em) if em else '— esterno al modello (es. via MQTT)'
-        p_txt = ', '.join('%s%s' % (n, '' if k == 'whenEvent' else ' (%s)' % k) for n, k in pe) if pe else '— nessun attore del modello'
+        e_txt = ', '.join('%s (%s)' % x for x in em) if em else '\u2014 esterno al modello (es. via MQTT)'
+        p_txt = ', '.join('%s%s' % (n, '' if k == 'whenEvent' else ' (%s)' % k) for n, k in pe) if pe else '\u2014 nessun attore del modello'
         S.text(L_, cols[2], yy, trunc(e_txt, 60), 10.5, fill='#111' if em else '#8a1c1c')
         S.text(L_, cols[3], yy, trunc(p_txt, 80), 10.5, fill='#111' if pe else '#8a1c1c')
     y += rh * len(evs) + 4

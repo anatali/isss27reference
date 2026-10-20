@@ -1,5 +1,5 @@
 System logisticmap
-ModelFor Analysis: logisticmap_analisi1
+ModelFor Analysis: logisticmap_analisi1 
  
 Request  evallogistic  : args(R,X0,Y)
 Reply    replylogistic : result(R) for evallogistic  //R to be defined
@@ -10,7 +10,7 @@ Context ctxlogisticmap ip [ host="localhost" port=8333 ]
 
 QActor mapservice context ctxlogisticmap {
 	[# var Parameter_r_wrong  = false 
-	   var Parameter_X0_wrong = false 
+	   var Parameter_X0_wrong = false  
 	   var Parameter_Y_wrong  = false  
 	   var R  = 0.0  
 	   var X0 = 0.0   

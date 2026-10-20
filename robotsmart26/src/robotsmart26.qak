@@ -132,7 +132,7 @@ QActor robotsmart context ctxrobotsmart
         delegate tuneAtHome    to robotmnemo 
         delegate getrobotstate to robotmnemo
         delegate getenvmap     to robotmnemo
-        delegate setrobotstate to robotmnemo
+        delegate setrobotstate to robotmnemo 
         delegate setdirection  to robotmnemo 
         delegate doplan        to planexec  
         
