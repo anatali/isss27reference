@@ -1,0 +1,640 @@
+<title>Modellare le interazioni</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: colonna singola da report scientifico (~68ch), note a margine come riquadri, tabelle e figure in contenitori scorrevoli */
+:root{
+  --paper:#fcfcfa; --ink:#1b1d21; --ink-soft:#4a4f57; --rule:#cfd3d8;
+  --accent:#1f4e79; --accent-soft:#e8eef5; --note:#f3f5f2; --note-rule:#6b8a5e;
+  --warn:#f7f2e8; --warn-rule:#a67c2e; --code:#f2f3f5;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#16181b; --ink:#e4e6e9; --ink-soft:#a9afb8; --rule:#3a3f46;
+  --accent:#8db8e3; --accent-soft:#1f2a36; --note:#1c221c; --note-rule:#8fb07f;
+  --warn:#262117; --warn-rule:#d0a55a; --code:#1f2226; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#16181b; --ink:#e4e6e9; --ink-soft:#a9afb8; --rule:#3a3f46;
+  --accent:#8db8e3; --accent-soft:#1f2a36; --note:#1c221c; --note-rule:#8fb07f;
+  --warn:#262117; --warn-rule:#d0a55a; --code:#1f2226; color-scheme:dark}
+@media print{:root,:root[data-theme="dark"],:root:not([data-theme="light"]){
+  --paper:#fff; --ink:#000; --ink-soft:#333; --rule:#999; --accent:#1f4e79; --accent-soft:#fff;
+  --note:#fff; --note-rule:#555; --warn:#fff; --warn-rule:#555; --code:#fff; color-scheme:light}
+  pre,.note,figure,table{break-inside:avoid} a{color:#000}}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px}
+main{max-width:46rem;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.2;color:var(--ink)}
+h1{font-size:2.1rem;font-weight:700;margin:0 0 .4rem}
+h2{font-size:1.35rem;font-weight:600;margin:2.6rem 0 .6rem;padding-top:.8rem;border-top:1px solid var(--rule)}
+h2 .n{color:var(--accent);margin-right:.5rem;font-variant-numeric:tabular-nums}
+h3{font-size:1.05rem;font-weight:600;margin:1.6rem 0 .3rem}
+p{margin:.7rem 0}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.meta{font-family:var(--f-display);font-size:.9rem;color:var(--ink-soft);letter-spacing:.02em}
+.abstract{margin:1.6rem 0;padding:1rem 1.2rem;border-top:2px solid var(--ink);border-bottom:1px solid var(--rule)}
+.abstract h4,.label{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;margin:0 0 .3rem;color:var(--ink-soft)}
+.abstract p{margin:.3rem 0;font-size:.97rem}
+.kw{font-size:.88rem;color:var(--ink-soft)}
+nav.toc{font-family:var(--f-display);font-size:.93rem;columns:2 16rem;column-gap:2rem;margin:1rem 0 0}
+nav.toc a{display:block;text-decoration:none;padding:.12rem 0}
+nav.toc a:hover{text-decoration:underline}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--code);padding:.05em .3em;border-radius:3px}
+pre{font-family:var(--f-mono);font-size:.8rem;line-height:1.5;background:var(--code);border:1px solid var(--rule);padding:.9rem 1rem;overflow-x:auto;margin:1rem 0}
+pre code{background:none;padding:0}
+.cm{color:var(--ink-soft);font-style:italic}.k{color:var(--accent);font-weight:500}
+.note{margin:1.2rem 0;padding:.7rem 1rem;background:var(--note);border-left:3px solid var(--note-rule)}
+.note.w{background:var(--warn);border-left-color:var(--warn-rule)}
+.note .label{color:var(--note-rule)} .note.w .label{color:var(--warn-rule)}
+.note p{margin:.35rem 0;font-size:.95rem}
+blockquote{margin:1rem 0;padding:.2rem 0 .2rem 1rem;border-left:2px solid var(--rule);color:var(--ink-soft);font-style:italic}
+blockquote cite{display:block;font-style:normal;font-size:.85rem;margin-top:.3rem}
+.tw{overflow-x:auto;margin:1.2rem 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem;line-height:1.4}
+caption{caption-side:top;text-align:left;font-family:var(--f-display);font-size:.88rem;color:var(--ink-soft);padding-bottom:.4rem}
+th,td{border-bottom:1px solid var(--rule);padding:.45rem .55rem;text-align:left;vertical-align:top}
+thead th{font-family:var(--f-display);font-weight:600;border-bottom:1.5px solid var(--ink)}
+tbody th{font-weight:600}
+figure{margin:1.6rem 0}
+figure .frame{overflow-x:auto;border:1px solid var(--rule);background:#fff;padding:.5rem}
+figure .frame svg{display:block;max-width:100%;height:auto;margin:0 auto}
+figcaption{font-size:.88rem;color:var(--ink-soft);margin-top:.5rem}
+figcaption b{font-family:var(--f-display);color:var(--ink)}
+.stack{display:grid;gap:4px;font-family:var(--f-display);font-size:.88rem}
+.stack div{border:1px solid var(--rule);padding:.45rem .7rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.stack div span:last-child{color:var(--ink-soft)}
+.stack .hl{border:1.5px solid var(--accent);background:var(--accent-soft)}
+.stack .gap{border-style:dashed;text-align:center;justify-content:center;color:var(--ink-soft)}
+ol.refs{font-size:.88rem;padding-left:1.6rem} ol.refs li{margin:.3rem 0}
+.claim{font-family:var(--f-display);font-weight:600}
+@media (max-width:480px){body{font-size:16px} h1{font-size:1.7rem}}
+</style>
+
+<main>
+<header>
+<p class="meta">Ingegneria dei Sistemi Software · a.a. 2026-2027 · Report tecnico</p>
+<h1>Modellare le interazioni</h1>
+<p class="meta">Il ruolo di un linguaggio di modellazione eseguibile (qak) nell'analisi e nella progettazione di sistemi distribuiti ed eterogenei a microservizi</p>
+
+<section class="abstract">
+<h4>Sommario</h4>
+<p>Il report sostiene che, nei sistemi distribuiti a microservizi, l'oggetto primario dell'ingegneria non è il codice dei singoli componenti ma la <em>struttura delle loro interazioni</em>, e che tale struttura va espressa in un modello testuale, con sintassi e semantica precise, eseguibile da una macchina. Si ripercorre la genesi dei microservizi come reazione ai monoliti centrati sulla base di dati; si confronta la figura dell'ingegnere civile/meccanico, che produce modelli, con quella dell'ingegnere del software, percepito come programmatore; si mostra perché i linguaggi a oggetti mainstream sono un'involuzione rispetto all'idea di Alan Kay; si discute l'effetto dell'AI generativa sul ruolo professionale e sul rapporto tra generazione di codice da DSL e generazione da LLM. Come caso di studio si usa il modello qak <code>robotsmart26</code>, da cui si deriva automaticamente la vista architetturale. Chiude un confronto con Go, Erlang/Elixir, Akka, Orleans, Dapr, Jolie e Ballerina, e un elenco dei limiti dell'approccio.</p>
+<p class="kw"><b>Parole chiave:</b> microservizi, modello ad attori, linguaggi specifici di dominio, model-driven engineering, abstraction gap, AI generativa, sistemi complessi.</p>
+</section>
+
+<nav class="toc" aria-label="Indice">
+<a href="#s1">1. Modelli e macchine</a>
+<a href="#s2">2. Dal monolite ai microservizi</a>
+<a href="#s3">3. Oggetti: un'idea tradita</a>
+<a href="#s4">4. Prima le interazioni</a>
+<a href="#s5">5. Un linguaggio per l'interazione logica</a>
+<a href="#s6">6. Dal testo alla figura</a>
+<a href="#s7">7. Evoluzione incrementale di modelli</a>
+<a href="#s8">8. AI generativa e ruolo dell'ingegnere</a>
+<a href="#s9">9. Modello, DSL e LLM</a>
+<a href="#s10">10. Confronto con altri linguaggi</a>
+<a href="#s11">11. Limiti e rischi</a>
+<a href="#s12">12. Conclusioni</a>
+</nav>
+</header>
+
+<!-- ============================================================ -->
+<h2 id="s1"><span class="n">1</span>Modelli e macchine</h2>
+
+<p>L'ingegnere civile non costruisce ponti. Produce relazioni di calcolo, disegni esecutivi, capitolati: <em>modelli</em> del ponte, abbastanza precisi da permettere a un'impresa di realizzarlo e a un collaudatore di verificarlo. Lo stesso vale per l'ingegnere meccanico, che consegna un modello CAD e una distinta, non un motore. In entrambi i casi la distanza tra il modello e l'oggetto fisico è coperta da un processo di costruzione affidato ad altri, costoso e lento, che rende il modello l'unico luogo in cui si ragiona, si discute e si corregge.</p>
+
+<p>L'ingegnere informatico è percepito, e spesso percepisce sé stesso, in un altro modo: come il <em>programmatore</em> di una macchina. Il prodotto del suo lavoro sembra essere il codice, cioè direttamente il sistema. Jack Reeves ha osservato già nel 1992 che questa percezione nasce da un equivoco sul punto in cui avviene la costruzione: nel software la costruzione è il compilatore, ed è quasi gratuita; quindi il codice sorgente <em>è</em> il progetto, non il prodotto [<a href="#r-reeves">Reeves 1992</a>]. Se si accetta questa lettura, ne discende una conseguenza scomoda: un sistema scritto direttamente in un linguaggio general purpose è un progetto espresso nel linguaggio sbagliato, troppo vicino alla macchina perché committente, analisti e progettisti ci possano ragionare insieme.</p>
+
+<div class="note">
+<p class="label">Connessione con la fisica: che cosa è un modello</p>
+<p>In meccanica newtoniana il «punto materiale» o il «piano senza attrito» sono modelli: ignorano deliberatamente dettagli (forma, struttura interna, rugosità) per catturare ciò che conta per una domanda precisa, per esempio la traiettoria. Un modello è utile non perché è completo, ma perché è <em>adeguato alla domanda</em> e permette previsioni verificabili. Un modello software ha lo stesso statuto: un modello qak ignora socket, serializzazione e thread per catturare chi parla con chi, con quali messaggi e in quale ordine, e può essere eseguito per verificare che le previsioni siano corrette.</p>
+</div>
+
+<p>La tesi di questo report è che, per i sistemi distribuiti, l'ingegnere del software debba recuperare la postura dell'ingegnere civile: produrre <em>modelli</em>, con la differenza decisiva che i suoi modelli possono essere eseguiti. La macchina diventa allora l'impresa costruttrice e il collaudatore, e il modello resta il luogo del ragionamento.</p>
+
+<!-- ============================================================ -->
+<h2 id="s2"><span class="n">2</span>Dal monolite ai microservizi</h2>
+
+<p>Per gran parte degli anni '90 e 2000 l'architettura tipica di un sistema informativo era il <em>monolite centrato sulla base di dati</em>: un unico processo applicativo, spesso stratificato (presentazione, logica, persistenza), che condivideva uno schema relazionale comune. Lo schema era di fatto il vero contratto tra le parti del sistema: ogni modulo leggeva e scriveva le stesse tabelle, e l'integrazione avveniva <em>attraverso i dati</em>, non attraverso messaggi espliciti.</p>
+
+<p>I problemi di questa impostazione emergono con la scala e con il cambiamento:</p>
+<ul>
+<li>ogni modifica dello schema ha un raggio d'impatto difficile da stimare, perché l'accoppiamento tra moduli è nascosto nelle query;</li>
+<li>il rilascio è unico: una correzione in un modulo richiede di ricompilare, ritestare e ridistribuire tutto;</li>
+<li>la scalabilità è uniforme: non si può replicare solo la parte del sistema sotto carico;</li>
+<li>la scelta tecnologica è unica e vincolante per tutti i team.</li>
+</ul>
+
+<p>La Service-Oriented Architecture (SOA) dei primi anni 2000 tentò una prima risposta, ma la legò a infrastrutture pesanti (Enterprise Service Bus, standard WS-*), spostando la centralizzazione dal database al bus. Il termine <em>microservizi</em>, consolidato da Lewis e Fowler nel 2014 [<a href="#r-fowler">Lewis, Fowler 2014</a>], descrive invece uno stile in cui il sistema è un insieme di servizi piccoli, rilasciabili in modo indipendente, ciascuno <em>proprietario dei propri dati</em> (decentralized data management), che comunicano con meccanismi leggeri e sono organizzati attorno a capacità di business. La legge di Conway [<a href="#r-conway">Conway 1968</a>], secondo cui l'architettura di un sistema rispecchia la struttura comunicativa dell'organizzazione che lo produce, viene usata deliberatamente: un team, un servizio.</p>
+
+<p class="claim">Il punto concettuale è questo: eliminando il database condiviso, i microservizi eliminano l'integrazione implicita attraverso i dati. Ciò che resta come collante del sistema sono soltanto i messaggi.</p>
+
+<p>Ne segue che l'architettura di un sistema a microservizi <em>è</em> la struttura delle sue interazioni. Ed è proprio questa struttura che i linguaggi più diffusi non sanno esprimere.</p>
+
+<!-- ============================================================ -->
+<h2 id="s3"><span class="n">3</span>Oggetti: un'idea tradita</h2>
+
+<p>Alan Kay, che coniò l'espressione <em>object-oriented</em> lavorando a Smalltalk negli anni '70, ha ripetuto più volte che l'idea centrale non erano le classi ma i <em>messaggi</em>:</p>
+
+<blockquote>OOP to me means only messaging, local retention and protection and hiding of state-process, and extreme late-binding of all things.
+<cite>A. Kay, e-mail a S. Ram, 2003 [<a href="#r-kay03">Kay 2003</a>]</cite></blockquote>
+
+<blockquote>The big idea is "messaging" […] The key in making great and growable systems is much more to design how its modules communicate rather than what their internal properties and behaviors should be.
+<cite>A. Kay, lista squeak-dev, 1998 [<a href="#r-kay98">Kay 1998</a>]</cite></blockquote>
+
+<p>Nell'immagine di Kay, ispirata alla biologia cellulare e alle reti di calcolatori, un oggetto è un piccolo calcolatore autonomo che riceve messaggi e decide come reagire. Nel 1973 Carl Hewitt formalizzava il <em>modello ad attori</em> [<a href="#r-hewitt">Hewitt et al. 1973</a>]: entità che hanno uno stato privato, una casella di posta (mailbox) e che, in risposta a un messaggio, possono inviare messaggi, creare altri attori e cambiare il proprio comportamento.</p>
+
+<p>I linguaggi che hanno portato gli oggetti nell'industria, C++ e poi Java e C#, hanno preso un'altra strada. Il «messaggio» è diventato una <em>chiamata di metodo</em>, cioè una chiamata di procedura con un primo argomento implicito (<code>this</code>). Il chiamante trasferisce il controllo del proprio flusso di esecuzione al chiamato e resta bloccato fino al ritorno. Lo stato è condiviso tramite riferimenti; la concorrenza è un'aggiunta di libreria (thread, lock, monitor), e la distribuzione un'aggiunta ancora successiva (RMI, CORBA, poi REST e gRPC).</p>
+
+<div class="tw"><table>
+<caption>Tabella 1. Il «messaggio» nell'idea originaria e nei linguaggi mainstream</caption>
+<thead><tr><th>Aspetto</th><th>Smalltalk / modello ad attori</th><th>Java, C#, C++</th></tr></thead>
+<tbody>
+<tr><th>Unità di composizione</th><td>Entità autonoma che reagisce a messaggi</td><td>Struttura dati con procedure associate</td></tr>
+<tr><th>Interazione</th><td>Invio di messaggio, di norma asincrono</td><td>Chiamata sincrona, trasferimento del controllo</td></tr>
+<tr><th>Stato</th><td>Privato, mai condiviso</td><td>Raggiungibile tramite riferimenti, spesso condiviso</td></tr>
+<tr><th>Concorrenza</th><td>Intrinseca (ogni attore è un flusso)</td><td>Libreria esterna al modello (thread, lock)</td></tr>
+<tr><th>Distribuzione</th><td>Naturale: un messaggio può attraversare la rete</td><td>Simulata da proxy che imitano una chiamata locale</td></tr>
+<tr><th>Contratto</th><td>Il vocabolario dei messaggi</td><td>L'<code>interface</code> (firma dei metodi)</td></tr>
+</tbody></table></div>
+
+<p>L'ultima riga della tabella è il cuore del problema. Waldo e colleghi, in un lavoro di Sun Microsystems del 1994 [<a href="#r-waldo">Waldo et al. 1994</a>], mostrarono che il tentativo di rendere una chiamata remota indistinguibile da una locale è destinato a fallire: latenza, guasti parziali, assenza di memoria condivisa e concorrenza non sono dettagli implementativi ma differenze <em>di natura</em>. Le «fallacie del calcolo distribuito» (la rete è affidabile, la latenza è zero, la topologia non cambia, …) [<a href="#r-fallacies">Deutsch et al.</a>] descrivono esattamente gli errori a cui induce un modello mentale basato sulla chiamata di metodo.</p>
+
+<p>Per questo si può parlare di <em>involuzione</em>: i linguaggi a oggetti mainstream hanno conservato del progetto di Kay la parte strutturale (incapsulamento, ereditarietà) e hanno perso la parte dinamica (messaggi, autonomia, concorrenza intrinseca), che è proprio quella richiesta dai sistemi distribuiti. Nel lessico del corso, essi permettono di <em>costruire</em> un servizio (con pattern, framework, configurazioni di rete), ma non di <em>esprimerlo</em>: non esiste una parola chiave <code>service</code>, né una per <code>request</code>, <code>reply</code> o <code>event</code> [<a href="#r-sprints">AboutSprints</a>].</p>
+
+<div class="note">
+<p class="label">Costruire e esprimere</p>
+<p><b>Costruire</b> significa realizzare una funzionalità con i mezzi del linguaggio disponibile, per esempio un servizio come classe che apre un socket, decodifica JSON e smista le richieste. <b>Esprimere</b> significa dichiarare la natura del componente con un costrutto nativo che la macchina comprende direttamente, per esempio <code>QActor robotsmart context ctxrobotsmart</code>. La quantità di codice che serve per costruire ciò che non si può esprimere è il <em>boilerplate code</em>, ed è una misura pratica dell'<em>abstraction gap</em>.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s4"><span class="n">4</span>Prima le interazioni, poi i comportamenti</h2>
+
+<p>È utile distinguere tre classi di sistemi, secondo una terminologia diffusa anche fuori dall'informatica [<a href="#r-snowden">Snowden, Boone 2007</a>]:</p>
+<ul>
+<li><b>semplici</b>: relazione causa-effetto evidente; basta applicare la regola giusta (un convertitore di formati);</li>
+<li><b>complicati</b>: causa-effetto esistono ma richiedono analisi esperta; il tutto è la somma delle parti (un compilatore, un motore a combustione);</li>
+<li><b>complessi</b>: il comportamento globale <em>emerge</em> dalle interazioni tra parti autonome e non è deducibile dall'esame delle singole parti; causa ed effetto si riconoscono solo a posteriori (un mercato, il traffico urbano, un sistema IoT con decine di dispositivi, servizi e utenti).</li>
+</ul>
+
+<p>Un sistema complicato si progetta bene scomponendolo: se ogni componente è corretto e la composizione è gerarchica, il sistema è corretto. Un sistema complesso no. Molti malfunzionamenti dei sistemi a microservizi (cascate di timeout, tempeste di retry, stati incoerenti dopo un guasto parziale, deadlock distribuiti) nascono in sistemi i cui componenti sono, ciascuno, corretti. Il difetto è nell'<em>interazione</em>.</p>
+
+<div class="note">
+<p class="label">Connessione con la fisica: «more is different»</p>
+<p>La temperatura di un gas non è una proprietà di alcuna singola molecola: è una proprietà statistica che emerge dalle collisioni tra molte molecole. Conoscere perfettamente la meccanica di una molecola non basta a spiegare una transizione di fase come il congelamento dell'acqua. Il fisico P. W. Anderson ha riassunto questa idea nel titolo «More is different» [<a href="#r-anderson">Anderson 1972</a>]: a ogni livello di organizzazione compaiono leggi nuove, che vanno studiate in quanto tali. Analogamente, in un sistema a microservizi le proprietà di interesse (latenza end-to-end, consistenza, tolleranza ai guasti) sono proprietà delle interazioni, e vanno descritte e analizzate al livello delle interazioni.</p>
+</div>
+
+<p>Kay lo aveva detto esplicitamente (citazione nella sezione 3): progettare <em>come i moduli comunicano</em> conta più che progettare le loro proprietà interne. Se si accetta questa priorità, il linguaggio di progetto deve rendere le interazioni oggetti di prima classe, osservabili e verificabili, invece di lasciarle disperse in chiamate di libreria all'interno del codice dei componenti.</p>
+
+<!-- ============================================================ -->
+<h2 id="s5"><span class="n">5</span>Un linguaggio per gli aspetti logici dell'interazione</h2>
+
+<p>Il linguaggio qak (Quasi-Actor Kotlin), definito con Xtext [<a href="#r-xtext">Xtext</a>] e corredato di una software factory che genera codice Kotlin, è un esempio di linguaggio di modellazione che rende le interazioni costrutti nativi. I suoi concetti fondamentali sono pochi:</p>
+
+<div class="tw"><table>
+<caption>Tabella 2. Concetti di base del linguaggio qak</caption>
+<thead><tr><th>Concetto</th><th>Significato logico</th></tr></thead>
+<tbody>
+<tr><th><code>System</code></th><td>Il sistema distribuito nel suo insieme.</td></tr>
+<tr><th><code>Context</code></th><td>Un nodo logico (un processo) con un indirizzo di rete; ospita attori e offre loro il supporto alla comunicazione.</td></tr>
+<tr><th><code>QActor</code></th><td>Componente autonomo con mailbox e comportamento ad automa a stati finiti; è l'unità di (micro)servizio.</td></tr>
+<tr><th><code>Dispatch</code></th><td>Messaggio punto-a-punto senza risposta attesa (<em>fire and forget</em>).</td></tr>
+<tr><th><code>Request</code> / <code>Reply … for …</code></th><td>Interazione domanda-risposta; il legame <code>for</code> rende esplicito quali risposte sono ammesse.</td></tr>
+<tr><th><code>Event</code></th><td>Informazione emessa senza destinatario; chiunque sia interessato la percepisce.</td></tr>
+<tr><th><code>State</code> / <code>Transition … whenMsg / whenRequest</code></th><td>Comportamento: in quali stati l'attore accetta quali messaggi.</td></tr>
+<tr><th><code>delegate</code></th><td>Un attore inoltra a un altro la gestione di una richiesta, mantenendo verso l'esterno il ruolo di unico punto di accesso.</td></tr>
+</tbody></table></div>
+
+<p>Un estratto del modello <code>robotsmart26</code> (progetto <code>robotsmart26</code> nel repository <a href="https://github.com/anatali/isss27reference/tree/main">anatali/isss27reference</a>) mostra lo stile:</p>
+
+<pre><code><span class="k">System</span> robotsmart26
+<span class="k">mqttBroker</span> "localhost" : 1883 <span class="k">eventTopic</span> "robotsmart26in"
+
+<span class="k">Request</span>  moverobot       : moverobot(TARGETX, TARGETY, STEPTIME)
+<span class="k">Reply</span>    moverobotdone   : moverobotdone(ARG)                  <span class="k">for</span> moverobot
+<span class="k">Reply</span>    moverobotfailed : moverobotfailed(PLANDONE, PLANTODO) <span class="k">for</span> moverobot
+<span class="k">Request</span>  doplan          : doplan(PLAN, STEPTIME)
+<span class="k">Reply</span>    doplandone      : doplandone(ARG)          <span class="k">for</span> doplan
+<span class="k">Reply</span>    doplanfailed    : doplanfailed(PLANTODO)   <span class="k">for</span> doplan
+<span class="k">Dispatch</span> partnerstarted  : partnerstarted(NAME)
+<span class="k">Event</span>    sonardata       : sonar(DISTANCE)
+
+<span class="k">Context</span> ctxrobotsmart <span class="k">ip</span> [host="localhost" port=8020]
+
+<span class="k">QActor</span> robotsmart <span class="k">context</span> ctxrobotsmart
+       <span class="k">withobj</span> planner <span class="k">using</span> "utils.planning.AStarPathfinding()" {
+  <span class="k">State</span> s0 <span class="k">initial</span> { println("$name | starts") }
+  <span class="k">Transition</span> t0 <span class="k">whenMsg</span> partnerstarted -&gt; finishstart
+
+  <span class="k">State</span> finishstart {
+    <span class="k">delegate</span> step   <span class="k">to</span> robotmnemo
+    <span class="k">delegate</span> doplan <span class="k">to</span> planexec
+  }
+  <span class="cm">// ...</span>
+  <span class="k">State</span> waitinputmsg { }
+  <span class="k">Transition</span> t0
+     <span class="k">whenRequest</span> buildPlan -&gt; buildPlan
+     <span class="k">whenRequest</span> moverobot -&gt; domoverobot
+  <span class="cm">// ...</span>
+  <span class="k">State</span> endMOveok {
+     <span class="k">replyTo</span> moverobot <span class="k">with</span> moverobotdone : moverobotdone(ok)
+  }
+}
+<span class="k">QActor</span> robotmnemo <span class="k">context</span> ctxrobotsmart <span class="k">hidden</span> { <span class="cm">/* ... */</span> }
+<span class="k">QActor</span> planexec   <span class="k">context</span> ctxrobotsmart <span class="k">hidden</span> { <span class="cm">/* ... */</span> }</code></pre>
+
+<p>Tre osservazioni.</p>
+<p><b>Il contratto è il vocabolario dei messaggi.</b> Le prime righe dichiarano tutto ciò che un altro servizio, scritto in qualsiasi linguaggio, deve sapere per interagire con <code>robotsmart</code>: nomi, struttura (termini Prolog-like) e, per le richieste, l'insieme chiuso delle risposte possibili. È l'equivalente di una <code>interface</code>, ma orientata ai messaggi e indipendente dal linguaggio dell'interlocutore.</p>
+<p><b>La tecnologia è sullo sfondo.</b> L'unica traccia di protocollo è la riga <code>mqttBroker</code> e l'indirizzo del <code>Context</code>. Il modello non dice come i messaggi viaggiano (TCP, CoAP, MQTT): lo decide il supporto generato. Spostare un attore in un altro contesto, su un altro nodo, cambia una riga del modello e nessuna riga della logica.</p>
+<p><b>Il comportamento è vincolato dall'interazione.</b> Le transizioni <code>whenRequest</code> e <code>whenMsg</code> dicono in quali stati l'attore è disposto ad accettare quali messaggi. Questo è esattamente il tipo di informazione che in Java resta implicito nel flusso di controllo.</p>
+
+<div class="note">
+<p class="label">Connessione con la fisica: teorie efficaci</p>
+<p>La termodinamica descrive gas e motori con poche grandezze (pressione, volume, temperatura) senza mai nominare gli atomi, eppure è esatta entro il suo dominio. I fisici chiamano <em>teoria efficace</em> [<a href="#r-eft">Effective theory</a>] una descrizione valida a una certa scala, che incorpora i dettagli microscopici solo attraverso pochi parametri. Un modello qak è una teoria efficace del sistema: descrive componenti, messaggi e stati; i protocolli e le infrastrutture entrano solo come parametri (un indirizzo, un broker). Come in fisica, il guadagno è doppio: si ragiona con meno variabili, e si può cambiare la «fisica microscopica» (la tecnologia) senza riscrivere le leggi macroscopiche (la logica dell'interazione).</p>
+</div>
+
+<figure>
+<div class="stack" role="img" aria-label="Livelli di astrazione dai requisiti alla macchina">
+<div><span>Concetti dei requisiti: servizio, richiesta, risposta, evento, nodo</span><span>committente, analista</span></div>
+<div class="hl"><span>Modello qak: QActor, Request/Reply, Event, Context</span><span>analista, progettista</span></div>
+<div><span>Codice Kotlin generato + supporto runtime (ActorBasicFsm, contesti, coroutine)</span><span>software factory</span></div>
+<div><span>Protocolli e infrastrutture: TCP, CoAP, MQTT, serializzazione</span><span>libreria</span></div>
+<div><span>JVM, sistema operativo, rete</span><span>piattaforma</span></div>
+</div>
+<figcaption><b>Figura 1.</b> Il linguaggio di modellazione si colloca vicino ai concetti dei requisiti. Senza di esso, il salto tra il primo e il terzo livello (l'abstraction gap) deve essere colmato a mano, con codice di contorno.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2 id="s6"><span class="n">6</span>Dal testo alla figura, non viceversa</h2>
+
+<p>La pratica più diffusa con UML segue una direzione: si disegna un diagramma (di classi, di componenti, di sequenza) e poi si scrive a mano il codice che lo realizza. Il diagramma serve all'inizio, durante una discussione; poi il codice evolve, per correzioni, refactoring, nuove richieste, e il diagramma non viene aggiornato. Fowler ha descritto questa situazione distinguendo l'uso di UML «come schizzo» da quello «come progetto» e «come linguaggio di programmazione», e osservando che solo il primo è realmente diffuso [<a href="#r-umlsketch">Fowler, UmlAsSketch</a>]. Il risultato è la cosiddetta <em>deriva architetturale</em>: la documentazione descrive un sistema che non esiste più.</p>
+
+<p>La ragione è strutturale. Una figura non ha una semantica eseguibile, quindi nessuno strumento può segnalare che è diventata falsa. Il codice invece viene eseguito e collaudato ogni giorno: nel conflitto tra i due, vince sempre il codice.</p>
+
+<p>Con un modello testuale eseguibile la direzione si inverte. Il modello è la sorgente di verità; da esso si derivano automaticamente sia il codice sia le viste grafiche. Nel caso di qak la catena è:</p>
+<ol>
+<li>il file <code>robotsmart26.qak</code> viene analizzato dal parser generato da Xtext;</li>
+<li>la software factory produce il codice Kotlin e una descrizione del sistema come fatti Prolog (<code>robotsmart26.pl</code>: <code>request(moverobot, …)</code>, <code>reply(moverobotdone, …)</code>, contesti, attori);</li>
+<li>uno strumento come <code>qak2svg.py</code> legge il modello e produce la vista architetturale.</li>
+</ol>
+
+<figure>
+<div class="frame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 773 954" role="img" aria-label="Architettura di robotsmart26" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="me65100" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e65100"/></marker><marker id="dme65100" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#e65100"/></marker><marker id="mc62828" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c62828"/></marker><marker id="dmc62828" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#c62828"/></marker><marker id="m1565c0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1565c0"/></marker><marker id="dm1565c0" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#1565c0"/></marker><marker id="m8d6e00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8d6e00"/></marker><marker id="dm8d6e00" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#8d6e00"/></marker><marker id="m2e7d32" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e7d32"/></marker><marker id="dm2e7d32" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#2e7d32"/></marker><marker id="m333333" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker><marker id="dm333333" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto-start-reverse"><path d="M1,5 L7,1 L13,5 L7,9 z" fill="#333333"/></marker></defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="20" y="34" font-size="19" font-weight="bold" fill="#111">System robotsmart26</text>
+<rect x="40.0" y="200.0" width="692.6" height="508.0" rx="12" fill="#fbfbfb" stroke="#222222" stroke-width="1.6"/>
+<text x="54.0" y="222.0" font-size="13" text-anchor="start" font-weight="bold" fill="#111">Context ctxrobotsmart</text>
+<text x="54.0" y="238.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#333">localhost : 8020</text>
+<rect x="60.0" y="650.0" width="652.6" height="34.0" rx="6" fill="#fff1e6" stroke="#e65100"/>
+<text x="386.3" y="671.0" font-size="11" text-anchor="middle" font-weight="bold" fill="#7a2e00">canale degli eventi del contesto ctxrobotsmart</text>
+<polyline points="666.6,381.0 680.6,381.0 680.6,650.0" fill="none" stroke="#e65100" stroke-width="4.2" stroke-linejoin="round"/>
+<polyline points="666.6,381.0 680.6,381.0 680.6,650.0" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+<polyline points="666.6,381.0 680.6,381.0 680.6,650.0" fill="none" stroke="none" stroke-width="1.4" marker-start="url(#me65100)" marker-end="url(#me65100)"/>
+<polyline points="276.3,606.0 299.3,606.0 299.3,650.0" fill="none" stroke="#e65100" stroke-width="4.2" stroke-linejoin="round"/>
+<polyline points="276.3,606.0 299.3,606.0 299.3,650.0" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+<polyline points="276.3,606.0 299.3,606.0 299.3,650.0" fill="none" stroke="none" stroke-width="1.4" marker-start="url(#me65100)"/>
+<polyline points="712.6,667.0 714.6,667.0 714.6,95.0 506.3,95.0" fill="none" stroke="#c62828" stroke-width="1.4" stroke-dasharray="4 2" marker-start="url(#mc62828)" marker-end="url(#mc62828)"/>
+<line x1="271.4" y1="316.6" x2="466.6" y2="319.8" stroke="#1565c0" stroke-width="1.4" marker-end="url(#m1565c0)"/>
+<line x1="184.1" y1="382.0" x2="184.1" y2="541.0" stroke="#1565c0" stroke-width="1.4" marker-end="url(#m1565c0)"/>
+<line x1="271.2" y1="332.6" x2="466.3" y2="335.8" stroke="#8d6e00" stroke-width="1.4" stroke-dasharray="10 3 2 3" marker-end="url(#m8d6e00)"/>
+<line x1="168.1" y1="382.0" x2="168.1" y2="541.0" stroke="#8d6e00" stroke-width="1.4" stroke-dasharray="10 3 2 3" marker-end="url(#m8d6e00)"/>
+<line x1="466.4" y1="327.8" x2="271.3" y2="324.6" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="7 4" marker-end="url(#m2e7d32)"/>
+<line x1="235.9" y1="534.2" x2="472.3" y2="388.2" stroke="#1565c0" stroke-width="1.4" marker-end="url(#m1565c0)"/>
+<line x1="244.3" y1="547.8" x2="480.7" y2="401.8" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="7 4" marker-end="url(#m2e7d32)"/>
+<path d="M201.1,284.0 C201.1,254.0 241.1,254.0 241.1,283.0" fill="none" stroke="#2e7d32" stroke-width="1.3" stroke-dasharray="7 4" marker-end="url(#m2e7d32)"/>
+<path d="M596.6,284.0 C596.6,254.0 636.6,254.0 636.6,283.0" fill="none" stroke="#2e7d32" stroke-width="1.3" stroke-dasharray="7 4" marker-end="url(#m2e7d32)"/>
+<path d="M206.3,541.0 C206.3,511.0 246.3,511.0 246.3,540.0" fill="none" stroke="#2e7d32" stroke-width="1.3" stroke-dasharray="7 4" marker-end="url(#m2e7d32)"/>
+<rect x="266.3" y="60.0" width="240.0" height="70.0" rx="8" fill="#fde8ec" stroke="#7a2333" stroke-width="1.4"/>
+<line x1="290.3" y1="95.0" x2="301.3" y2="95.0" stroke="#333"/>
+<circle cx="301.3" cy="95.0" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="290.3" y1="95.0" x2="295.8" y2="104.5" stroke="#333"/>
+<circle cx="295.8" cy="104.5" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="290.3" y1="95.0" x2="284.8" y2="104.5" stroke="#333"/>
+<circle cx="284.8" cy="104.5" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="290.3" y1="95.0" x2="279.3" y2="95.0" stroke="#333"/>
+<circle cx="279.3" cy="95.0" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="290.3" y1="95.0" x2="284.8" y2="85.5" stroke="#333"/>
+<circle cx="284.8" cy="85.5" r="2.4" fill="#fff" stroke="#333"/>
+<line x1="290.3" y1="95.0" x2="295.8" y2="85.5" stroke="#333"/>
+<circle cx="295.8" cy="85.5" r="2.4" fill="#fff" stroke="#333"/>
+<circle cx="290.3" cy="95.0" r="4" fill="#333"/>
+<text x="400.3" y="82.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«MQTT broker»</text>
+<text x="400.3" y="100.0" font-size="12" text-anchor="middle" font-weight="bold" fill="#111">localhost : 1883</text>
+<text x="400.3" y="117.0" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#111" font-style="italic">eventTopic &quot;robotsmart26in&quot;</text>
+<rect x="81.1" y="284.0" width="190.0" height="98.0" rx="9" fill="#e3f0fc" stroke="#1f3b5c" stroke-width="1.6"/>
+<rect x="89.1" y="298.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="89.1" y="306.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="89.1" y="315.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="89.1" y="323.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<path d="M95.1,334.0 l0,6 m-3,-3 l3,3 l3,-3" fill="none" stroke="#444" stroke-width="0.9"/>
+<circle cx="242.1" cy="305.0" r="5" fill="#fff" stroke="#333"/>
+<circle cx="261.1" cy="305.0" r="5" fill="#fff" stroke="#333"/>
+<circle cx="261.1" cy="305.0" r="2.4" fill="#333"/>
+<path d="M247.1,305.0 L255.6,305.0" stroke="#333" marker-end="url(#m333333)"/>
+<text x="182.1" y="306.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«QActor»</text>
+<text x="182.1" y="325.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#111">robotsmart</text>
+<g><title>planner : AStarPathfinding</title>
+<rect x="147.5" y="348.0" width="69.2" height="20" rx="5" fill="#fff3cd" stroke="#a07800" stroke-width="1"/>
+<rect x="153.5" y="352.0" width="10.0" height="12.0" rx="1.5" fill="#fff" stroke="#a07800" stroke-width="1"/>
+<rect x="153.5" y="352.0" width="10.0" height="4.0" fill="#a07800"/>
+<line x1="155.5" y1="359.0" x2="161.5" y2="359.0" stroke="#a07800" stroke-width="0.7"/>
+<line x1="155.5" y1="361.5" x2="161.5" y2="361.5" stroke="#a07800" stroke-width="0.7"/>
+<text x="169.5" y="362.0" font-size="10" text-anchor="start" font-weight="bold" fill="#3d2e00">planner</text>
+</g>
+<rect x="466.3" y="284.0" width="200.3" height="111.0" rx="9" fill="#e3f0fc" stroke="#1f3b5c" stroke-width="1.6" stroke-dasharray="3 3"/>
+<rect x="474.3" y="298.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="474.3" y="306.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="474.3" y="315.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="474.3" y="323.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<path d="M480.3,334.0 l0,6 m-3,-3 l3,3 l3,-3" fill="none" stroke="#444" stroke-width="0.9"/>
+<circle cx="637.6" cy="305.0" r="5" fill="#fff" stroke="#333"/>
+<circle cx="656.6" cy="305.0" r="5" fill="#fff" stroke="#333"/>
+<circle cx="656.6" cy="305.0" r="2.4" fill="#333"/>
+<path d="M642.6,305.0 L651.1,305.0" stroke="#333" marker-end="url(#m333333)"/>
+<text x="572.4" y="306.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«QActor hidden»</text>
+<text x="572.4" y="325.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#111">robotmnemo</text>
+<text x="572.4" y="342.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#333">risorsa CoAP (updateResource)</text>
+<g><title>rpos : RobotPosUtils</title>
+<rect x="513.2" y="361.0" width="52.4" height="20" rx="5" fill="#fff3cd" stroke="#a07800" stroke-width="1"/>
+<rect x="519.2" y="365.0" width="10.0" height="12.0" rx="1.5" fill="#fff" stroke="#a07800" stroke-width="1"/>
+<rect x="519.2" y="365.0" width="10.0" height="4.0" fill="#a07800"/>
+<line x1="521.2" y1="372.0" x2="527.2" y2="372.0" stroke="#a07800" stroke-width="0.7"/>
+<line x1="521.2" y1="374.5" x2="527.2" y2="374.5" stroke="#a07800" stroke-width="0.7"/>
+<text x="535.2" y="375.0" font-size="10" text-anchor="start" font-weight="bold" fill="#3d2e00">rpos</text>
+</g>
+<g><title>robot : VRObjForQak</title>
+<rect x="573.6" y="361.0" width="58.0" height="20" rx="5" fill="#fff3cd" stroke="#a07800" stroke-width="1"/>
+<rect x="579.6" y="365.0" width="10.0" height="12.0" rx="1.5" fill="#fff" stroke="#a07800" stroke-width="1"/>
+<rect x="579.6" y="365.0" width="10.0" height="4.0" fill="#a07800"/>
+<line x1="581.6" y1="372.0" x2="587.6" y2="372.0" stroke="#a07800" stroke-width="0.7"/>
+<line x1="581.6" y1="374.5" x2="587.6" y2="374.5" stroke="#a07800" stroke-width="0.7"/>
+<text x="595.6" y="375.0" font-size="10" text-anchor="start" font-weight="bold" fill="#3d2e00">robot</text>
+</g>
+<rect x="76.0" y="541.0" width="200.3" height="79.0" rx="9" fill="#e3f0fc" stroke="#1f3b5c" stroke-width="1.6" stroke-dasharray="3 3"/>
+<rect x="84.0" y="555.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="84.0" y="563.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="84.0" y="572.0" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<rect x="84.0" y="580.5" width="12" height="7" fill="#fff" stroke="#444" stroke-width="0.9"/>
+<path d="M90.0,591.0 l0,6 m-3,-3 l3,3 l3,-3" fill="none" stroke="#444" stroke-width="0.9"/>
+<circle cx="247.3" cy="562.0" r="5" fill="#fff" stroke="#333"/>
+<circle cx="266.3" cy="562.0" r="5" fill="#fff" stroke="#333"/>
+<circle cx="266.3" cy="562.0" r="2.4" fill="#333"/>
+<path d="M252.3,562.0 L260.8,562.0" stroke="#333" marker-end="url(#m333333)"/>
+<text x="182.1" y="563.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#555">«QActor hidden»</text>
+<text x="182.1" y="582.0" font-size="14" text-anchor="middle" font-weight="bold" fill="#111">planexec</text>
+<text x="182.1" y="599.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#333">risorsa CoAP (updateResource)</text>
+<rect x="20" y="758.0" width="732.6" height="166.0" rx="6" fill="#fff" stroke="#999"/>
+<text x="34.0" y="780.0" font-size="12" text-anchor="start" font-weight="bold" fill="#111">Legenda</text>
+<rect x="36" y="785.0" width="46" height="20" rx="4" fill="#e3f0fc" stroke="#1f3b5c"/>
+<rect x="40" y="788.0" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<rect x="40" y="794.5" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<circle cx="62" cy="795.0" r="3" fill="#fff" stroke="#333"/><circle cx="74" cy="795.0" r="3" fill="#333"/>
+<text x="94.0" y="799.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">«QActor»: mailbox + automa a stati</text>
+<rect x="36" y="811.0" width="46" height="20" rx="5" fill="#fff3cd" stroke="#a07800"/>
+<rect x="41.0" y="815.0" width="10.0" height="12.0" rx="1.5" fill="#fff" stroke="#a07800" stroke-width="1"/>
+<rect x="41.0" y="815.0" width="10.0" height="4.0" fill="#a07800"/>
+<line x1="43.0" y1="822.0" x2="49.0" y2="822.0" stroke="#a07800" stroke-width="0.7"/>
+<line x1="43.0" y1="824.5" x2="49.0" y2="824.5" stroke="#a07800" stroke-width="0.7"/>
+<text x="55.0" y="825.0" font-size="9.5" text-anchor="start" font-weight="bold" fill="#3d2e00">obj</text>
+<text x="94.0" y="825.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">POJO locale al QActor (withobj)</text>
+<rect x="36" y="837.0" width="46" height="20" rx="4" fill="#e3f0fc" stroke="#1f3b5c" stroke-dasharray="2 2"/>
+<rect x="40" y="840.0" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<rect x="40" y="846.5" width="7" height="5" fill="#fff" stroke="#444" stroke-width="0.7"/>
+<circle cx="62" cy="847.0" r="3" fill="#fff" stroke="#333"/><circle cx="74" cy="847.0" r="3" fill="#333"/>
+<text x="94.0" y="851.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">«QActor hidden»: invocabile solo dal suo contesto</text>
+<line x1="420" y1="794.0" x2="480" y2="794.0" stroke="#1565c0" stroke-width="1.4" marker-end="url(#m1565c0)"/>
+<text x="492.0" y="798.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">request  (etichetta: richiesta → reply previste)</text>
+<line x1="420" y1="820.0" x2="480" y2="820.0" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="7 4" marker-end="url(#m2e7d32)"/>
+<text x="492.0" y="824.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">dispatch (forward)</text>
+<line x1="420" y1="846.0" x2="480" y2="846.0" stroke="#8d6e00" stroke-width="1.4" stroke-dasharray="10 3 2 3" marker-end="url(#m8d6e00)"/>
+<text x="492.0" y="850.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">delegate</text>
+<line x1="420" y1="872.0" x2="480" y2="872.0" stroke="#c62828" stroke-width="1.4" stroke-dasharray="4 2" marker-end="url(#mc62828)"/>
+<text x="492.0" y="876.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">eventi via MQTT (eventTopic / publish)</text>
+<polyline points="420.0,898.0 480.0,898.0" fill="none" stroke="#e65100" stroke-width="4.2" stroke-linejoin="round"/>
+<polyline points="420.0,898.0 480.0,898.0" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+<polyline points="420.0,898.0 480.0,898.0" fill="none" stroke="none" stroke-width="1.4" marker-end="url(#me65100)"/>
+<text x="492.0" y="902.0" font-size="10.5" text-anchor="start" font-weight="normal" fill="#111">emette (→ canale) / percepisce (canale →)</text>
+<rect x="277.2" y="310.0" width="183.6" height="16.5" rx="3" fill="#e8f0f9" fill-opacity="0.95" stroke="#1565c0" stroke-width="0.6"/>
+<text x="369.0" y="323.0" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#1565c0">setdirection  → setdirectiondone</text>
+<rect x="84.1" y="453.2" width="200.1" height="16.5" rx="3" fill="#e8f0f9" fill-opacity="0.95" stroke="#1565c0" stroke-width="0.6"/>
+<text x="184.1" y="466.2" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#1565c0">doplan  → doplandone | doplanfailed</text>
+<rect x="303.4" y="344.6" width="128.7" height="91.5" rx="3" fill="#f4f0e6" fill-opacity="0.95" stroke="#8d6e00" stroke-width="0.6"/>
+<text x="367.8" y="357.6" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#8d6e00">delegate step</text>
+<text x="367.8" y="370.1" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#8d6e00">delegate move</text>
+<text x="367.8" y="382.6" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#8d6e00">delegate tuneAtHome</text>
+<text x="367.8" y="395.1" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#8d6e00">delegate getrobotstate</text>
+<text x="367.8" y="407.6" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#8d6e00">delegate getenvmap</text>
+<text x="367.8" y="420.1" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#8d6e00">delegate setrobotstate</text>
+<text x="367.8" y="432.6" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#8d6e00">delegate setdirection</text>
+<rect x="123.0" y="434.2" width="90.3" height="16.5" rx="3" fill="#f4f0e6" fill-opacity="0.95" stroke="#8d6e00" stroke-width="0.6"/>
+<text x="168.1" y="447.2" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#8d6e00">delegate doplan</text>
+<rect x="327.0" y="285.7" width="84.8" height="16.5" rx="3" fill="#eaf2ea" fill-opacity="0.95" stroke="#2e7d32" stroke-width="0.6"/>
+<text x="369.4" y="298.7" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#2e7d32">partnerstarted</text>
+<rect x="218.5" y="485.1" width="167.2" height="16.5" rx="3" fill="#e8f0f9" fill-opacity="0.95" stroke="#1565c0" stroke-width="0.6"/>
+<text x="302.1" y="498.1" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#1565c0">step  → stepdone | stepfailed</text>
+<rect x="347.6" y="466.6" width="30.0" height="16.5" rx="3" fill="#eaf2ea" fill-opacity="0.95" stroke="#2e7d32" stroke-width="0.6"/>
+<text x="362.5" y="479.6" font-size="9.8" text-anchor="middle" font-weight="normal" fill="#2e7d32">move</text>
+<text x="221.1" y="250.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#2e7d32" font-style="italic">self: noplan</text>
+<text x="616.6" y="250.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#2e7d32" font-style="italic">self: noplan, changedir</text>
+<text x="226.3" y="507.0" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#2e7d32" font-style="italic">self: nomoremove, nextmove</text>
+</svg>
+</div>
+<figcaption><b>Figura 2.</b> Vista architetturale di <code>robotsmart26</code> generata automaticamente da <code>qak2svg.py</code> a partire dal modello testuale (nessun intervento manuale). Si leggono il contesto, l'attore pubblico <code>robotsmart</code>, i due attori <code>hidden</code> a cui delega, i messaggi (request in blu, dispatch in verde, delegate in ocra) e il broker MQTT per gli eventi. Se il modello cambia, la figura si rigenera.</figcaption>
+</figure>
+
+<div class="tw"><table>
+<caption>Tabella 3. Figura come sorgente e figura come vista derivata</caption>
+<thead><tr><th></th><th>UML disegnato, codice scritto a mano</th><th>Modello testuale eseguibile, figura derivata</th></tr></thead>
+<tbody>
+<tr><th>Sorgente di verità</th><td>Ambigua: il diagramma all'inizio, il codice dopo</td><td>Il modello, sempre</td></tr>
+<tr><th>Semantica</th><td>Informale o parziale</td><td>Definita dalla grammatica e dal generatore</td></tr>
+<tr><th>Allineamento nel tempo</th><td>Manuale, quindi raro</td><td>Automatico, a ogni build</td></tr>
+<tr><th>Versionamento con Git</th><td>File binari o XML poco leggibili nei diff</td><td>Testo: diff, review e merge ordinari</td></tr>
+<tr><th>Verifica</th><td>Ispezione visiva</td><td>Esecuzione, test, interrogazioni sui fatti Prolog</td></tr>
+</tbody></table></div>
+
+<div class="note">
+<p class="label">Strumenti: perché il formato testuale conta per Git e GitHub</p>
+<p>Git registra la storia di un progetto come sequenza di modifiche a file; per i file di testo mostra esattamente quali righe sono cambiate (<em>diff</em>) e permette di fondere il lavoro di più persone (<em>merge</em>). Su GitHub, una <em>pull request</em> è una proposta di modifica che altri possono commentare riga per riga. Un modello testuale entra in questo flusso come qualsiasi codice: una modifica all'architettura («spostiamo <code>planexec</code> in un altro contesto») diventa una riga di diff discutibile in review. Un diagramma disegnato con un editor grafico, salvato in formato binario o in XML prolisso, non si presta a questo tipo di lavoro.</p>
+</div>
+
+<div class="note">
+<p class="label">Connessione con la fisica: equazioni e grafici</p>
+<p>In fisica il grafico di una traiettoria si ricava dalle equazioni del moto, non il contrario. Nessuno modifica il grafico per cambiare il moto: si cambiano le condizioni iniziali o le forze, e si ritraccia il grafico. Nel modello testuale vale la stessa gerarchia: il testo è l'equazione, la figura è il grafico.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s7"><span class="n">7</span>Sviluppo come evoluzione incrementale di modelli eseguibili</h2>
+
+<p>Se il modello è eseguibile, il processo di produzione può essere organizzato come una sequenza di modelli, ciascuno raffinamento del precedente, ciascuno eseguibile e collaudabile. In un processo agile a Sprint, questo si traduce in modo naturale:</p>
+
+<div class="tw"><table>
+<caption>Tabella 4. I modelli nelle fasi del processo</caption>
+<thead><tr><th>Fase</th><th>Domanda guida</th><th>Contenuto del modello qak</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><th>Analisi dei requisiti (Sprint0)</th><td>Quali componenti e quali interazioni sono nominati dal committente?</td><td>Solo attori e messaggi esplicitamente evocati dai requisiti; comportamento minimo o assente</td><td>Formalizzare il testo, confronto operativo con il committente, primi TestPlan funzionali</td></tr>
+<tr><th>Analisi del problema</th><td>Quali problematiche nascono dai requisiti? Quale architettura logica?</td><td>Attori aggiuntivi motivati dall'analisi, contesti, scelta tra dispatch, request ed event</td><td>Architettura logica; definizione dell'abstraction gap residuo</td></tr>
+<tr><th>Progettazione</th><td>Come si realizzano le responsabilità?</td><td>Stati e transizioni completi, POJO di supporto (<code>withobj</code>), delega</td><td>Prototipo funzionante, inizialmente in un solo contesto con attori <em>mock</em></td></tr>
+<tr><th>Realizzazione e deployment</th><td>Dove gira ciascun componente?</td><td>Distribuzione degli attori su più contesti/nodi; sostituzione di mock con servizi reali, anche non qak</td><td>Sistema distribuito eterogeneo, stessi TestPlan</td></tr>
+</tbody></table></div>
+
+<p>Due proprietà rendono il procedimento robusto. La prima: ogni modello è eseguibile, quindi ogni Sprint consegna qualcosa che la macchina può far girare e che i TestPlan possono verificare. La seconda: la logica di interazione viene fissata <em>prima</em> della distribuzione. Si parte con tutti gli attori in un unico <code>Context</code>, dove alcuni fanno da mock di servizi non ancora disponibili; una volta collaudata l'interazione, si estrae un attore e lo si colloca su un altro nodo, o lo si sostituisce con un servizio scritto in un'altra tecnologia che rispetti lo stesso vocabolario di messaggi [<a href="#r-sprints">AboutSprints</a>].</p>
+
+<div class="note">
+<p class="label">Connessione con la fisica: approssimazioni successive</p>
+<p>Il moto di un pianeta si studia prima come problema di due corpi (Sole e pianeta), poi si aggiungono come perturbazioni gli effetti degli altri pianeti. Ogni passo è un modello completo, verificabile contro le osservazioni, e il successivo ne corregge le previsioni senza buttarlo via. Lo sviluppo per modelli eseguibili procede allo stesso modo: il modello dei requisiti è il «problema dei due corpi», i raffinamenti successivi sono le perturbazioni.</p>
+</div>
+
+<h3>Discutere intorno a un modello</h3>
+<p>Una revisione condotta sul codice finale tende a scivolare su questioni locali: nomi di variabili, gestione di eccezioni, scelte di libreria. Una revisione condotta su un modello di venti righe mette sul tavolo le domande che contano: questa interazione deve essere una richiesta o un evento? Chi è responsabile della risposta in caso di fallimento? Che cosa succede se arriva <code>moverobot</code> mentre l'attore è nello stato <code>planAndDomoves</code>? Il modello abbassa la soglia di partecipazione (anche il committente può leggerlo) e alza il livello della discussione. Il modello è anche abbastanza piccolo da essere tenuto a mente per intero, il che il codice generato, di diverse migliaia di righe, non è.</p>
+
+<!-- ============================================================ -->
+<h2 id="s8"><span class="n">8</span>L'AI generativa sposta la responsabilità dell'ingegnere</h2>
+
+<p>I modelli linguistici di grandi dimensioni (LLM) scrivono oggi codice idiomatico in tutti i linguaggi mainstream, a partire da descrizioni in linguaggio naturale. Il costo marginale della produzione di codice si è ridotto in modo drastico. Ciò che non si è ridotto è il costo di decidere <em>che cosa</em> il codice debba fare, di verificare che lo faccia, e di mantenerlo coerente nel tempo.</p>
+
+<p>La conseguenza professionale è uno spostamento di responsabilità lungo la catena del valore:</p>
+<ul>
+<li><b>da implementatore ad analista di problematiche</b>: individuare i requisiti impliciti, le ambiguità, le situazioni di errore che il committente non ha nominato;</li>
+<li><b>da programmatore a progettista di soluzioni</b>: scegliere componenti, interazioni, distribuzione, e motivare le scelte;</li>
+<li><b>da autore a revisore e collaudatore</b>: definire i criteri di accettazione (TestPlan) e giudicare il codice prodotto da altri, umani o macchine.</li>
+</ul>
+
+<p>Queste attività hanno un tratto in comune: richiedono un linguaggio per esprimere decisioni a un livello superiore al codice. Il linguaggio naturale è adatto a iniziare la discussione, ma è ambiguo; il codice è preciso, ma troppo vicino alla macchina. Un linguaggio di modellazione con semantica precisa occupa esattamente lo spazio tra i due, ed è lo strumento naturale dell'ingegnere nel ruolo che l'AI gli sta assegnando. In questo senso l'AI non rende i modelli superflui: li rende il prodotto principale del lavoro ingegneristico, come lo sono per l'ingegnere civile.</p>
+
+<div class="note">
+<p class="label">Strumenti: che cosa fa un LLM quando «scrive codice»</p>
+<p>Un LLM genera testo un frammento (<em>token</em>) alla volta, scegliendo a ogni passo una continuazione probabile date le istruzioni ricevute (il <em>prompt</em>) e il materiale fornito come contesto. Non esegue il codice che produce, salvo che sia inserito in un ambiente che glielo permetta (un <em>agente</em> con accesso a terminale e test). Ne seguono due proprietà rilevanti qui: lo stesso prompt può produrre codice diverso in esecuzioni diverse, e la qualità del risultato dipende molto dalla precisione del contesto fornito.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s9"><span class="n">9</span>Modello, DSL e LLM: sostituzione o complementarità?</h2>
+
+<p>Un modello qak può essere usato in due modi per ottenere codice: dato in ingresso al generatore della software factory (trasformazione deterministica), oppure dato come contesto a un LLM insieme a una richiesta («realizza in Go/Python il servizio <code>robotsmart</code> che rispetti questo vocabolario e questo automa»). Ci si può chiedere se il secondo uso renda superfluo il primo, e se la disponibilità dell'AI <em>freni</em> lo sviluppo di infrastrutture che elevano il livello di astrazione.</p>
+
+<div class="tw"><table>
+<caption>Tabella 5. Generazione da DSL e generazione da LLM guidata dal modello</caption>
+<thead><tr><th>Proprietà</th><th>Generatore del DSL</th><th>LLM guidato dal modello</th></tr></thead>
+<tbody>
+<tr><th>Determinismo</th><td>Stesso modello, stesso codice</td><td>Risultati variabili tra esecuzioni</td></tr>
+<tr><th>Correttezza della traduzione</th><td>Garantita dal generatore (verificato una volta)</td><td>Da verificare a ogni generazione</td></tr>
+<tr><th>Tracciabilità modello-codice</th><td>Completa e ripetibile</td><td>Parziale, affidata a convenzioni</td></tr>
+<tr><th>Copertura</th><td>Solo ciò che il linguaggio prevede</td><td>Qualsiasi linguaggio e libreria di destinazione</td></tr>
+<tr><th>Costo di estensione</th><td>Alto: modifica di grammatica e generatore</td><td>Basso: si cambia il prompt</td></tr>
+<tr><th>Eterogeneità</th><td>Un linguaggio di destinazione (Kotlin)</td><td>Più linguaggi per servizi diversi</td></tr>
+<tr><th>Volume del codice da mantenere</th><td>Ridotto: si mantiene il modello, il codice si rigenera</td><td>Alto: il codice generato diventa sorgente e va mantenuto</td></tr>
+</tbody></table></div>
+
+<p>La tabella suggerisce che i due usi rispondono a esigenze diverse. Il generatore del DSL è il modo corretto di produrre la <em>struttura</em> che si ripete identica in ogni servizio: gestione della mailbox, ciclo dell'automa, instradamento dei messaggi tra contesti, adattatori di protocollo. Questa parte deve essere identica ogni volta, e affidarla a un processo non deterministico introduce variabilità dove non serve. L'LLM è utile per le parti che il DSL non copre o non deve coprire: il corpo delle azioni negli stati, i POJO di dominio (per esempio il pianificatore A*), i servizi eterogenei scritti in altre tecnologie che devono solo rispettare il vocabolario dei messaggi, e la scrittura stessa di bozze di modello a partire dal testo dei requisiti.</p>
+
+<p>Il rischio di <em>freno</em> però è reale, e va nominato. Se un LLM produce in pochi secondi il codice di contorno per un servizio REST in Java, l'incentivo economico a costruire un'infrastruttura che elimini quel codice si riduce. Ma il codice di contorno non sparisce: viene prodotto più in fretta e resta nel repository, dove va letto, revisionato, collaudato e mantenuto. L'abstraction gap non viene chiuso, viene coperto. Il debito si sposta dalla scrittura alla comprensione, e la comprensione è proprio l'attività che, secondo la sezione 8, è diventata il compito principale dell'ingegnere.</p>
+
+<p class="claim">Posizione di questo report: il modello eseguibile e l'infrastruttura che lo supporta sono il punto fisso; l'AI generativa è un acceleratore che opera attorno a quel punto fisso, non al suo posto.</p>
+
+<p>In termini operativi, la combinazione più solida sembra essere:</p>
+<ol>
+<li>il modello qak come <em>contratto</em> formale, versionato e revisionato dagli umani;</li>
+<li>il generatore deterministico per lo scheletro strutturale e il supporto di comunicazione;</li>
+<li>l'LLM, con il modello nel contesto, per il codice applicativo locale e per i servizi eterogenei;</li>
+<li>i fatti Prolog derivati dal modello e i TestPlan come <em>oracolo</em> per verificare automaticamente che il codice prodotto dall'LLM rispetti il vocabolario e le interazioni dichiarate.</li>
+</ol>
+<p>Il punto 4 rovescia un timore diffuso: invece di chiedersi se ci si possa fidare del codice generato dall'AI, si dispone di una specifica eseguibile contro cui misurarlo.</p>
+
+<div class="note w">
+<p class="label">Una domanda aperta</p>
+<p>Se gli LLM diventano abbastanza affidabili da tradurre un modello in codice senza errori, il generatore del DSL perde una parte del suo vantaggio, ma il modello no. La parte del lavoro che resta difficile, cioè decidere e verificare la struttura delle interazioni, richiede comunque un linguaggio preciso. Il valore di qak si sposta allora dalla generazione di codice alla <em>formalizzazione</em>: il linguaggio vale per ciò che permette di dire, prima ancora che per ciò che permette di generare.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s10"><span class="n">10</span>Confronto con altri linguaggi e piattaforme</h2>
+
+<p>Il riconoscimento che gli oggetti mainstream non bastano per i sistemi concorrenti e distribuiti ha prodotto, nell'industria, diverse risposte. È utile collocare qak rispetto a esse con un criterio preciso: <em>a quale livello</em> ciascuna proposta rende esprimibili concorrenza, comunicazione e distribuzione.</p>
+
+<h3>Go</h3>
+<p>Go (Google, 2009) adotta il modello CSP di Hoare [<a href="#r-hoare">Hoare 1978</a>]: processi leggeri (<em>goroutine</em>) che comunicano tramite <em>canali</em> tipati. Il suo motto, «Do not communicate by sharing memory; instead, share memory by communicating» [<a href="#r-goshare">Go blog</a>], è vicino allo spirito di Kay. Go ha avuto un grande successo industriale proprio nell'infrastruttura dei microservizi: Docker, Kubernetes, etcd, Prometheus sono scritti in Go. Tuttavia i canali sono <em>locali al processo</em>: la distribuzione resta affidata a librerie (gRPC, HTTP), e il vocabolario dei messaggi tra servizi non è un costrutto del linguaggio. Go riduce il gap per la concorrenza, non per la distribuzione.</p>
+
+<h3>Erlang ed Elixir</h3>
+<p>Erlang (Ericsson, 1986) è l'implementazione industriale più fedele del modello ad attori: processi isolati, comunicazione solo per messaggi, distribuzione trasparente tra nodi, e la filosofia «let it crash» con alberi di supervisione (OTP) per la tolleranza ai guasti [<a href="#r-armstrong">Armstrong 2003</a>]. È usato in telecomunicazioni e in sistemi di messaggistica di grande scala (WhatsApp ne è l'esempio più citato); Elixir ne porta il runtime (BEAM) a una comunità più ampia. È l'antenato concettuale più vicino a qak, con una differenza: in Erlang il protocollo di interazione resta implicito nel pattern matching del codice, non dichiarato in un vocabolario separato.</p>
+
+<h3>Akka (Scala/Java) e Kotlin</h3>
+<p>Akka porta gli attori sulla JVM come libreria, con versioni tipate in cui il tipo del messaggio accettato fa parte della firma dell'attore e con supporto al clustering. È diffuso in ambito finanziario e di streaming. Kotlin, il linguaggio di destinazione di qak, offre coroutine e canali [<a href="#r-kotlin">Kotlin channels</a>]: è su queste primitive che il supporto qak realizza gli attori. Qui si vede bene la differenza tra libreria e linguaggio: Akka e le coroutine forniscono i mattoni, qak li compone in costrutti dichiarativi.</p>
+
+<h3>Microsoft Orleans e Dapr</h3>
+<p>Orleans (.NET) introduce gli <em>attori virtuali</em>: l'attore esiste logicamente sempre, e il runtime lo attiva, lo colloca e lo ricolloca sui nodi in modo automatico [<a href="#r-orleans">Orleans</a>]. Dapr (progetto CNCF) offre gli attori e la comunicazione publish/subscribe come <em>sidecar</em> indipendente dal linguaggio: ogni servizio, in qualsiasi linguaggio, parla con un processo affiancato che gestisce rete, stato e messaggi [<a href="#r-dapr">Dapr</a>]. Entrambe le proposte spostano la tecnologia sullo sfondo, come qak, ma al livello della piattaforma di esecuzione, non del linguaggio di modellazione.</p>
+
+<h3>Jolie e Ballerina</h3>
+<p>Due proposte sono particolarmente vicine alla tesi di questo report, perché fanno del servizio un costrutto del linguaggio. <b>Jolie</b>, nato in ambito accademico italiano (Università di Bologna, F. Montesi, M. Gabbrielli e altri), è un linguaggio di programmazione orientato ai servizi: interfacce, porte di ingresso e uscita, protocolli e composizione sono costrutti nativi, e il protocollo di trasporto si cambia per configurazione [<a href="#r-jolie">Jolie</a>]. <b>Ballerina</b> (WSO2) è un linguaggio per l'integrazione di servizi di rete in cui i servizi, i client e le interazioni sono costrutti di prima classe; il suo ambiente genera <em>diagrammi di sequenza a partire dal codice</em> [<a href="#r-ballerina">Ballerina</a>], cioè applica lo stesso principio della sezione 6.</p>
+
+<div class="tw"><table>
+<caption>Tabella 6. Confronto sintetico</caption>
+<thead><tr><th>Proposta</th><th>Unità</th><th>Comunicazione</th><th>Distribuzione nel linguaggio</th><th>Vocabolario dei messaggi esplicito</th><th>Vista grafica dal testo</th><th>Diffusione industriale</th></tr></thead>
+<tbody>
+<tr><th>Java / C# (+ framework)</th><td>Oggetto</td><td>Chiamata di metodo; rete via librerie</td><td>No</td><td>Solo con IDL esterni (OpenAPI, protobuf)</td><td>No</td><td>Altissima</td></tr>
+<tr><th>Go</th><td>Goroutine</td><td>Canali locali (CSP)</td><td>No</td><td>No (protobuf esterno)</td><td>No</td><td>Molto alta (infrastruttura cloud)</td></tr>
+<tr><th>Erlang / Elixir</th><td>Processo-attore</td><td>Messaggi asincroni</td><td>Sì, trasparente</td><td>Implicito nel pattern matching</td><td>No</td><td>Media, di nicchia critica</td></tr>
+<tr><th>Akka</th><td>Attore</td><td>Messaggi, tipati</td><td>Sì (cluster), via libreria</td><td>Parziale (tipi dei messaggi)</td><td>No</td><td>Media</td></tr>
+<tr><th>Orleans / Dapr</th><td>Attore virtuale / servizio</td><td>Messaggi, pub/sub</td><td>Sì, nel runtime</td><td>Parziale</td><td>No</td><td>Media, in crescita</td></tr>
+<tr><th>Jolie</th><td>Servizio</td><td>Operazioni one-way e request-response</td><td>Sì, per configurazione</td><td>Sì (interfacce)</td><td>Strumenti di ricerca</td><td>Bassa</td></tr>
+<tr><th>Ballerina</th><td>Servizio</td><td>Client e servizi di rete</td><td>Sì</td><td>Sì</td><td>Sì (sequence diagram)</td><td>Bassa-media</td></tr>
+<tr><th>qak</th><td>QActor in Context</td><td>Dispatch, Request/Reply, Event</td><td>Sì, per configurazione del modello</td><td>Sì, dichiarato e separato</td><td>Sì (qak2svg)</td><td>Didattica e prototipale</td></tr>
+</tbody></table></div>
+
+<p>Il quadro che emerge è coerente. L'industria si è mossa verso la comunicazione per messaggi (Go, Erlang, Akka) e verso la tecnologia sullo sfondo (Dapr, Orleans), ma quasi sempre al livello della <em>libreria</em> o del <em>runtime</em>. Le proposte che portano il servizio e l'interazione al livello del <em>linguaggio</em> (Jolie, Ballerina, qak) sono meno diffuse, pur essendo quelle più adatte a fare da linguaggio di analisi e di progetto. qak si distingue per due scelte: il vocabolario dei messaggi è separato dal comportamento, e il modello è pensato per essere scritto <em>già in fase di analisi dei requisiti</em>, non solo in fase di implementazione. Non è in competizione con Go o Erlang come linguaggio di produzione: i servizi reali di un sistema eterogeneo possono essere scritti in quei linguaggi, purché rispettino il vocabolario dichiarato nel modello.</p>
+
+<!-- ============================================================ -->
+<h2 id="s11"><span class="n">11</span>Limiti e rischi dell'approccio</h2>
+
+<p>Un report che sostiene una tesi deve indicarne i limiti. Per un linguaggio di modellazione come qak i principali sono questi.</p>
+<ul>
+<li><b>Ecosistema.</b> Un DSL «aziendale» non ha la comunità, la documentazione e gli strumenti (debugger, profiler, integrazioni con l'IDE) di un linguaggio mainstream. Il costo di manutenzione della software factory ricade su chi la possiede.</li>
+<li><b>Codice generato.</b> Quando qualcosa non funziona, si finisce a leggere il codice Kotlin generato. Se l'astrazione «perde», il vantaggio si riduce; la qualità del generatore e dei messaggi di errore è decisiva.</li>
+<li><b>Espressività limitata per scelta.</b> Ciò che il linguaggio non prevede va scritto nei blocchi di codice Kotlin incorporati (<code>[# … #]</code>). Un uso eccessivo di questi blocchi riporta la logica fuori dal modello e ne erode il valore.</li>
+<li><b>Proprietà non funzionali.</b> Prestazioni, sicurezza, osservabilità in produzione sono in larga parte demandate al supporto runtime e richiedono competenze tecnologiche che il modello, per costruzione, non mostra.</li>
+<li><b>Adozione.</b> In un contesto industriale la scelta di un DSL è anche organizzativa: formazione, assunzioni, dipendenza da pochi esperti.</li>
+<li><b>Sopravvalutazione dei microservizi.</b> Non ogni sistema deve essere distribuito. Diverse organizzazioni sono tornate a monoliti modulari quando il costo della distribuzione superava i benefici. Un modello eseguibile aiuta anche qui: lo stesso modello può girare in un solo contesto (monolite logico) o in molti, e la scelta può essere rinviata e rivista.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="s12"><span class="n">12</span>Conclusioni</h2>
+
+<p>Gli argomenti esposti convergono su una tesi unica. I microservizi hanno eliminato il database condiviso come collante dei sistemi; ciò che resta è l'interazione, e l'interazione è il luogo in cui nascono le proprietà, desiderate o patologiche, dei sistemi complessi. I linguaggi a oggetti mainstream, avendo ridotto il messaggio di Kay a una chiamata di procedura, permettono di costruire queste interazioni ma non di esprimerle. Un linguaggio di modellazione come qak le rende costrutti nativi, lascia la tecnologia sullo sfondo e produce modelli eseguibili da cui si derivano automaticamente codice, descrizioni formali e viste grafiche.</p>
+
+<p>L'AI generativa rafforza questa tesi invece di indebolirla. Rendendo economica la scrittura di codice, sposta il valore del lavoro ingegneristico verso l'analisi e il progetto, attività che richiedono un linguaggio più preciso del linguaggio naturale e più astratto del codice. Il modello eseguibile diventa così il contratto tra committente, analisti, progettisti e, oggi, anche gli strumenti generativi: un punto fisso rispetto al quale verificare tutto il resto.</p>
+
+<p>In questo senso l'ingegnere del software torna a essere ciò che sono gli ingegneri delle altre discipline: un costruttore di modelli. La differenza, che è anche il suo vantaggio, è che i suoi modelli girano.</p>
+
+<!-- ============================================================ -->
+<h2 id="refs"><span class="n">R</span>Riferimenti</h2>
+<ol class="refs">
+<li id="r-sprints">A. Natali, <em>AboutSprints</em>, ISS 2026, documento del corso (Costruire vs. Esprimere; abstraction gap; Sprint0). Repository di riferimento: <a href="https://github.com/anatali/isss27reference/tree/main">github.com/anatali/isss27reference</a>; anno precedente: <a href="https://github.com/anatali/issLab2026">github.com/anatali/issLab2026</a>.</li>
+<li id="r-reeves">J. W. Reeves, «What Is Software Design?», <em>C++ Journal</em>, 1992. <a href="https://www.developerdotstar.com/mag/articles/reeves_design.html">developerdotstar.com</a></li>
+<li id="r-fowler">J. Lewis, M. Fowler, «Microservices», 2014. <a href="https://martinfowler.com/articles/microservices.html">martinfowler.com/articles/microservices.html</a></li>
+<li id="r-conway">M. E. Conway, «How Do Committees Invent?», <em>Datamation</em>, 1968. <a href="https://www.melconway.com/Home/Committees_Paper.html">melconway.com</a></li>
+<li id="r-kay03">A. Kay, e-mail a S. Ram sul significato di «object-oriented», 2003. <a href="https://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en">userpage.fu-berlin.de</a></li>
+<li id="r-kay98">A. Kay, «prototypes vs classes was: Re: Sun's HotSpot», lista squeak-dev, ottobre 1998. <a href="http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html">lists.squeakfoundation.org</a></li>
+<li id="r-hewitt">C. Hewitt, P. Bishop, R. Steiger, «A Universal Modular ACTOR Formalism for Artificial Intelligence», IJCAI 1973. <a href="https://www.ijcai.org/Proceedings/73/Papers/027B.pdf">ijcai.org</a></li>
+<li id="r-waldo">J. Waldo, G. Wyant, A. Wollrath, S. Kendall, «A Note on Distributed Computing», Sun Microsystems Laboratories, TR-94-29, 1994. <a href="https://scholar.harvard.edu/files/waldo/files/waldo-94.pdf">scholar.harvard.edu</a></li>
+<li id="r-fallacies">L. P. Deutsch et al., «Fallacies of distributed computing». <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing">en.wikipedia.org</a></li>
+<li id="r-snowden">D. J. Snowden, M. E. Boone, «A Leader's Framework for Decision Making», <em>Harvard Business Review</em>, 2007. <a href="https://hbr.org/2007/11/a-leaders-framework-for-decision-making">hbr.org</a></li>
+<li id="r-anderson">P. W. Anderson, «More Is Different», <em>Science</em> 177, 1972. <a href="https://www.science.org/doi/10.1126/science.177.4047.393">doi:10.1126/science.177.4047.393</a></li>
+<li id="r-eft">Teoria efficace (effective field theory). <a href="https://en.wikipedia.org/wiki/Effective_field_theory">en.wikipedia.org</a></li>
+<li id="r-xtext">Eclipse Xtext, framework per linguaggi specifici di dominio. <a href="https://eclipse.dev/Xtext/">eclipse.dev/Xtext</a></li>
+<li id="r-umlsketch">M. Fowler, «UmlAsSketch». <a href="https://martinfowler.com/bliki/UmlAsSketch.html">martinfowler.com</a></li>
+<li id="r-hoare">C. A. R. Hoare, «Communicating Sequential Processes», <em>Communications of the ACM</em> 21(8), 1978. <a href="https://dl.acm.org/doi/10.1145/359576.359585">doi:10.1145/359576.359585</a></li>
+<li id="r-goshare">The Go Blog, «Share Memory By Communicating». <a href="https://go.dev/blog/codelab-share">go.dev/blog/codelab-share</a></li>
+<li id="r-armstrong">J. Armstrong, <em>Making Reliable Distributed Systems in the Presence of Software Errors</em>, tesi di dottorato, KTH, 2003. <a href="https://erlang.org/download/armstrong_thesis_2003.pdf">erlang.org</a></li>
+<li id="r-kotlin">Kotlin, «Channels» (coroutine). <a href="https://kotlinlang.org/docs/channels.html">kotlinlang.org/docs/channels.html</a></li>
+<li id="r-orleans">Microsoft Orleans. <a href="https://learn.microsoft.com/dotnet/orleans/">learn.microsoft.com/dotnet/orleans</a></li>
+<li id="r-dapr">Dapr, «Actors overview». <a href="https://docs.dapr.io/developing-applications/building-blocks/actors/actors-overview/">docs.dapr.io</a></li>
+<li id="r-jolie">Jolie, linguaggio di programmazione orientato ai servizi. <a href="https://www.jolie-lang.org/">jolie-lang.org</a></li>
+<li id="r-ballerina">Ballerina, linguaggio per l'integrazione di servizi di rete. <a href="https://ballerina.io/">ballerina.io</a></li>
+<li>F. P. Brooks, «No Silver Bullet: Essence and Accidents of Software Engineering», 1986 (distinzione tra complessità essenziale e accidentale). <a href="https://www.cs.unc.edu/techreports/86-020.pdf">cs.unc.edu</a></li>
+<li>B. Selic, «The Pragmatics of Model-Driven Development», <em>IEEE Software</em> 20(5), 2003. <a href="https://doi.org/10.1109/MS.2003.1231146">doi:10.1109/MS.2003.1231146</a></li>
+</ol>
+</main>

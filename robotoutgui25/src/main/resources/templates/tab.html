@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tabella con Immagini</title>
+<style>
+    /* Stili CSS per migliorare l'aspetto della tabella */
+    table {
+        border-collapse: collapse; /* Unisce i bordi delle celle */
+        width: 50%;
+        margin: 20px auto; /* Centra la tabella */
+        font-family: sans-serif;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+        vertical-align: middle;
+    }
+    th {
+        background-color: #f2f2f2;
+        color: #333;
+    }
+    img {
+        width: 100px; /* Imposta una larghezza fissa per le immagini */
+        height: auto; /* Mantiene le proporzioni */
+        border-radius: 8px; /* Angoli arrotondati */
+    }
+</style>
+</head>
+<body>
+
+<h1>GUI con Tabella e Immagini</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Icona</th>
+            <th>Descrizione</th>
+            <th>Stato</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><img src="nord-48.png" alt="Icona 1"></td>
+            <td>File utente</td>
+            <td><img src="est-30.png" alt="Stato OK"></td>
+        </tr>
+        <tr>
+            <td><img src="https://placehold.co/100" alt="Icona 2"></td>
+            <td>Cartella di sistema</td>
+            <td><img src="est-50.png" alt="Stato Errore"></td>
+        </tr>
+        <tr>
+            <td><img src="https://placehold.co/100" alt="Icona 3"></td>
+            <td>Database</td>
+            <td><img src="est-50c.png" alt="Stato In sospeso"></td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

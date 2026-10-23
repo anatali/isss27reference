@@ -1,0 +1,26 @@
+<html>
+<head>
+    <title>static/index</title>
+</head>
+
+<body>
+ 
+<div>
+	<form id="connectForm" method="POST" action="/connect">
+	    <label for="name">Nome:</label>
+	    <input type="text" id="name" name="name"><br><br>
+	    <button type="submit">CONNECT</button>
+	</form>
+
+	<script>
+	    document.getElementById('connectForm').addEventListener('submit', function(event) {
+	        // Puoi aggiungere qui eventuali validazioni o manipolazioni dei dati prima dell'invio
+	        console.log("Form inviato!"); // Per debug
+	    });
+	</script>
+
+</div>
+
+ 
+</body>
+</html>

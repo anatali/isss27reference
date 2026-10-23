@@ -1,0 +1,92 @@
+body {
+    padding: 20px;
+    background-color: #e6ffe6;
+}
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 25px);  /* vedi ncells in iomap.js */
+            grid-gap: 1px;
+            justify-content: left;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 25px;
+            height: 25px;
+            text-align: center;
+            line-height: 15px;
+            font-weight: bold;
+            color: white;
+        }
+		.red { background-color: #dc3545; }
+		.green { background-color: #28a745; }
+		.acqua { background-color: #00ffff; }
+		.yellow { background-color: #ffff00; }
+		.blue { background-color: #0066ff; }
+		.magenta { background-color: #ff00ff; }
+		.cyan { background-color: #66ccff; }
+		.black { background-color: #000000; }
+		.white { background-color: #ffffff; }
+		.greenxyz { background-image: url('icons/est.svg'); }		 
+		.est {
+		    /* 1. Imposta l'immagine di sfondo */
+		    background-image: url('icons/est-50.png');
+
+		    /* 2. Definisci le dimensioni dell'elemento HTML che conterrà l'icona */
+		    width:  25px;  /* Larghezza desiderata della tua icona */
+		    height: 25px; /* Altezza desiderata della tua icona */
+
+		    /* 3. Controlla come l'immagine si adatta a quelle dimensioni */
+		    background-size: contain; /* Scala l'immagine per adattarsi, mantenendo le proporzioni */
+		    /* Alternative comuni per background-size:
+		       - background-size: 100% 100%; // Allunga l'immagine per riempire, può distorcere
+		       - background-size: 32px 32px; // Forza la dimensione dell'immagine di sfondo
+		       - background-size: cover;    // Riempie l'elemento, tagliando i bordi se necessario
+		    */
+
+		    /* 4. Altre proprietà utili per le icone di sfondo */
+		    background-repeat: no-repeat; /* Impedisce all'immagine di ripetersi */
+		    background-position: center;  /* Centra l'immagine all'interno dell'elemento */
+
+		    /* 5. Imposta il display dell'elemento (spesso inline-block per le icone) */
+		    display: inline-block; /* Permette di impostare width/height e stare sulla stessa riga del testo */
+		    vertical-align: middle; /* Allinea verticalmente con il testo circostante */
+		}
+		.west {
+			background-image: url('icons/ovest-50.png');
+			width:  25px;  /* Larghezza desiderata della tua icona */
+			height: 25px; /* Altezza desiderata della tua icona */
+			background-size: contain;
+			background-repeat: no-repeat; 
+			display: inline-block;
+			vertical-align: middle;
+		}
+		.sud {
+			background-image: url('icons/sud-50.png');
+			width:  25px;  /* Larghezza desiderata della tua icona */
+			height: 25px; /* Altezza desiderata della tua icona */
+			background-size: contain;
+			background-repeat: no-repeat; 
+			display: inline-block;
+			vertical-align: middle;
+		}
+		.nord {
+			background-image: url('icons/nord-50.png');
+			width:  25px;  /* Larghezza desiderata della tua icona */
+			height: 25px; /* Altezza desiderata della tua icona */
+			background-size: contain;
+			background-repeat: no-repeat; 
+			display: inline-block;
+			vertical-align: middle;
+		}
+		.target {
+			background-image: url('icons/obiettivo-50.png');
+			width:  25px;  /* Larghezza desiderata della tua icona */
+			height: 25px; /* Altezza desiderata della tua icona */
+			background-size: contain;
+			background-repeat: no-repeat; 
+			display: inline-block;
+			vertical-align: middle;
+		}
+		
+		
+/* https://icons8.it/icons/set/direction	*/	

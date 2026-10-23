@@ -1,0 +1,15 @@
+services:
+  robotoutgui25:
+    container_name: robotoutgui25
+    #image: docker.io/natbodocker/robotoutgui25:1.0
+    image: robotoutgui25:1.0
+    ports:
+      - 8085:8085/tcp
+    networks:
+      - iss-network
+
+networks:
+  iss-network:
+    external: true
+
+## docker-compose -f robotoutgui25.yaml  up
