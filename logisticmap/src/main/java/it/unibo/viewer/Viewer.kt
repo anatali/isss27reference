@@ -28,7 +28,7 @@ class Viewer ( name: String, scope: CoroutineScope, isconfined: Boolean=false, i
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
+		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -48,8 +48,7 @@ class Viewer ( name: String, scope: CoroutineScope, isconfined: Boolean=false, i
 						   if( currentMsg.msgId( )== "showgraph" && checkMsgContent( Term.createTerm("values(SOFPAIRS)"), Term.createTerm("values(S)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val ReceivedString = payloadArg(0)                                       
-								 val chartUrl       = 
-												 MyCode.ChartUtils.buildMapChartUrl("Mappa logistica",ReceivedString) 
+								 val chartUrl       = MyCode.ChartUtils.buildMapChartUrl("Mappa logistica",ReceivedString)  
 								 MyCode.ChartUtils.OpenChartInBrowser(chartUrl)                           
 						}
 						//genTimer( actor, state )

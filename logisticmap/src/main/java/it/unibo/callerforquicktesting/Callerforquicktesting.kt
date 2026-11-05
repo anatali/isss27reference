@@ -28,36 +28,11 @@ class Callerforquicktesting ( name: String, scope: CoroutineScope, isconfined: B
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
+		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
 						   logger.info(  "actor $name in state:${currentState.stateName}"  )             
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition( edgeName="goto",targetState="wrongparam", cond=doswitch() )
-				}	 
-				state("wrongparam") { //this:State
-					action { //it:State
-						 val R = "-2.0"    
-						 val X0 = "0.7"   
-						 val Y  = "8"     
-						CommUtils.outgreen("$name doing wrongparam -   ")
-						request("evallogistic", "args($R,$X0,$Y)" ,"mapservice" )  
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t02",targetState="showvreplywrong",cond=whenReply("replylogistic"))
-				}	 
-				state("showvreplywrong") { //this:State
-					action { //it:State
-						CommUtils.outred("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -68,16 +43,16 @@ class Callerforquicktesting ( name: String, scope: CoroutineScope, isconfined: B
 				state("convergenza") { //this:State
 					action { //it:State
 						 val R = "2.0"    
-						 val X0 = "0.7"   
-						 val Y  = "8"     
+						 val X1 = "0.7"   
+						 val Y  = "8"    
 						CommUtils.outgreen("$name STARTS - expected: convergence to 0.5")
-						request("evallogistic", "args($R,$X0,$Y)" ,"mapservice" )  
+						request("evallogistic", "args($R,$X1,$Y)" ,"mapservice" )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t03",targetState="showvreply",cond=whenReply("replylogistic"))
+					 transition(edgeName="t02",targetState="showvreply",cond=whenReply("replylogistic"))
 				}	 
 				state("showvreply") { //this:State
 					action { //it:State
