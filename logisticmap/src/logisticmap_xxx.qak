@@ -1,0 +1,58 @@
+System logisticmap 
+ModelFor Draft: logisticmap_xxx 
+Request  check : check(V) 
+Reply checkanswer : checkanswer(C) for check
+ 
+RequestSynch  checkloc : check(V) 
+ReplyToSynch checklocreply : answer(V) for checkloc
+
+Context ctxlogisticmap ip [ host="localhost" port=8080 ]
+  
+   
+QActor a0 context ctxlogisticmap{
+	[# var reqsynchresult: Boolean = false #]
+	State s0 initial{
+	 	delay 1000
+		println("$name starts") color green
+printCurrentMessage color yellow  //s0
+		requestsynch a1 -m checkloc : check(0) answervar reqsynchresult timeout 3000
+ 
+printCurrentMessage color yellow  //s0_synch1
+		if [# reqsynchresult #]{
+			println("va bene") color green
+			println("$name many other actions") color blue
+			
+			delay 1000
+			println("$name ENDS") color green
+		}else{
+			println("prima call fallita") color red
+		}
+
+		println("$name another call") color magenta
+        [# reqsynchresult= false #]
+		requestsynch a1 -m checkloc : check(0) answervar reqsynchresult timeout 500
+printCurrentMessage color yellow  //s0_synch2
+		if [# reqsynchresult #]{
+			println("$name many other actions again") color magenta
+		}else{
+			println("seconda call fallita") color red
+		}
+		delay 1000
+		[# System.exit(0) #]
+	}
+} 
+    
+QActor a1 context ctxlogisticmap{
+	State s0 initial{
+		println("$name starts") color blue
+		
+	}
+    Transition t0
+    	whenRequest checkloc -> docheck
+   	
+   	State docheck{
+   		println("$name reply") color blue
+   		replyToSynch checkloc with checklocreply : answer(true)
+   	} 	
+   	//Goto s0
+}  

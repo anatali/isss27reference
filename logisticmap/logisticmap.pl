@@ -1,14 +1,13 @@
 %====================================================================================
 % logisticmap description   
 %====================================================================================
-request( evallogistic, args(R,X1,Y) ).
-reply( replylogistic, result(R) ).  %%for evallogistic
-dispatch( showgraph, values(SOFPAIRS) ).
+request( check, check(V) ).
+reply( checkanswer, checkanswer(C) ).  %%for check
+request( checkloc, check(V) ).  %synchLocal
+reply( checklocreply, answer(V) ).  %%for checkloc (synchLocal)
 %====================================================================================
-context(ctxlogisticmap, "localhost",  "TCP", "8333").
- qactor( mapservice, ctxlogisticmap, "it.unibo.mapservice.Mapservice").
- static(mapservice).
-  qactor( viewer, ctxlogisticmap, "it.unibo.viewer.Viewer").
- static(viewer).
-  qactor( callerforquicktesting, ctxlogisticmap, "it.unibo.callerforquicktesting.Callerforquicktesting").
- static(callerforquicktesting).
+context(ctxlogisticmap, "localhost",  "TCP", "8080").
+ qactor( a0, ctxlogisticmap, "it.unibo.a0.A0").
+ static(a0).
+  qactor( a1, ctxlogisticmap, "it.unibo.a1.A1").
+ static(a1).
