@@ -57,9 +57,13 @@ class A ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyna
 						   if( currentMsg.msgId( )== "evalfun" && checkMsgContent( Term.createTerm("arg(V)"), Term.createTerm("arg(V)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 val V = payloadArg(0)             
+								updateResourceRep( "doing($name,evalfun($V)"  
+								)
 								CommUtils.outblue("$name - evalfun for $V ")
 								 val R = MyCode.FSin.evalStr( V )  
 								CommUtils.outblue("$name - answer $R for $V ")
+								updateResourceRep( "doone($name,evalfun($V),answer($R)"  
+								)
 								answer("evalfun", "evalreply", "value($R)"   )  
 						}
 						//genTimer( actor, state )

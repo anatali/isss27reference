@@ -7,11 +7,12 @@ ModelFor Project: firstprj27_v3
  * - una richiesta di valutare i valori di una funzione in più punti a distanza DX entro un intervallo (MIN,MAX) 
  *
  */ 
-Request  evalfun : arg(V)
-Reply evalreply  : value(V) for evalfun
+Request  evalfun : arg(V)   "valuta la funzione FSin (MyCode.FSin) nel punto V"
+Reply evalreply  : value(V) for evalfun   "V = valore della funzione nel punto richiesto"
+ 
+Request  evalfunvalues : args(MIN,MAX,DX)   "valuta la funzione nei punti da MIN a MAX con passo DX"
+Reply    replyvalues   : values(S) for evalfunvalues   "S = stringa tra apici con i valori calcolati da MyCode.FSinSeries.evalSinPoints"
 
-Request  evalfunvalues : args(MIN,MAX,DX)
-Reply    replyvalues   : values(S) for evalfunvalues
  
 Context ctxfirstprj27 ip [ host="localhost" port=8120 ]
 
@@ -35,9 +36,11 @@ QActor a context ctxfirstprj27 {
 	State doeval{  
 		onMsg( evalfun : arg(V) ){
 			[# val V = payloadArg(0)            #]
+			updateResource [# "doing($name,evalfun($V)" #]
 			println( "$name - evalfun for $V ") color blue
 			[# val R = MyCode.FSin.evalStr( V ) #]
  			println( "$name - answer $R for $V ") color blue
+			updateResource [# "doone($name,evalfun($V),answer($R)" #]
 			replyTo evalfun with evalreply : value($R)
 		}
 	}
@@ -59,9 +62,9 @@ QActor a context ctxfirstprj27 {
 			replyTo evalfunvalues with replyvalues : values($R)
 		}
 	}
-	Goto waitrequest
+	Goto waitrequest   
 }
-
+  
 /*
  * Attore introdotto per quick testing
  */

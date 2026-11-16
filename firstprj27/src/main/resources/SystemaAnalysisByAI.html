@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analisi del sistema con AI</title>
+<!--
+  SystemaAnalysisByAI.html
+  Pagina di prova per l'analisi di un sistema qak con la Claude API (unibo.qakactor23, ContextAnalysis).
+  Funziona con qualunque sistema qak: basta indicare IP e porta del Context.
+
+  ANALYZE : msg(analyze,request,webgui,context,analyze(FOCUS),N)
+            msg(analyze,request,webgui,context,analyze(FOCUS,TOKEN),N)   se il Context richiede un token
+            FOCUS = all | external | internal | behavior
+            risposte (JSON): {"status":"running",...}  poi  {"status":"ok","html":"<frammento>",...}
+                             oppure {"status":"error","error":"forbidden|busy|noapikey|api|network|internal",...}
+            il frammento HTML viene mostrato nella output area
+  SAVE    : salva l'ultima analisi ricevuta nel file <systemName>Analysis.html
+            (systemName = campo "system" della risposta: il fatto system(...) della SYSKB)
+
+  Lato Context: variabile d'ambiente ANTHROPIC_API_KEY (account Claude Console, uso a consumo).
+  Senza QAK_ANALYZE_TOKEN il Context accetta l'analisi solo da client sulla stessa macchina.
+-->
+<style>
+  :root {
+    --fg: #1d1f23; --muted: #5b6270; --line: #c9ced6; --bg: #ffffff; --panel: #f6f7f9;
+    --accent: #1f5fbf; --ok: #1e7a3c; --ko: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+  fieldset { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px 14px; margin: 0 0 16px; }
+  legend { padding: 0 6px; font-weight: 600; font-size: 13px; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+  label { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); gap: 3px; }
+  input, select {
+    font: inherit; color: var(--fg); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px;
+  }
+  input#ip { width: 180px; } input#port { width: 80px; } input#token { width: 160px; }
+  button {
+    font: inherit; font-weight: 600; cursor: pointer;
+    background: var(--panel); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 4px; padding: 7px 16px;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { cursor: default; color: var(--muted); opacity: .6; }
+  #status, #progress { font-size: 13px; color: var(--muted); }
+  #status.on  { color: var(--ok); }
+  #status.off { color: var(--ko); }
+  #out {
+    width: 100%; height: 560px; overflow-y: auto; margin: 0;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 8px 12px;
+  }
+  #out .log  { font: 13px/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; }
+  #out .t    { color: var(--muted); }
+  #out .ok   { color: var(--ok); }
+  #out .ko   { color: var(--ko); }
+  /* frammento HTML prodotto dall'analisi */
+  .analysis { border-top: 1px solid var(--line); margin: 8px 0; padding-top: 4px; }
+  .analysis h2 { font-size: 18px; margin: 18px 0 6px; }
+  .analysis h3 { font-size: 16px; margin: 14px 0 4px; }
+  .analysis h4 { font-size: 14px; margin: 10px 0 4px; }
+  .analysis table { border-collapse: collapse; margin: 6px 0 10px; font-size: 13px; }
+  .analysis th, .analysis td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+  .analysis th { background: var(--panel); }
+  .analysis code { font: 12.5px ui-monospace, Consolas, monospace; background: var(--panel); padding: 0 3px; border-radius: 3px; }
+  .analysis pre { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 8px; overflow-x: auto; }
+  .analysis pre code { background: none; padding: 0; }
+  .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Analisi del sistema qak con AI</h1>
+  <p class="sub">Il Context analizza il proprio modello (<code>.qak</code> + descrizione a runtime) con la Claude API e
+     risponde sulla WebSocket <code>ws://IP:porta/</code>, la stessa porta TCP del Context.</p>
+
+  <fieldset>
+    <legend>Connessione</legend>
+    <div class="row">
+      <label>Indirizzo IP <input id="ip" value="localhost" spellcheck="false"></label>
+      <label>Porta <input id="port" type="number" value="8020" min="1" max="65535"></label>
+      <button id="connect">Connetti</button>
+      <span id="status" class="off">non connesso</span>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Analisi</legend>
+    <div class="row">
+      <label>Focus
+        <select id="focus">
+          <option value="all">tutto</option>
+          <option value="external">interazione con il mondo esterno</option>
+          <option value="internal">interazione interna tra QActor</option>
+          <option value="behavior">comportamento dei QActor</option>
+        </select>
+      </label>
+      <label>Token (se richiesto) <input id="token" type="password" spellcheck="false" placeholder="opzionale"></label>
+      <button id="btnAnalyze" title="msg(analyze,request,webgui,context,analyze(FOCUS),N)">ANALYZE</button>
+      <span id="progress"></span>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Risposte</legend>
+    <div id="out"></div>
+    <div class="foot">
+      <span class="sub" style="margin:0">L'analisi richiede da alcuni secondi a qualche minuto; ogni analisi consuma crediti della Claude API.</span>
+      <span>
+        <button id="save" title="salva l'ultima analisi in &lt;systemName&gt;Analysis.html">SAVE</button>
+        <button id="clear">Pulisci</button>
+      </span>
+    </div>
+  </fieldset>
+</main>
+
+<script>
+  const CLIENT = "webgui";
+  const $ = id => document.getElementById(id);
+  let ws = null, wsUrl = null, msgNum = 0;
+  let pending = false, timer = null, t0 = 0;
+  let last = null;            //ultima analisi: { system, context, model, focus, html, when }
+
+  function now() { return new Date().toLocaleTimeString("it-IT", { hour12: false }); }
+
+  function log(text, cls) {
+    const line = document.createElement("div");
+    line.className = "log";
+    const t = document.createElement("span"); t.className = "t"; t.textContent = now() + "  ";
+    const b = document.createElement("span"); if (cls) b.className = cls; b.textContent = text;
+    line.append(t, b);
+    $("out").append(line);
+    $("out").scrollTop = $("out").scrollHeight;
+  }
+
+  function setStatus(text, on) { const s = $("status"); s.textContent = text; s.className = on ? "on" : "off"; }
+  function currentUrl() {
+    const ip = $("ip").value.trim() || "localhost", port = $("port").value.trim() || "8020";
+    return `ws://${ip}:${port}/`;
+  }
+
+  function ensureConnection() {
+    const url = currentUrl();
+    if (ws && wsUrl === url && ws.readyState === WebSocket.OPEN) return Promise.resolve(ws);
+    if (ws && wsUrl === url && ws.readyState === WebSocket.CONNECTING)
+      return new Promise((res, rej) => { ws.addEventListener("open", () => res(ws), { once: true });
+                                         ws.addEventListener("error", rej, { once: true }); });
+    if (ws) { try { ws.close(); } catch (e) {} }
+    wsUrl = url;
+    setStatus("connessione a " + url + " ...", false);
+    return new Promise((resolve, reject) => {
+      let sock;
+      try { sock = new WebSocket(url); } catch (e) { setStatus("URL non valido", false); reject(e); return; }
+      ws = sock;
+      sock.onopen    = () => { setStatus("connesso a " + url, true); resolve(sock); };
+      sock.onerror   = () => { setStatus("errore di connessione a " + url, false); reject(new Error("ws error")); };
+      sock.onclose   = () => { if (ws === sock) { setStatus("non connesso", false);
+                                                  if (pending) { log("connessione chiusa durante l'analisi", "ko"); done(); } } };
+      sock.onmessage = e => handle(String(e.data));
+    });
+  }
+
+  /* Il frammento arriva da un modello di AI: si tengono solo gli elementi ammessi e nessun attributo */
+  const ALLOWED = new Set(["H2","H3","H4","P","UL","OL","LI","TABLE","THEAD","TBODY","TR","TH","TD",
+                           "CODE","PRE","STRONG","EM","BR"]);
+  function sanitize(html) {
+    const doc = new DOMParser().parseFromString("<div>" + html + "</div>", "text/html");
+    const root = doc.body.firstChild;
+    (function clean(node) {
+      for (const c of Array.from(node.childNodes)) {
+        if (c.nodeType === Node.TEXT_NODE) continue;
+        if (c.nodeType !== Node.ELEMENT_NODE) { c.remove(); continue; }
+        if (["SCRIPT","STYLE","IFRAME","OBJECT","EMBED","LINK","META"].includes(c.tagName)) { c.remove(); continue; }
+        clean(c);
+        if (!ALLOWED.has(c.tagName)) { c.replaceWith(...Array.from(c.childNodes)); continue; }
+        for (const a of Array.from(c.attributes))
+          if (!(["TD","TH"].includes(c.tagName) && ["colspan","rowspan"].includes(a.name))) c.removeAttribute(a.name);
+      }
+    })(root);
+    return root.innerHTML;
+  }
+
+  function handle(text) {
+    if (!text.trimStart().startsWith("{")) return;          //solo documenti JSON
+    let r;
+    try { r = JSON.parse(text); } catch (e) { log("risposta non JSON valida", "ko"); return; }
+    if (!r.qakanalysis) return;
+    if (r.status === "running") {
+      log(`analisi di ${r.system} (contesto ${r.context}) con ${r.model}, focus=${r.focus}; ` +
+          `fonti: qak=${r.sources && r.sources.qak}`);
+      return;
+    }
+    if (r.status === "error") { log(`errore ${r.error}: ${r.detail || ""}`, "ko"); done(); return; }
+    if (r.status === "ok") {
+      const secs = (r.elapsedMs / 1000).toFixed(1);
+      const u = r.usage ? `, token in/out ${r.usage.input_tokens}/${r.usage.output_tokens}` : "";
+      log(`analisi ricevuta in ${secs} s${u}` + (r.truncated ? " (TRONCATA: aumentare qak.analyze.maxtokens)" : ""),
+          r.truncated ? "ko" : "ok");
+      const html = sanitize(r.html || "");
+      const box = document.createElement("div");
+      box.className = "analysis";
+      box.innerHTML = html;
+      $("out").append(box);
+      box.scrollIntoView({ block: "start" });
+      last = { system: r.system || r.context || "system", context: r.context, model: r.model,
+               focus: r.focus, html, when: new Date() };
+      done();
+    }
+  }
+
+  function done() {
+    pending = false; $("btnAnalyze").disabled = false;
+    clearInterval(timer); $("progress").textContent = "";
+  }
+
+  async function analyze() {
+    if (pending) return;
+    const focus = $("focus").value;
+    const token = $("token").value.trim().replace(/'/g, "");
+    const content = token ? `analyze(${focus},'${token}')` : `analyze(${focus})`;
+    pending = true; $("btnAnalyze").disabled = true;
+    try {
+      const sock = await ensureConnection();
+      sock.send(`msg(analyze,request,${CLIENT},context,${content},${++msgNum})`);
+      log(`sent   analyze(${focus}${token ? ",***" : ""})`);
+      t0 = Date.now();
+      timer = setInterval(() => { $("progress").textContent = `analisi in corso... ${Math.round((Date.now() - t0) / 1000)} s`; }, 500);
+    } catch (e) {
+      log("impossibile inviare: connessione non disponibile", "ko"); done();
+    }
+  }
+
+  /* SAVE: l'ultima analisi diventa un documento HTML autonomo <systemName>Analysis.html */
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function saveAnalysis() {
+    if (!last) { log("nessuna analisi da salvare", "ko"); return; }
+    const name = last.system.replace(/[^A-Za-z0-9_-]/g, "_");
+    const html = `<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>${name}Analysis</title>
+<style>
+  body { max-width: 980px; margin: 24px auto; padding: 0 16px; background: #fff; color: #1d1f23;
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .meta { color: #5b6270; font-size: 13px; margin: 0 0 16px; }
+  h2 { font-size: 18px; margin: 22px 0 6px; border-bottom: 1px solid #c9ced6; padding-bottom: 2px; }
+  h3 { font-size: 16px; margin: 14px 0 4px; }
+  h4 { font-size: 14px; margin: 10px 0 4px; }
+  table { border-collapse: collapse; margin: 6px 0 10px; font-size: 13px; }
+  th, td { border: 1px solid #c9ced6; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #f6f7f9; }
+  code { font: 12.5px ui-monospace, Consolas, monospace; background: #f6f7f9; padding: 0 3px; border-radius: 3px; }
+  pre { background: #f6f7f9; border: 1px solid #c9ced6; border-radius: 4px; padding: 8px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+</style>
+</head>
+<body>
+<h1>${esc(name)} &middot; analisi del sistema</h1>
+<p class="meta">Contesto ${esc(last.context)} &middot; focus ${esc(last.focus)} &middot; modello ${esc(last.model)}
+ &middot; generata il ${esc(last.when.toLocaleString("it-IT"))} da SystemaAnalysisByAI.html (${esc(wsUrl || currentUrl())}).
+ Testo prodotto da un modello di AI: va verificato sul modello qak.</p>
+${last.html}
+</body>
+</html>
+`;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+    a.download = name + "Analysis.html";
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    log("saved  " + a.download);
+  }
+
+  $("connect").onclick    = () => ensureConnection().catch(() => {});
+  $("btnAnalyze").onclick = analyze;
+  $("save").onclick       = saveAnalysis;
+  $("clear").onclick      = () => { $("out").textContent = ""; };
+  ["ip", "port"].forEach(id => $(id).addEventListener("keydown", e => {
+    if (e.key === "Enter") ensureConnection().catch(() => {});
+  }));
+</script>
+</body>
+</html>
