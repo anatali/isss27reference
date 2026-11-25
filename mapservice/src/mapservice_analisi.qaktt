@@ -1,0 +1,15 @@
+/*
+ * A7 · Architettura logica (fase di ANALISI DEL PROBLEMA, non ancora iniziata)
+ * ---------------------------------------------------------------------------------
+ * Il file ha estensione .qaktt (e non .qak) di proposito: il generatore qak elabora
+ * tutti i file .qak di src/, e questo modello dichiarera' lo stesso
+ *     System mapservice   e   Context ctxmapservice
+ * di mapservice_requisiti.qak. Due modelli attivi genererebbero le stesse classi
+ * (it.unibo.ctxmapservice.MainCtxmapserviceKt, it.unibo.mapservice.Mapservice).
+ *
+ * All'inizio della fase di analisi del problema:
+ *   1. rinominare  mapservice_requisiti.qak -> mapservice_requisiti.qaktt
+ *   2. rinominare  mapservice_analisi.qaktt -> mapservice_analisi.qak
+ *   3. scrivere il modello  (ModelFor Analysis: mapservice_analisi)
+ *   4. rieseguire  gradlew acceptanceTest : gli STESSI test di R6 misurano il progresso.
+ */

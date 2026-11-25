@@ -1,0 +1,249 @@
+/*
+================================================================================
+mapservice · build
+Derivato da firstprj27/build.gradle (build2027.gradle generato dal plugin qak).
+Differenze:
+  - mainClass del Context ctxmapservice
+  - task 'test'          : esclude i test di accettazione (acceptance/**)
+  - task 'acceptanceTest': esegue SOLO acceptance/** senza far fallire la build
+    (durante l'analisi i test di accettazione sono attesi ROSSI)
+================================================================================
+*/
+plugins {
+    id 'application'
+    id 'java'
+    id 'eclipse'
+    id "org.jetbrains.kotlin.jvm" version "1.9.22"
+}
+
+version '1.0'
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+kotlin {
+  jvmToolchain {
+    languageVersion.set(JavaLanguageVersion.of("17"))
+  }
+}
+
+repositories {
+    mavenCentral()
+    flatDir {   dirs '../unibolibs'	 }
+}
+
+dependencies {
+    implementation platform('org.jetbrains.kotlin:kotlin-bom')
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.9.22"   // JUnit 4
+
+    /* COROUTINES */
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "$kotlinVersion"
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core-jvm', version: "$kotlinVersion"
+
+    /* HTTP */
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
+    testImplementation group: 'com.squareup.okhttp3', name: 'mockwebserver', version: '4.9.3'
+
+    /* MQTT */
+    implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
+
+    /* JSON */
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation group: 'org.json', name: 'json', version: '20180130'
+
+    /* COAP */
+    implementation group: 'org.eclipse.californium', name: 'californium-core', version: '3.5.0'
+    implementation group: 'org.eclipse.californium', name: 'californium-proxy2', version: '3.5.0'
+
+    /* LOG */
+    implementation 'ch.qos.logback:logback-classic:1.2.11'
+
+    /* UNIBO */
+    implementation name: 'uniboInterfaces'
+    implementation name: '2p301'
+    implementation name: 'unibo.qakactor23-5.0'
+    implementation name: 'unibo.basicomm23-1.0'
+}
+
+eclipse {
+    classpath {
+        file {
+            whenMerged { classpath ->
+                def kotlinClassesDir = file('build/classes/kotlin/main')
+                if (kotlinClassesDir.exists()) {
+                    classpath.entries.add(new org.gradle.plugins.ide.eclipse.model.Library(
+                        fileReference(kotlinClassesDir)
+                    ))
+                }
+                // JUnit 4.13 prima di 2p301.jar (che contiene JUnit 4.9b2)
+                def junit = classpath.entries.findAll { it.hasProperty('path') && it.path ==~ /.*[\/\\]junit-4\.1[1-9][^\/\\]*\.jar/ }
+                classpath.entries.removeAll(junit)
+                classpath.entries.addAll(0, junit)
+            }
+        }
+    }
+}
+
+tasks.named('compileTestJava') {
+    dependsOn tasks.named('compileKotlin')
+}
+
+tasks.withType(Copy).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+application {
+    mainClassName = 'it.unibo.ctxmapservice.MainCtxmapserviceKt'
+}
+
+jar {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    from sourceSets.main.allSource
+    from('./') {
+      include '*.pl'
+      include '*.json'
+    }
+    manifest {
+        attributes 'Main-Class': "$mainClassName"
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   TEST
+   - test           : test unitari (tipi di dominio R3, poi proprieta' A2). Devono essere verdi.
+   - acceptanceTest : test di accettazione R6. Durante l'analisi sono attesi rossi:
+                      il report ne mostra lo stato, la build non fallisce.
+--------------------------------------------------------------------------- */
+def junitFirst = { cp -> cp.filter { it.name ==~ /junit-4\.1[1-9].*\.jar/ } + cp }
+
+def configureLogging = { t ->
+    t.testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
+}
+
+test {
+    maxParallelForks = 1
+    classpath = junitFirst(sourceSets.test.runtimeClasspath)
+    exclude 'acceptance/**'
+    outputs.upToDateWhen { false }
+    configureLogging(it)
+}
+
+tasks.register('acceptanceTest', Test) {
+    group       = 'verification'
+    description = 'Test di accettazione R6 (attesi rossi durante l\'analisi): non fanno fallire la build'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath       = junitFirst(sourceSets.test.runtimeClasspath)
+    include 'acceptance/**'
+    maxParallelForks = 1
+    ignoreFailures   = true
+    outputs.upToDateWhen { false }
+    reports.html.outputLocation = layout.buildDirectory.dir('reports/tests/acceptance')
+    configureLogging(it)
+}
+
+/*
+================================================================================
+FIGURE DEI MODELLI QAK (qakFigures, qakStateDiagrams) - come in firstprj27
+Richiedono qak2svg.py e qakStateDiagram.py nella cartella del progetto (o in src/):
+copiarli da firstprj27. Senza gli script i task vengono saltati e la build continua.
+================================================================================
+*/
+def qakScript = file('qak2svg.py').exists() ? file('qak2svg.py') : file('src/qak2svg.py')
+def qakModels = fileTree('src') { include '*.qak' }
+def qakFigureOf = { File m -> file("src/main/resources/${m.name - '.qak'}_arch.svg") }
+
+tasks.register('qakFigures') {
+    group       = 'documentation'
+    description = 'Genera src/main/resources/<modello>_arch.svg da src/<modello>.qak con qak2svg.py'
+    inputs.files(qakModels).withPropertyName('models')
+    if( qakScript.exists() ) inputs.file(qakScript).withPropertyName('script')
+    outputs.files(qakModels.files.collect { qakFigureOf(it) }).withPropertyName('figures')
+    outputs.upToDateWhen { qakModels.files.every { File m -> qakFigureOf(m).lastModified() >= m.lastModified() } }
+    onlyIf { qakScript.exists() }
+    doLast {
+        def python = project.findProperty('qakPython') ?:
+                     (System.getProperty('os.name').toLowerCase().contains('windows') ? 'python' : 'python3')
+        qakModels.files.each { File m ->
+            File out = qakFigureOf(m)
+            if( out.exists() && out.lastModified() >= m.lastModified() && out.lastModified() >= qakScript.lastModified() ) return
+            try {
+                def res = project.exec {
+                    commandLine python, qakScript.absolutePath, m.absolutePath, '-o', out.absolutePath
+                    ignoreExitValue = true
+                }
+                if( res.exitValue == 0 ) logger.lifecycle("qakFigures | ${m.name} -> ${out.name}")
+                else logger.warn("qakFigures | ATTENZIONE: qak2svg.py terminato con codice ${res.exitValue} per ${m.name}")
+            } catch( Exception e ){
+                logger.warn("qakFigures | ATTENZIONE: impossibile eseguire '${python}' (${e.message})")
+            }
+        }
+    }
+}
+tasks.named('processResources') { dependsOn 'qakFigures' }
+
+def qakStatesScript = file('qakStateDiagram.py').exists() ? file('qakStateDiagram.py') : file('src/qakStateDiagram.py')
+def qakStatesDirOf  = { File m -> file("src/main/resources/${m.name - '.qak'}_states") }
+def qakStatesTmpOf  = { File m -> layout.buildDirectory.dir("qakStateDiagrams/${m.name - '.qak'}").get().asFile }
+def qakStatesFresh  = { File m ->
+    def svgs = (qakStatesDirOf(m).listFiles() ?: []).findAll { it.name.endsWith('.svg') }
+    !svgs.isEmpty() && svgs.every { it.lastModified() >= m.lastModified() &&
+                                    (!qakStatesScript.exists() || it.lastModified() >= qakStatesScript.lastModified()) }
+}
+
+tasks.register('qakStateDiagrams') {
+    group       = 'documentation'
+    description = 'Genera src/main/resources/<modello>_states/<attore>.svg con qakStateDiagram.py (richiede Graphviz)'
+    inputs.files(qakModels).withPropertyName('models')
+    if( qakStatesScript.exists() ) inputs.file(qakStatesScript).withPropertyName('script')
+    outputs.dirs(qakModels.files.collect { qakStatesDirOf(it) }).withPropertyName('stateDiagrams')
+    outputs.upToDateWhen { qakModels.files.every { File m -> qakStatesFresh(m) } }
+    onlyIf { qakStatesScript.exists() }
+    doLast {
+        def python = project.findProperty('qakPython') ?:
+                     (System.getProperty('os.name').toLowerCase().contains('windows') ? 'python' : 'python3')
+        qakModels.files.each { File m ->
+            if( qakStatesFresh(m) ) return
+            File tmp = qakStatesTmpOf(m)
+            project.delete(tmp)
+            tmp.mkdirs()
+            try {
+                def res = project.exec {
+                    commandLine python, qakStatesScript.absolutePath, m.absolutePath, '-o', tmp.absolutePath, '--format', 'svg'
+                    ignoreExitValue = true
+                }
+                def svgs = (tmp.listFiles() ?: []).findAll { it.name.endsWith('.svg') }
+                if( res.exitValue != 0 || svgs.isEmpty() ){
+                    logger.warn("qakStateDiagrams | ATTENZIONE: nessun diagramma per ${m.name} (Graphviz? Python?)")
+                    return
+                }
+                File dest = qakStatesDirOf(m)
+                project.delete( (dest.listFiles() ?: []).findAll { it.name.endsWith('.svg') } )
+                project.copy { from tmp; include '*.svg'; into dest }
+                logger.lifecycle("qakStateDiagrams | ${m.name} -> ${dest.name}/")
+            } catch( Exception e ){
+                logger.warn("qakStateDiagrams | ATTENZIONE: impossibile eseguire '${python}' (${e.message})")
+            }
+        }
+    }
+}
+tasks.named('processResources') { dependsOn 'qakStateDiagrams' }
+eclipse { synchronizationTasks 'qakFigures', 'qakStateDiagrams' }
+
+distributions {
+    main {
+        distributionBaseName = 'mapservice'
+        contents {
+             from './mapservice.pl'
+             from './sysRules.pl'
+        }
+    }
+}

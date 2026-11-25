@@ -1,0 +1,59 @@
+System mapservice
+ModelFor Requirements: mapservice_requisiti
+
+/*
+ * R5 · Il servizio a scatola nera (analisi dei requisiti)
+ * --------------------------------------------------------------------------
+ * Il modello fissa il CONTRATTO: un messaggio in ingresso e due esiti possibili.
+ * Il comportamento interno e' fittizio: risponde sempre con successo.
+ * I test di accettazione (R6) che richiedono validazione e pagina reale sono
+ * quindi ROSSI contro questo modello: misurano la distanza dal requisito.
+ *
+ * Vedi docs/requisiti.md (D1-D10) e features/mapservice.feature (R4).
+ */
+
+Request evallogistic   : args(R,X0,N)     "richiesta della traiettoria della mappa logistica per (r, x0, N)"
+Reply   logisticdone   : done(URL)      for evallogistic   "successo: indirizzo della pagina con il grafico (D6)"
+Reply   logisticfailed : failed(CAUSE)  for evallogistic   "fallimento con causa: wrongparams | unavailable | timeout (D10)"
+
+Context ctxmapservice ip [ host="localhost" port=8333 ]
+
+QActor mapservice context ctxmapservice {
+	State s0 initial {
+		println("$name | pronto") color blue
+	}
+	Goto waitrequest
+
+	State waitrequest { }
+	Transition t0
+		whenRequest evallogistic -> serve
+
+	State serve {
+		// REQUISITO: rispondere sempre con uno dei due esiti (D10).
+		// Qui si modella solo il protocollo: l'esito e' sempre di successo.
+		printCurrentMessage color blue
+		replyTo evallogistic with logisticdone : done(todo) //done('http://localhost:8333/mapservice/1')
+	}
+	Goto waitrequest
+}
+
+/*
+ * Client simulato: rende eseguibile lo scenario "convergenza a un punto fisso".
+ * Se il servizio non risponde entro 5 s il requisito D10 e' violato.
+ */
+QActor clientsim context ctxmapservice {
+	State s0 initial {
+			[# val R = "-2.5"    #]
+			[# val X0 = "2.5"    #]
+			[# val N  = "0.1"    #]
+		    request mapservice -m evallogistic : args($R,$X0,$N)
+	}
+	Transition t0
+		whenTime  5000           -> noanswer
+		whenReply logisticdone   -> ok
+		whenReply logisticfailed -> ko
+
+	State ok       { printCurrentMessage color green }
+	State ko       { printCurrentMessage color red }
+	State noanswer { println("$name | nessuna risposta: D10 violato") color red }
+}

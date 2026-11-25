@@ -28,7 +28,7 @@ class A0 ( name: String, scope: CoroutineScope, isconfined: Boolean=false, isdyn
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
+		//IF actor.withobj !== null val actor.withobj.name» = actor.withobj.method»ENDIF
 		 var reqsynchresult: Boolean = false  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State  [waits reply to checkloc]

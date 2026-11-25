@@ -113,6 +113,11 @@ eclipse {
                 }else{
                 	System.out.println("no build/classes/kotlin/main")
                 }
+                // [Claude, Nov 2026] JUnit 4.13 prima di tutto: 2p301.jar contiene le classi di JUnit 4.9b2
+                // (il cui runner ignora @FixMethodOrder). Vale per le Run Configuration JUnit di Eclipse.
+                def junit = classpath.entries.findAll { it.hasProperty('path') && it.path ==~ /.*[\/\\]junit-4\.1[1-9][^\/\\]*\.jar/ }
+                classpath.entries.removeAll(junit)
+                classpath.entries.addAll(0, junit)
             }
         }
     }
@@ -149,6 +154,11 @@ test {
     // Forza l'esecuzione sequenziale senza fork parallele problematiche
     maxParallelForks = 1
 
+    // [Claude, Nov 2026] 2p301.jar (tuProlog) contiene le classi di JUnit 4.9b2: se precede junit-4.13
+    // nel classpath viene usato il runner di JUnit 4.9 (che ignora, ad es., @FixMethodOrder).
+    // Si mette davanti il jar di JUnit 4.11+ risolto da Gradle (testImplementation kotlin-test-junit).
+    classpath = sourceSets.test.runtimeClasspath.filter { it.name ==~ /junit-4\.1[1-9].*\.jar/ } + sourceSets.test.runtimeClasspath
+
 	// Forziamo Gradle a non considerare mai il task di test come UP-TO-DATE
     outputs.upToDateWhen { false }
        
@@ -167,6 +177,124 @@ test {
         showStandardStreams = true
     }
 }
+
+/*
+================================================================================
+[Claude, Nov 2026] FIGURE DEI MODELLI QAK  (task qakFigures, gruppo documentation)
+--------------------------------------------------------------------------------
+Per ogni src/<modello>.qak genera src/main/resources/<modello>_arch.svg con qak2svg.py.
+La figura finisce cosi' tra le risorse (bin/main, build/resources/main, jar e immagine
+docker) e la pagina del Context (QakHttp) la presenta in "Descrizione grafica del sistema".
+  - eseguito prima di processResources (gradlew build, run, distTar, ...)
+  - in Eclipse: eseguito a ogni "Refresh Gradle Project" (eclipse.synchronizationTasks)
+    oppure a mano dalla vista Gradle Tasks -> documentation -> qakFigures
+  - rigenera solo le figure il cui .qak (o qak2svg.py) e' piu' recente della figura
+  - senza Python la build NON fallisce: un avviso e restano le figure gia' presenti
+  - interprete: -PqakPython=<comando> (default: python su Windows, python3 altrove)
+================================================================================
+*/
+def qakScript = file('qak2svg.py').exists() ? file('qak2svg.py') : file('src/qak2svg.py')
+def qakModels = fileTree('src') { include '*.qak' }
+def qakFigureOf = { File m -> file("src/main/resources/${m.name - '.qak'}_arch.svg") }
+
+tasks.register('qakFigures') {
+    group       = 'documentation'
+    description = 'Genera src/main/resources/<modello>_arch.svg da src/<modello>.qak con qak2svg.py'
+    inputs.files(qakModels).withPropertyName('models')
+    if( qakScript.exists() ) inputs.file(qakScript).withPropertyName('script')
+    outputs.files(qakModels.files.collect { qakFigureOf(it) }).withPropertyName('figures')
+    //se una generazione e' fallita (es. Python assente) la figura resta piu' vecchia del .qak:
+    //il task non deve risultare UP-TO-DATE, cosi' riprova alla build successiva
+    outputs.upToDateWhen { qakModels.files.every { File m -> qakFigureOf(m).lastModified() >= m.lastModified() } }
+    onlyIf { qakScript.exists() }
+    doLast {
+        def python = project.findProperty('qakPython') ?:
+                     (System.getProperty('os.name').toLowerCase().contains('windows') ? 'python' : 'python3')
+        qakModels.files.each { File m ->
+            File out = qakFigureOf(m)
+            if( out.exists() && out.lastModified() >= m.lastModified() && out.lastModified() >= qakScript.lastModified() ){
+                logger.lifecycle("qakFigures | ${out.name} gia' aggiornata")
+                return
+            }
+            try {
+                def res = project.exec {
+                    commandLine python, qakScript.absolutePath, m.absolutePath, '-o', out.absolutePath
+                    ignoreExitValue = true
+                }
+                if( res.exitValue == 0 ) logger.lifecycle("qakFigures | ${m.name} -> ${out.name}")
+                else logger.warn("qakFigures | ATTENZIONE: qak2svg.py terminato con codice ${res.exitValue} per ${m.name} (Python installato? -PqakPython=...)")
+            } catch( Exception e ){
+                logger.warn("qakFigures | ATTENZIONE: impossibile eseguire '${python}' (${e.message}); figura di ${m.name} non aggiornata")
+            }
+        }
+    }
+}
+tasks.named('processResources') { dependsOn 'qakFigures' }
+
+/*
+================================================================================
+[Claude, Nov 2026] DIAGRAMMI DEGLI STATI DEI QACTOR  (task qakStateDiagrams)
+--------------------------------------------------------------------------------
+Stesso schema di qakFigures: per ogni src/<modello>.qak, qakStateDiagram.py produce un
+diagramma per ogni QActor, copiato in src/main/resources/<modello>_states/<attore>.svg
+(la pagina del Context li presenta in "Descrizione grafica del sistema").
+  - richiede Python e Graphviz (comando 'dot' nel PATH): senza, avviso e la build continua
+  - si genera in build/qakStateDiagrams/<modello> e si copiano solo gli .svg (nessun .dot
+    finisce tra le risorse); gli .svg di attori non piu' presenti vengono rimossi
+  - rigenera un modello solo se il .qak (o lo script) e' piu' recente dei suoi diagrammi
+================================================================================
+*/
+def qakStatesScript = file('qakStateDiagram.py').exists() ? file('qakStateDiagram.py') : file('src/qakStateDiagram.py')
+def qakStatesDirOf  = { File m -> file("src/main/resources/${m.name - '.qak'}_states") }
+def qakStatesTmpOf  = { File m -> layout.buildDirectory.dir("qakStateDiagrams/${m.name - '.qak'}").get().asFile }
+def qakStatesFresh  = { File m ->
+    def svgs = (qakStatesDirOf(m).listFiles() ?: []).findAll { it.name.endsWith('.svg') }
+    !svgs.isEmpty() && svgs.every { it.lastModified() >= m.lastModified() &&
+                                    (!qakStatesScript.exists() || it.lastModified() >= qakStatesScript.lastModified()) }
+}
+
+tasks.register('qakStateDiagrams') {
+    group       = 'documentation'
+    description = 'Genera src/main/resources/<modello>_states/<attore>.svg con qakStateDiagram.py (richiede Graphviz)'
+    inputs.files(qakModels).withPropertyName('models')
+    if( qakStatesScript.exists() ) inputs.file(qakStatesScript).withPropertyName('script')
+    outputs.dirs(qakModels.files.collect { qakStatesDirOf(it) }).withPropertyName('stateDiagrams')
+    outputs.upToDateWhen { qakModels.files.every { File m -> qakStatesFresh(m) } }
+    onlyIf { qakStatesScript.exists() }
+    doLast {
+        def python = project.findProperty('qakPython') ?:
+                     (System.getProperty('os.name').toLowerCase().contains('windows') ? 'python' : 'python3')
+        qakModels.files.each { File m ->
+            if( qakStatesFresh(m) ){
+                logger.lifecycle("qakStateDiagrams | diagrammi di ${m.name} gia' aggiornati")
+                return
+            }
+            File tmp = qakStatesTmpOf(m)
+            project.delete(tmp)
+            tmp.mkdirs()
+            try {
+                def res = project.exec {
+                    commandLine python, qakStatesScript.absolutePath, m.absolutePath, '-o', tmp.absolutePath, '--format', 'svg'
+                    ignoreExitValue = true
+                }
+                def svgs = (tmp.listFiles() ?: []).findAll { it.name.endsWith('.svg') }
+                if( res.exitValue != 0 || svgs.isEmpty() ){
+                    logger.warn("qakStateDiagrams | ATTENZIONE: nessun diagramma per ${m.name} " +
+                                "(codice ${res.exitValue}; Graphviz 'dot' nel PATH? Python? -PqakPython=...)")
+                    return
+                }
+                File dest = qakStatesDirOf(m)
+                project.delete( (dest.listFiles() ?: []).findAll { it.name.endsWith('.svg') } )
+                project.copy { from tmp; include '*.svg'; into dest }
+                logger.lifecycle("qakStateDiagrams | ${m.name} -> ${dest.name}/ " + svgs*.name.sort().join(', '))
+            } catch( Exception e ){
+                logger.warn("qakStateDiagrams | ATTENZIONE: impossibile eseguire '${python}' (${e.message}); diagrammi di ${m.name} non aggiornati")
+            }
+        }
+    }
+}
+tasks.named('processResources') { dependsOn 'qakStateDiagrams' }
+eclipse { synchronizationTasks 'qakFigures', 'qakStateDiagrams' }
 
 task dovesiamo {
     println("projectDir= $projectDir")  

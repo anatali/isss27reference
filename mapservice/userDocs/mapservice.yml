@@ -1,0 +1,64 @@
+# mapservice.yml
+# Da copiare in <radice del repository>/.github/workflows/mapservice.yml
+# Ipotesi (come per firstprj27): il repository contiene le cartelle mapservice/ e unibolibs/.
+#
+#  - 'test'           : test unitari (R3). Se falliscono, la PR non si può unire
+#                       (con la protezione del ramo main attiva).
+#  - 'acceptanceTest' : test di accettazione R6, attesi ROSSI durante l'analisi:
+#                       non bloccano la PR, ma il loro stato compare nel report.
+
+name: Build mapservice
+
+on:
+  push:
+    branches: [ "main" ]
+    paths: [ 'mapservice/**', 'unibolibs/**', '.github/workflows/mapservice.yml' ]
+  pull_request:
+    paths: [ 'mapservice/**', 'unibolibs/**', '.github/workflows/mapservice.yml' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    defaults:
+      run:
+        working-directory: mapservice
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        dependency-graph: disabled
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build e test unitari
+      run: ./gradlew build
+
+    - name: Test di accettazione (attesi rossi in analisi)
+      run: ./gradlew acceptanceTest
+
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v4
+      if: always()
+      with:
+        report_paths: 'mapservice/build/test-results/**/TEST-*.xml'
+        detailed_summary: true
+        include_passed: true
+
+    - name: Upload HTML Test Reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mapservice-test-reports
+        path: mapservice/build/reports/tests/

@@ -1,0 +1,5 @@
+Pagine HTML servite dal Context qak (QakHttp).
+Una pagina P.html posta in questa directory e' raggiungibile come
+    http://<host>:<porta del Context>/P.html
+e puo' comunicare con gli attori del Context via WebSocket:
+    ws://<host>:<porta>/<context>/<attore>?client=<nome pagina>&id=<msgId>

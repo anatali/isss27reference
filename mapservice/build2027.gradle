@@ -1,0 +1,320 @@
+/*
+================================================================================
+build2027.gradle
+GENERATED ONLY ONCE
+================================================================================
+*/
+plugins {
+    // Apply the application plugin to add support for building a CLI application in Java.
+    id 'application'
+    id 'java'
+    id 'eclipse'
+
+    // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
+    id "org.jetbrains.kotlin.jvm" version "1.9.22"
+}
+
+version '1.0'
+ 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+kotlin {
+  jvmToolchain {
+    languageVersion.set(JavaLanguageVersion.of("17"))
+  }
+}
+
+repositories {
+    mavenCentral()
+    flatDir {   dirs '../unibolibs'	 }
+}
+ 
+dependencies {
+    // Align versions of all Kotlin components
+    implementation platform('org.jetbrains.kotlin:kotlin-bom')
+
+    // Use the Kotlin JDK 8 standard library.
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+    // This dependency is used by the application.
+    implementation 'com.google.guava:guava:30.1.1-jre'
+
+    // Use the Kotlin test library.
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+
+    // Use the Kotlin JUnit integration.
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.9.22"
+
+    /* COROUTINES ******************************************************************************* */
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "$kotlinVersion"   //, ext: 'pom'
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core-jvm', version: "$kotlinVersion"
+
+     /* HTTP ******************************************************************************** */
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+
+	//OkHttp library for websockets with Kotlin
+	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3' 
+	testImplementation group: 'com.squareup.okhttp3', name: 'mockwebserver', version: '4.9.3'
+
+    /*  MQTT *******************************************************************************  */
+    // https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3
+    implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
+
+    /* JSON ********************************************************************************* */
+    // https://mvnrepository.com/artifact/org.json/json
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation group: 'org.json', name: 'json', version: '20180130'
+
+    /* COAP ********************************************************************************* */
+    // https://mvnrepository.com/artifact/org.eclipse.californium/californium-core
+    implementation group: 'org.eclipse.californium', name: 'californium-core', version: '3.5.0'
+    // https://mvnrepository.com/artifact/org.eclipse.californium/californium-proxy2
+    implementation group: 'org.eclipse.californium', name: 'californium-proxy2', version: '3.5.0'
+
+    /* LOG4J ***************************************************************************** */    
+   implementation 'ch.qos.logback:logback-classic:1.2.11'  //vs.1.5.7     1.2.11 (app1.log ok)     1.4.11
+
+    //MONGODB
+    // https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver
+    implementation group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.14'
+
+    /* AIMA ****************************************** */
+ 	//PLANNER  
+    //implementation name: 'unibo.planner23-1.0'
+    //implementation group: 'com.googlecode.aima-java', name: 'aima-core', version: '3.0.0'
+
+    /* UNIBO *********************************************************************************/
+    implementation name: 'uniboInterfaces'
+    implementation name: '2p301'
+	implementation name: 'unibo.qakactor23-5.0'
+    implementation name: 'unibo.basicomm23-1.0'
+
+
+    
+    
+}
+
+eclipse {
+    classpath {
+        file {
+            whenMerged { classpath ->
+                // Aggiunge automaticamente la cartella delle classi compilate di Kotlin al Build Path di Eclipse
+                def kotlinClassesDir = file('build/classes/kotlin/main')
+                if (kotlinClassesDir.exists()) {
+                    classpath.entries.add(new org.gradle.plugins.ide.eclipse.model.Library(
+                        fileReference(kotlinClassesDir)
+                    ))
+                }else{
+                	System.out.println("no build/classes/kotlin/main")
+                }
+                // [Claude, Nov 2026] JUnit 4.13 prima di tutto: 2p301.jar contiene le classi di JUnit 4.9b2
+                // (il cui runner ignora @FixMethodOrder). Vale per le Run Configuration JUnit di Eclipse.
+                def junit = classpath.entries.findAll { it.hasProperty('path') && it.path ==~ /.*[\/\\]junit-4\.1[1-9][^\/\\]*\.jar/ }
+                classpath.entries.removeAll(junit)
+                classpath.entries.addAll(0, junit)
+            }
+        }
+    }
+}
+
+// Garantisce che il codice Kotlin venga compilato PRIMA dei test Java
+tasks.named('compileTestJava') {
+    dependsOn tasks.named('compileKotlin')
+}
+
+tasks.withType(Copy).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+application {
+    //Define the main class for the application.
+    mainClassName    = 'it.unibo.ctxmapservice.MainCtxmapserviceKt'
+}
+ 
+jar {
+    println("building jar")
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)  //per via di locgback.xml quando si usa spring
+    from sourceSets.main.allSource
+    from('./') {
+      include '*.pl'
+      include '*.json'
+    }
+    manifest {
+        attributes 'Main-Class': "$mainClassName"
+    }
+}
+
+test {
+    // Forza l'esecuzione sequenziale senza fork parallele problematiche
+    maxParallelForks = 1
+
+    // [Claude, Nov 2026] 2p301.jar (tuProlog) contiene le classi di JUnit 4.9b2: se precede junit-4.13
+    // nel classpath viene usato il runner di JUnit 4.9 (che ignora, ad es., @FixMethodOrder).
+    // Si mette davanti il jar di JUnit 4.11+ risolto da Gradle (testImplementation kotlin-test-junit).
+    classpath = sourceSets.test.runtimeClasspath.filter { it.name ==~ /junit-4\.1[1-9].*\.jar/ } + sourceSets.test.runtimeClasspath
+
+	// Forziamo Gradle a non considerare mai il task di test come UP-TO-DATE
+    outputs.upToDateWhen { false }
+       
+	// Configura quali eventi mostrare nei log
+    testLogging {
+        // Mostra gli eventi base pi� le eccezioni
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        
+        // Mostra i dettagli delle eccezioni in caso di fallimento
+        exceptionFormat "full"
+        showCauses true
+        showExceptions true
+        showStackTraces true
+        
+        // Mostra il tempo impiegato da ciascun test
+        showStandardStreams = true
+    }
+}
+
+/*
+================================================================================
+[Claude, Nov 2026] FIGURE DEI MODELLI QAK  (task qakFigures, gruppo documentation)
+--------------------------------------------------------------------------------
+Per ogni src/<modello>.qak genera src/main/resources/<modello>_arch.svg con qak2svg.py.
+La figura finisce cosi' tra le risorse (bin/main, build/resources/main, jar e immagine
+docker) e la pagina del Context (QakHttp) la presenta in "Descrizione grafica del sistema".
+  - eseguito prima di processResources (gradlew build, run, distTar, ...)
+  - in Eclipse: eseguito a ogni "Refresh Gradle Project" (eclipse.synchronizationTasks)
+    oppure a mano dalla vista Gradle Tasks -> documentation -> qakFigures
+  - rigenera solo le figure il cui .qak (o qak2svg.py) e' piu' recente della figura
+  - senza Python la build NON fallisce: un avviso e restano le figure gia' presenti
+  - interprete: -PqakPython=<comando> (default: python su Windows, python3 altrove)
+================================================================================
+*/
+def qakScript = file('qak2svg.py').exists() ? file('qak2svg.py') : file('src/qak2svg.py')
+def qakModels = fileTree('src') { include '*.qak' }
+def qakFigureOf = { File m -> file("src/main/resources/${m.name - '.qak'}_arch.svg") }
+
+tasks.register('qakFigures') {
+    group       = 'documentation'
+    description = 'Genera src/main/resources/<modello>_arch.svg da src/<modello>.qak con qak2svg.py'
+    inputs.files(qakModels).withPropertyName('models')
+    if( qakScript.exists() ) inputs.file(qakScript).withPropertyName('script')
+    outputs.files(qakModels.files.collect { qakFigureOf(it) }).withPropertyName('figures')
+    //se una generazione e' fallita (es. Python assente) la figura resta piu' vecchia del .qak:
+    //il task non deve risultare UP-TO-DATE, cosi' riprova alla build successiva
+    outputs.upToDateWhen { qakModels.files.every { File m -> qakFigureOf(m).lastModified() >= m.lastModified() } }
+    onlyIf { qakScript.exists() }
+    doLast {
+        def python = project.findProperty('qakPython') ?:
+                     (System.getProperty('os.name').toLowerCase().contains('windows') ? 'python' : 'python3')
+        qakModels.files.each { File m ->
+            File out = qakFigureOf(m)
+            if( out.exists() && out.lastModified() >= m.lastModified() && out.lastModified() >= qakScript.lastModified() ){
+                logger.lifecycle("qakFigures | ${out.name} gia' aggiornata")
+                return
+            }
+            try {
+                def res = project.exec {
+                    commandLine python, qakScript.absolutePath, m.absolutePath, '-o', out.absolutePath
+                    ignoreExitValue = true
+                }
+                if( res.exitValue == 0 ) logger.lifecycle("qakFigures | ${m.name} -> ${out.name}")
+                else logger.warn("qakFigures | ATTENZIONE: qak2svg.py terminato con codice ${res.exitValue} per ${m.name} (Python installato? -PqakPython=...)")
+            } catch( Exception e ){
+                logger.warn("qakFigures | ATTENZIONE: impossibile eseguire '${python}' (${e.message}); figura di ${m.name} non aggiornata")
+            }
+        }
+    }
+}
+tasks.named('processResources') { dependsOn 'qakFigures' }
+
+/*
+================================================================================
+[Claude, Nov 2026] DIAGRAMMI DEGLI STATI DEI QACTOR  (task qakStateDiagrams)
+--------------------------------------------------------------------------------
+Stesso schema di qakFigures: per ogni src/<modello>.qak, qakStateDiagram.py produce un
+diagramma per ogni QActor, copiato in src/main/resources/<modello>_states/<attore>.svg
+(la pagina del Context li presenta in "Descrizione grafica del sistema").
+  - richiede Python e Graphviz (comando 'dot' nel PATH): senza, avviso e la build continua
+  - si genera in build/qakStateDiagrams/<modello> e si copiano solo gli .svg (nessun .dot
+    finisce tra le risorse); gli .svg di attori non piu' presenti vengono rimossi
+  - rigenera un modello solo se il .qak (o lo script) e' piu' recente dei suoi diagrammi
+================================================================================
+*/
+def qakStatesScript = file('qakStateDiagram.py').exists() ? file('qakStateDiagram.py') : file('src/qakStateDiagram.py')
+def qakStatesDirOf  = { File m -> file("src/main/resources/${m.name - '.qak'}_states") }
+def qakStatesTmpOf  = { File m -> layout.buildDirectory.dir("qakStateDiagrams/${m.name - '.qak'}").get().asFile }
+def qakStatesFresh  = { File m ->
+    def svgs = (qakStatesDirOf(m).listFiles() ?: []).findAll { it.name.endsWith('.svg') }
+    !svgs.isEmpty() && svgs.every { it.lastModified() >= m.lastModified() &&
+                                    (!qakStatesScript.exists() || it.lastModified() >= qakStatesScript.lastModified()) }
+}
+
+tasks.register('qakStateDiagrams') {
+    group       = 'documentation'
+    description = 'Genera src/main/resources/<modello>_states/<attore>.svg con qakStateDiagram.py (richiede Graphviz)'
+    inputs.files(qakModels).withPropertyName('models')
+    if( qakStatesScript.exists() ) inputs.file(qakStatesScript).withPropertyName('script')
+    outputs.dirs(qakModels.files.collect { qakStatesDirOf(it) }).withPropertyName('stateDiagrams')
+    outputs.upToDateWhen { qakModels.files.every { File m -> qakStatesFresh(m) } }
+    onlyIf { qakStatesScript.exists() }
+    doLast {
+        def python = project.findProperty('qakPython') ?:
+                     (System.getProperty('os.name').toLowerCase().contains('windows') ? 'python' : 'python3')
+        qakModels.files.each { File m ->
+            if( qakStatesFresh(m) ){
+                logger.lifecycle("qakStateDiagrams | diagrammi di ${m.name} gia' aggiornati")
+                return
+            }
+            File tmp = qakStatesTmpOf(m)
+            project.delete(tmp)
+            tmp.mkdirs()
+            try {
+                def res = project.exec {
+                    commandLine python, qakStatesScript.absolutePath, m.absolutePath, '-o', tmp.absolutePath, '--format', 'svg'
+                    ignoreExitValue = true
+                }
+                def svgs = (tmp.listFiles() ?: []).findAll { it.name.endsWith('.svg') }
+                if( res.exitValue != 0 || svgs.isEmpty() ){
+                    logger.warn("qakStateDiagrams | ATTENZIONE: nessun diagramma per ${m.name} " +
+                                "(codice ${res.exitValue}; Graphviz 'dot' nel PATH? Python? -PqakPython=...)")
+                    return
+                }
+                File dest = qakStatesDirOf(m)
+                project.delete( (dest.listFiles() ?: []).findAll { it.name.endsWith('.svg') } )
+                project.copy { from tmp; include '*.svg'; into dest }
+                logger.lifecycle("qakStateDiagrams | ${m.name} -> ${dest.name}/ " + svgs*.name.sort().join(', '))
+            } catch( Exception e ){
+                logger.warn("qakStateDiagrams | ATTENZIONE: impossibile eseguire '${python}' (${e.message}); diagrammi di ${m.name} non aggiornati")
+            }
+        }
+    }
+}
+tasks.named('processResources') { dependsOn 'qakStateDiagrams' }
+eclipse { synchronizationTasks 'qakFigures', 'qakStateDiagrams' }
+
+task dovesiamo {
+    println("projectDir= $projectDir")  
+    println("buildDir  = $buildDir")    
+}
+
+distributions {
+    main {
+        distributionBaseName = 'mapservice'
+        contents { 
+             from './mapservice.pl'
+             from './sysRules.pl'
+        }
+    }
+} 
+
+task run0(type: JavaExec) {
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'it.unibo.ctxmapservice.MainCtxmapserviceKt'
+}
+
