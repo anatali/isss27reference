@@ -1,0 +1,24 @@
+LABEL
+
+gh label create "nome-label" \
+  --repo <owner>/<repo> \
+  --description "Descrizione opzionale" \
+  --color "0e8a16"
+
+COMMENTO A ISSUE
+
+gh issue comment <numero-issue> \
+  --repo <owner>/<repo> \
+  --body "Testo del commento relativo al requisito."
+
+
+# Da file di testo
+gh issue comment <numero-issue> --repo <owner>/<repo> --body-file commento.md
+
+# Oppure apre il tuo editor predefinito
+gh issue comment <numero-issue> --repo <owner>/<repo> --editor
+
+
+CREAZIONE DOMANDA
+
+gh issue create --repo <owner>/<repo> --template "domanda-committente.md" --title "D1 · ..."
