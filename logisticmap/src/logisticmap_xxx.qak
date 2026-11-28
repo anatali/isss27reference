@@ -7,7 +7,7 @@ RequestSynch  checkloc : check(V)
 ReplyToSynch checklocreply : answer(V) for checkloc
 
 Context ctxlogisticmap ip [ host="localhost" port=8080 ]
-  
+   
    
 QActor a0 context ctxlogisticmap{
 	[# var reqsynchresult: Boolean = false #]

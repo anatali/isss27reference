@@ -294,7 +294,51 @@ tasks.register('qakStateDiagrams') {
     }
 }
 tasks.named('processResources') { dependsOn 'qakStateDiagrams' }
-eclipse { synchronizationTasks 'qakFigures', 'qakStateDiagrams' }
+
+/*
+================================================================================
+[Claude, Nov 2026] DIAGRAMMA DI SEQUENZA  (task 	)
+--------------------------------------------------------------------------------
+Stesso schema di qakFigures: per ogni src/<modello>.qak, qakSequenceDiag.py simula una
+esecuzione possibile del sistema e produce src/main/resources/<modello>_seq.svg
+(diagramma di sequenza in stile UML). Solo Python, nessuna dipendenza da Graphviz.
+  - opzioni dello script: -PqakSeqArgs="--steps 120 --else attore.stato ..."
+  - senza Python la build NON fallisce: un avviso e resta la figura gia' presente
+================================================================================
+*/
+def qakSeqScript = file('qakSequenceDiag.py').exists() ? file('qakSequenceDiag.py') : file('src/qakSequenceDiag.py')
+def qakSeqOf = { File m -> file("src/main/resources/${m.name - '.qak'}_seq.svg") }
+
+tasks.register('qakSequenceDiagrams') {
+    group       = 'documentation'
+    description = 'Genera src/main/resources/<modello>_seq.svg (diagramma di sequenza) con qakSequenceDiag.py'
+    inputs.files(qakModels).withPropertyName('models')
+    if( qakSeqScript.exists() ) inputs.file(qakSeqScript).withPropertyName('script')
+    outputs.files(qakModels.files.collect { qakSeqOf(it) }).withPropertyName('seqDiagrams')
+    outputs.upToDateWhen { qakModels.files.every { File m -> qakSeqOf(m).lastModified() >= m.lastModified() } }
+    onlyIf { qakSeqScript.exists() }
+    doLast {
+        def python = project.findProperty('qakPython') ?:
+                     (System.getProperty('os.name').toLowerCase().contains('windows') ? 'python' : 'python3')
+        def extra = (project.findProperty('qakSeqArgs') ?: '').toString().tokenize(' ')
+        qakModels.files.each { File m ->
+            File out = qakSeqOf(m)
+            if( out.exists() && out.lastModified() >= m.lastModified() && out.lastModified() >= qakSeqScript.lastModified() ) return
+            try {
+                def res = project.exec {
+                    commandLine([python, qakSeqScript.absolutePath, m.absolutePath, '-o', out.absolutePath] + extra)
+                    ignoreExitValue = true
+                }
+                if( res.exitValue == 0 ) logger.lifecycle("qakSequenceDiagrams | ${m.name} -> ${out.name}")
+                else logger.warn("qakSequenceDiagrams | ATTENZIONE: codice ${res.exitValue} per ${m.name}")
+            } catch( Exception e ){
+                logger.warn("qakSequenceDiagrams | ATTENZIONE: impossibile eseguire '${python}' (${e.message})")
+            }
+        }
+    }
+}
+tasks.named('processResources') { dependsOn 'qakSequenceDiagrams' }
+eclipse { synchronizationTasks 'qakFigures', 'qakStateDiagrams', 'qakSequenceDiagrams' }
 
 task dovesiamo {
     println("projectDir= $projectDir")  
